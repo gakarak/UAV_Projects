@@ -15,18 +15,19 @@ PROJECT(TrajectoryVisualizer)
 
 set( TARGET_0 "TrajectoryVisualizer" )
 
-set(CMAKE_BUILD_TYPE "Release")
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
-    #set(CMAKE_BUILD_TYPE "Debug")
-endif()
+#set(CMAKE_BUILD_TYPE "Release")
+#if(NOT CMAKE_BUILD_TYPE)
+#    set(CMAKE_BUILD_TYPE "Release")
+#    #set(CMAKE_BUILD_TYPE "Debug")
+#endif()
 
 set(PLATFORM "x32")
 if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
     set(PLATFORM "x64")
 endif()
 
-set(BUILD_PREFIX "${CMAKE_BUILD_TYPE}_${PLATFORM}")
+#set(BUILD_PREFIX "${CMAKE_BUILD_TYPE}_${PLATFORM}")
+set(BUILD_PREFIX "${PLATFORM}")
 message("build prefix=[${BUILD_PREFIX}]")
 
 ################################
