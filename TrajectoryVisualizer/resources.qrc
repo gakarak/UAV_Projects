@@ -1,0 +1,27 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>img/add.png</file>
+        <file>img/dialog-no-x48.png</file>
+        <file>img/dialog-yes-x48.png</file>
+        <file>img/eip_160x160.png</file>
+        <file>img/emblem-favorite.png</file>
+        <file>img/emblem-important.png</file>
+        <file>img/emblem-nofavorite.png</file>
+        <file>img/exit.png</file>
+        <file>img/face-monkey.png</file>
+        <file>img/folder-drag-accept.png</file>
+        <file>img/folder-drag-disable.png</file>
+        <file>img/folder-drag-open.png</file>
+        <file>img/folder_new.png</file>
+        <file>img/info.png</file>
+        <file>img/kfind.png</file>
+        <file>img/khelpcenter.png</file>
+        <file>img/preferences-system.png</file>
+        <file>img/reload.png</file>
+        <file>img/remove.png</file>
+        <file>img/status-rec.png</file>
+        <file>img/undo.png</file>
+        <file>img/view-fullscreen.png</file>
+        <file>img/zoom-fit.png</file>
+    </qresource>
+</RCC>
