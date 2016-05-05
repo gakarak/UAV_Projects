@@ -21,7 +21,7 @@ namespace utils{
 
             if (!input)
             {
-                throw std::runtime_error("read_csv: file doesn't exist");
+                throw std::runtime_error("read_csv: file '" + filename + "' doesn't exist");
             }
 
             std::vector<std::vector<std::string>> result;

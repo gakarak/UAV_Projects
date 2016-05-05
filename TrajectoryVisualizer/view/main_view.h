@@ -51,6 +51,8 @@ namespace viewpkg
         void setMouseScenePosition(QPointF pos);
         void setZoom(double zoom);
 
+        void showException(QString what);
+
     private slots:
         void on_load_btn_clicked();
         void on_clear_btn_clicked();

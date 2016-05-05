@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <QGraphicsItemGroup>
+#include <QMessageBox>
 #include <QDebug>
 #include <QPen>
 
@@ -167,4 +168,9 @@ void viewpkg::MainView::on_is_key_point_show_chk_toggled(bool checked)
 {
     scene.getFirstTrajectory().setKeyPointsVisible(checked);
     scene.getSecondTrajectory().setKeyPointsVisible(checked);
+}
+
+void MainView::showException(QString what)
+{
+    QMessageBox::critical(this, "Error", what, QMessageBox::Ok, QMessageBox::Default);
 }

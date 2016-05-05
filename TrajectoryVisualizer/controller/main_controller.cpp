@@ -47,6 +47,7 @@ void MainController::loadTrajectories(string trj1_filename, string trj2_filename
 
 void MainController::loadMainMap(string filename)
 {
+    //bad show
     model->main_map = modelpkg::Map(filename, 815, 857.875, 0, 2.7958833);
     this->showMainMap();
 }
@@ -168,6 +169,11 @@ void MainController::showSecondKeyPoints()
     view->setSecondKeyPoints(maps_num, center_coords_px, angles, radius, colors);
 }
 
+void MainController::showException(string what)
+{
+    view->showException(QString::fromStdString(what));
+}
+
 /*
  * PRIVATE SECTION
  */
@@ -175,16 +181,25 @@ void MainController::showSecondKeyPoints()
 Trajectory MainController::loadTrjFromCsv(string csv_filename)
 {
     Trajectory trj;
-    auto parsed_csv = utils::csvtools::read_csv(csv_filename);
+    try
+    {
+        auto parsed_csv = utils::csvtools::read_csv(csv_filename);
 
-    for (auto row : parsed_csv){
-        if (row[0] == "Path")
-        {//column names
-            continue;
+        for (auto row : parsed_csv)
+        {
+            if (row[0] == "Path")
+            {//column names
+                continue;
+            }
+            Map map = loadMapFromRow(row);
+            trj.maps.push_back(map);
         }
-        Map map = loadMapFromRow(row);
-        trj.maps.push_back(map);
     }
+    catch (runtime_error er)
+    {
+        showException(er.what());
+    }
+
 
     return trj;
 }

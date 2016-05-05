@@ -29,6 +29,8 @@ namespace controllerpkg
         void setView(std::shared_ptr<viewpkg::MainView> view)       { this->view = view; }
         void setModel(std::shared_ptr<modelpkg::MainModel> model)   { this->model = model; }
 
+        void showException(std::string what);
+
     private:
 
 
