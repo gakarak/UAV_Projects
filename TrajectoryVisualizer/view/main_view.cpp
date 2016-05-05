@@ -8,6 +8,7 @@
 #include <QPen>
 
 #include "controller/main_controller.h"
+#include "config_singleton.h"
 
 using namespace std;
 using namespace viewpkg;
@@ -99,7 +100,7 @@ void MainView::on_load_btn_clicked()
     string trj1_filename = ui->first_traj_edit->text().trimmed().toStdString();
     string trj2_filename = ui->second_traj_edit->text().trimmed().toStdString();
 
-    controller->loadMainMap("/home/pisarik/datasets/maps/my_set/yandex_roi_z16.png");
+    controller->loadMainMap("/home/pisarik/datasets/maps/my_set/yandex_roi_z16.png", 815, 857.875, 2.7958833);
     controller->loadTrajectories(trj1_filename, trj2_filename);
 
     ui->calculate_btn->setEnabled(true);
@@ -173,4 +174,9 @@ void viewpkg::MainView::on_is_key_point_show_chk_toggled(bool checked)
 void MainView::showException(QString what)
 {
     QMessageBox::critical(this, "Error", what, QMessageBox::Ok, QMessageBox::Default);
+}
+void viewpkg::MainView::on_load_ini_btn_clicked()
+{
+    string ini_filename = ui->ini_edit->text().trimmed().toStdString();
+    controller->loadIni(ini_filename);
 }

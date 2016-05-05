@@ -67,6 +67,8 @@ namespace viewpkg
 
         void on_is_key_point_show_chk_toggled(bool checked);
 
+        void on_load_ini_btn_clicked();
+
     private://for statusBar
         void updateStatusBar();
         QPointF mouse_scene_pos_m;

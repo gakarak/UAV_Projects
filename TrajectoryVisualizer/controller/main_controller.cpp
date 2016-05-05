@@ -11,6 +11,7 @@
 
 #include "utils/acmopencv.h"
 #include "utils/csv.h"
+#include "config_singleton.h"
 
 using namespace std;
 using namespace modelpkg;
@@ -36,6 +37,20 @@ void MainController::calculateKeyPoints()
     this->showSecondKeyPoints();
 }
 
+void MainController::loadIni(string ini_filename)
+{
+    ConfigSingleton::getInstance().path_to_ini = QString::fromStdString(ini_filename);
+
+    QSettings ini(ConfigSingleton::getInstance().path_to_ini, QSettings::IniFormat);
+
+    loadTrajectories(ini.value("Trajectory1/path_to_csv").toString().toStdString(),
+                     ini.value("Trajectory2/path_to_csv").toString().toStdString());
+    loadMainMap(ini.value("Map/path_to_img").toString().toStdString(),
+                ini.value("Map/center_x_m").toDouble(),
+                ini.value("Map/center_y_m").toDouble(),
+                ini.value("Map/meters_per_pixel").toDouble());
+}
+
 void MainController::loadTrajectories(string trj1_filename, string trj2_filename)
 {
     model->first_trj = loadTrjFromCsv(trj1_filename);
@@ -45,10 +60,10 @@ void MainController::loadTrajectories(string trj1_filename, string trj2_filename
     this->showSecondTrajectory();
 }
 
-void MainController::loadMainMap(string filename)
+void MainController::loadMainMap(string filename, double center_x_m, double center_y_m, double meters_per_pixel)
 {
     //bad show
-    model->main_map = modelpkg::Map(filename, 815, 857.875, 0, 2.7958833);
+    model->main_map = modelpkg::Map(filename, center_x_m, center_y_m, 0, meters_per_pixel);
     this->showMainMap();
 }
 
