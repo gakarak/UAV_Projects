@@ -39,16 +39,15 @@ void MainController::calculateKeyPoints()
 
 void MainController::loadIni(string ini_filename)
 {
-    ConfigSingleton::getInstance().path_to_ini = QString::fromStdString(ini_filename);
+    ConfigSingleton &cfg = ConfigSingleton::getInstance();
+    cfg.loadIni(ini_filename);
 
-    QSettings ini(ConfigSingleton::getInstance().path_to_ini, QSettings::IniFormat);
+    loadTrajectories(cfg.getPathToFirstTrajectoryCsv(),
+                     cfg.getPathToSecondTrajectoryCsv());
 
-    loadTrajectories(ini.value("Trajectory1/path_to_csv").toString().toStdString(),
-                     ini.value("Trajectory2/path_to_csv").toString().toStdString());
-    loadMainMap(ini.value("Map/path_to_img").toString().toStdString(),
-                ini.value("Map/center_x_m").toDouble(),
-                ini.value("Map/center_y_m").toDouble(),
-                ini.value("Map/meters_per_pixel").toDouble());
+
+    loadMainMap(cfg.getPathToMapCsv(),
+                cfg.getMapMetersPerPixel());
 }
 
 void MainController::loadTrajectories(string trj1_filename, string trj2_filename)
@@ -60,10 +59,14 @@ void MainController::loadTrajectories(string trj1_filename, string trj2_filename
     this->showSecondTrajectory();
 }
 
-void MainController::loadMainMap(string filename, double center_x_m, double center_y_m, double meters_per_pixel)
+void MainController::loadMainMap(string filename, double meters_per_pixel)
 {
-    //bad show
-    model->main_map = modelpkg::Map(filename, center_x_m, center_y_m, 0, meters_per_pixel);
+    model->main_map = modelpkg::Map(filename, 0, 0, 0, meters_per_pixel);
+
+    double center_x_m = model->main_map.image.cols / 2.0 * meters_per_pixel;
+    double center_y_m = model->main_map.image.rows / 2.0 * meters_per_pixel;
+    model->main_map.pos_m = cv::Point2f(center_x_m, center_y_m);
+
     this->showMainMap();
 }
 

@@ -100,7 +100,7 @@ void MainView::on_load_btn_clicked()
     string trj1_filename = ui->first_traj_edit->text().trimmed().toStdString();
     string trj2_filename = ui->second_traj_edit->text().trimmed().toStdString();
 
-    controller->loadMainMap("/home/pisarik/datasets/maps/my_set/yandex_roi_z16.png", 815, 857.875, 2.7958833);
+    controller->loadMainMap("/home/pisarik/datasets/maps/my_set/yandex_roi_z16.png", 2.7958833);
     controller->loadTrajectories(trj1_filename, trj2_filename);
 
     ui->calculate_btn->setEnabled(true);

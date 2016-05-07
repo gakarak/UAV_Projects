@@ -19,7 +19,7 @@ namespace controllerpkg
 
         void loadIni(std::string ini_filename);
         void loadTrajectories(std::string trj1_filename, std::string trj2_filename);
-        void loadMainMap(std::string filename, double center_x_m, double center_y_m, double meters_per_pixel);
+        void loadMainMap(std::string filename, double meters_per_pixel);
 
         void showFirstTrajectory();
         void showSecondTrajectory();
