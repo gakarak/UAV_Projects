@@ -179,4 +179,6 @@ void viewpkg::MainView::on_load_ini_btn_clicked()
 {
     string ini_filename = ui->ini_edit->text().trimmed().toStdString();
     controller->loadIni(ini_filename);
+
+    ui->calculate_btn->setEnabled(true);
 }
