@@ -1,6 +1,5 @@
 #include "main_controller.h"
 
-#include <iostream>
 #include <vector>
 #include <cstdlib>
 
@@ -197,7 +196,6 @@ void MainController::showSecondKeyPoints()
 
 void MainController::showException(string what)
 {
-    clog << "Exception! " << what << endl;
     view->showException(QString::fromStdString(what));
 }
 
