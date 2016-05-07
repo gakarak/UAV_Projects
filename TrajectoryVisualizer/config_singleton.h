@@ -53,8 +53,6 @@ private:
     std::string path_to_trj2_csv;
 
     double      common_m_per_px;
-
-    std::vector<std::string> required_fields;
 };
 
 #endif // CONFIG_SINGLETON_H
