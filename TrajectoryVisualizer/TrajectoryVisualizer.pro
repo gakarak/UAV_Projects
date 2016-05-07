@@ -42,7 +42,8 @@ HEADERS  += \
     view/graphics_trajectory_item.h \
     view/graphics_direction_item.h \
     view/graphics_keypoint_item.h \
-    config_singleton.h
+    config_singleton.h \
+    utils/gradient_density.h
 
 INCLUDEPATH += /home/ar/dev/opencv-3.1/include #/home/pisarik/Libs/opencv-3.1.0-build-debug/include
 LIBS += -L/home/ar/dev/opencv-3.1/lib \ #/home/pisarik/Libs/opencv-3.1.0-build-debug/lib \

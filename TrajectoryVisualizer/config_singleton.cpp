@@ -61,4 +61,16 @@ void ConfigSingleton::loadIni(string path_to_ini)
         //throw Exception("ini file doesn't contain the key: Common/meters_per_pixel");
     }
 
+    if (ini.contains("Common/gradient_meters_per_pixel"))
+    {
+        gradient_m_per_px = ini.value("Common/gradient_meters_per_pixel").toDouble();
+    }
+    else
+    {
+        gradient_m_per_px = 4;
+        clog << "Common meters per pixel for gradient missed in '" + path_to_ini + "'" << endl;
+        clog << "Common meters per pixel for gradient default value " << gradient_m_per_px << endl;
+        //throw Exception("ini file doesn't contain the key: Common/gradient_meters_per_pixel");
+    }
+
 }

@@ -33,6 +33,7 @@ public:
     std::string getPathToSecondTrajectoryCsv()  { return path_to_trj2_csv; }
 
     double      getCommonMetersPerPixel()       { return common_m_per_px; }
+    double      getGradientMetersPerPixel()     { return gradient_m_per_px; }
 
     //exceptions
     class Exception: public std::runtime_error
@@ -53,6 +54,7 @@ private:
     std::string path_to_trj2_csv;
 
     double      common_m_per_px;
+    double      gradient_m_per_px;
 };
 
 #endif // CONFIG_SINGLETON_H

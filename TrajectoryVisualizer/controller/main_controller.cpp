@@ -12,6 +12,7 @@
 
 #include "utils/acmopencv.h"
 #include "utils/csv.h"
+#include "utils/gradient_density.h"
 #include "config_singleton.h"
 
 using namespace std;
@@ -63,6 +64,7 @@ void MainController::loadTrajectories(string trj1_filename, string trj2_filename
     model->first_trj = loadTrjFromCsv(trj1_filename);
     model->second_trj = loadTrjFromCsv(trj2_filename);
 
+    this->calculateMapsQuality();
     this->showFirstTrajectory();
     this->showSecondTrajectory();
 }
@@ -204,6 +206,38 @@ void MainController::showException(string what)
 /*
  * PRIVATE SECTION
  */
+
+void MainController::calculateMapsQuality()
+{
+    //first trajectory
+    for (const auto& map: model->first_trj.maps)
+    {
+        double scale = map.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
+        cv::Size new_size(map.image.size().width * scale, map.image.size().height * scale);
+
+        cv::Mat resized;
+        cv::resize(map.image, resized, new_size);
+
+        double quality = utils::cv::gradientDensity(resized);
+
+        model->first_trj.map_quality.push_back(quality);
+    }
+
+    //second trajectory
+    for (const auto& map: model->second_trj.maps)
+    {
+        double scale = map.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
+        cv::Size new_size(map.image.size().width * scale, map.image.size().height * scale);
+
+        cv::Mat resized;
+        cv::resize(map.image, resized, new_size);
+
+        double quality = utils::cv::gradientDensity(resized);
+
+        model->second_trj.map_quality.push_back(quality);
+    }
+
+}
 
 Trajectory MainController::loadTrjFromCsv(string csv_filename)
 {

@@ -33,7 +33,7 @@ namespace controllerpkg
         void showException(std::string what);
 
     private:
-
+        void                    calculateMapsQuality();
 
         //params - filename, x_m, y_m, angle, m_per_px
         modelpkg::Map           loadMapFromRow(std::vector<std::string> params);

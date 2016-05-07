@@ -15,6 +15,7 @@ namespace modelpkg
 
         std::vector<Map> maps;
         std::vector<std::vector<cv::KeyPoint>> key_points;
+        std::vector<double> map_quality;
     };
 
 }
