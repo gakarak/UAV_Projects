@@ -40,14 +40,21 @@ void MainController::calculateKeyPoints()
 void MainController::loadIni(string ini_filename)
 {
     ConfigSingleton &cfg = ConfigSingleton::getInstance();
-    cfg.loadIni(ini_filename);
+    try
+    {
+        cfg.loadIni(ini_filename);
 
-    loadTrajectories(cfg.getPathToFirstTrajectoryCsv(),
-                     cfg.getPathToSecondTrajectoryCsv());
+        loadTrajectories(cfg.getPathToFirstTrajectoryCsv(),
+                         cfg.getPathToSecondTrajectoryCsv());
 
 
-    loadMainMap(cfg.getPathToMapCsv(),
-                cfg.getMapMetersPerPixel());
+        loadMainMap(cfg.getPathToMapCsv(),
+                    cfg.getMapMetersPerPixel());
+    }
+    catch (ConfigSingleton::Exception &e)
+    {
+        this->showException(e.what());
+    }
 }
 
 void MainController::loadTrajectories(string trj1_filename, string trj2_filename)
