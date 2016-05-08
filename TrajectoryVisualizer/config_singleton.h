@@ -35,6 +35,7 @@ public:
     double      getCommonMetersPerPixel()       { return common_m_per_px; }
     double      getGradientMetersPerPixel()     { return gradient_m_per_px; }
 
+    double      getQualityThreshold()           { return quality_threshold; }
     //exceptions
     class Exception: public std::runtime_error
     {
@@ -55,6 +56,7 @@ private:
 
     double      common_m_per_px;
     double      gradient_m_per_px;
+    double      quality_threshold;
 };
 
 #endif // CONFIG_SINGLETON_H

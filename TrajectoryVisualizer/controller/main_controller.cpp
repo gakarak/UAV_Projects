@@ -209,6 +209,8 @@ void MainController::showException(string what)
 
 void MainController::calculateMapsQuality()
 {
+    double threshold = ConfigSingleton::getInstance().getQualityThreshold();
+
     //first trajectory
     for (const auto& map: model->first_trj.maps)
     {
@@ -218,7 +220,7 @@ void MainController::calculateMapsQuality()
         cv::Mat resized;
         cv::resize(map.image, resized, new_size);
 
-        double quality = utils::cv::gradientDensity(resized);
+        double quality = std::min( 1., utils::cv::gradientDensity(resized) / threshold );
 
         model->first_trj.map_quality.push_back(quality);
     }
@@ -232,7 +234,7 @@ void MainController::calculateMapsQuality()
         cv::Mat resized;
         cv::resize(map.image, resized, new_size);
 
-        double quality = utils::cv::gradientDensity(resized);
+        double quality = std::min( 1., utils::cv::gradientDensity(resized) / threshold );
 
         model->second_trj.map_quality.push_back(quality);
     }
