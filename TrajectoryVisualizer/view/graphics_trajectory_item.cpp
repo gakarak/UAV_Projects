@@ -1,5 +1,6 @@
 #include "graphics_trajectory_item.h"
 
+#include <QColor>
 #include <QDebug>
 
 #include "config_singleton.h"
@@ -24,7 +25,7 @@ GraphicsTrajectoryItem::GraphicsTrajectoryItem()
     this->addToGroup(&key_point_layer);
 }
 
-void GraphicsTrajectoryItem::pushBackMap(QPixmap map_img, QPointF center_coords_px, double angle, double meters_per_pixel)
+void GraphicsTrajectoryItem::pushBackMap(QPixmap map_img, QPointF center_coords_px, double angle, double meters_per_pixel, double quality)
 {
     double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
     //setup map item
@@ -45,7 +46,7 @@ void GraphicsTrajectoryItem::pushBackMap(QPixmap map_img, QPointF center_coords_
     orientations.push_back(orient_item);
     orientation_layer.addToGroup(orientations.back().get());
 
-    direction_layer.pushBackWayPoint(center_coords_px / (m_per_px / meters_per_pixel));
+    direction_layer.pushBackWayPoint(center_coords_px / (m_per_px / meters_per_pixel), QColor(int(255*(1-quality)), int(255*quality), 0));
 }
 
 void GraphicsTrajectoryItem::addKeyPoint(int map_num, QPointF center_px, double angle, double radius, QColor color)

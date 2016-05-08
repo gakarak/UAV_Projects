@@ -7,6 +7,7 @@
 #include <QGraphicsItemGroup>
 #include <QGraphicsEllipseItem>
 #include <QGraphicsLineItem>
+#include <QColor>
 
 namespace viewpkg
 {
@@ -16,7 +17,7 @@ namespace viewpkg
     public:
         GraphicsDirectionItem();
 
-        void pushBackWayPoint(QPointF scene_center_pos_px);
+        void pushBackWayPoint(QPointF scene_center_pos_px, QColor brush_color = QColor(0, 0, 0));
         void clear();
 
     private:

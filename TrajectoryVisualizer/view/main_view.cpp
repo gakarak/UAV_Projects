@@ -49,23 +49,25 @@ MainView::~MainView()
 }
 
 void MainView::setFirstTrajectory(const vector<QPixmap> &imgs, const vector<QPointF> center_coords_px,
-                                  const vector<double> &angles, const vector<double> &meters_per_pixels)
+                                  const vector<double> &angles, const vector<double> &meters_per_pixels,
+                                  const vector<double> &qualities)
 {
 
     scene.getFirstTrajectory().clear();
     for (int i = 0; i < imgs.size(); i++)
     {
-        scene.getFirstTrajectory().pushBackMap(imgs[i], center_coords_px[i], angles[i], meters_per_pixels[i]);
+        scene.getFirstTrajectory().pushBackMap(imgs[i], center_coords_px[i], angles[i], meters_per_pixels[i], qualities[i]);
     }
 }
 
 void MainView::setSecondTrajectory(const vector<QPixmap> &imgs, const vector<QPointF> center_coords_px,
-                                   const vector<double> &angles, const vector<double> &meters_per_pixels)
+                                   const vector<double> &angles, const vector<double> &meters_per_pixels,
+                                   const vector<double> &qualities)
 {
     scene.getSecondTrajectory().clear();
     for (int i = 0; i < imgs.size(); i++)
     {
-        scene.getSecondTrajectory().pushBackMap(imgs[i], center_coords_px[i], angles[i], meters_per_pixels[i]);
+        scene.getSecondTrajectory().pushBackMap(imgs[i], center_coords_px[i], angles[i], meters_per_pixels[i], qualities[i]);
     }
 }
 

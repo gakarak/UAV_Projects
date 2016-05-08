@@ -86,6 +86,7 @@ void MainController::showFirstTrajectory()
     vector<QPointF> center_coords_px;
     vector<double>  angles;
     vector<double>  meter_per_pixels;
+    vector<double> &qualities = model->first_trj.map_quality;
 
     for (const auto &map: model->first_trj.maps)
     {
@@ -99,7 +100,7 @@ void MainController::showFirstTrajectory()
         meter_per_pixels.push_back( map.m_per_px );
     }
 
-    view->setFirstTrajectory(qpixs, center_coords_px, angles, meter_per_pixels);
+    view->setFirstTrajectory(qpixs, center_coords_px, angles, meter_per_pixels, qualities);
 }
 
 void MainController::showSecondTrajectory()
@@ -108,6 +109,7 @@ void MainController::showSecondTrajectory()
     vector<QPointF> center_coords_px;
     vector<double>  angles;
     vector<double>  meter_per_pixels;
+    vector<double> &qualities = model->second_trj.map_quality;
 
     for (const auto &map: model->second_trj.maps)
     {
@@ -121,7 +123,7 @@ void MainController::showSecondTrajectory()
         meter_per_pixels.push_back( map.m_per_px );
     }
 
-    view->setSecondTrajectory(qpixs, center_coords_px, angles, meter_per_pixels);
+    view->setSecondTrajectory(qpixs, center_coords_px, angles, meter_per_pixels, qualities);
 }
 
 void MainController::showMainMap()

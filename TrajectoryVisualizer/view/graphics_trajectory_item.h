@@ -21,7 +21,7 @@ namespace viewpkg
     public:
         GraphicsTrajectoryItem();
 
-        void pushBackMap(QPixmap map_img, QPointF center_coords_px, double angle, double meters_per_pixel);
+        void pushBackMap(QPixmap map_img, QPointF center_coords_px, double angle, double meters_per_pixel, double quality);
         void addKeyPoint(int map_num, QPointF center_px, double angle, double radius, QColor color);
         void clear();
         void clearKeyPoints();
