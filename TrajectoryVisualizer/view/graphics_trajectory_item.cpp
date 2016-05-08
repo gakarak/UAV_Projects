@@ -2,11 +2,12 @@
 
 #include <QDebug>
 
+#include "config_singleton.h"
+
 using namespace viewpkg;
 using namespace std;
 
-GraphicsTrajectoryItem::GraphicsTrajectoryItem(double meters_per_pixel)
-    : m_per_px(meters_per_pixel)
+GraphicsTrajectoryItem::GraphicsTrajectoryItem()
 {
     trajectory_layer.setHandlesChildEvents(false);
 
@@ -25,6 +26,7 @@ GraphicsTrajectoryItem::GraphicsTrajectoryItem(double meters_per_pixel)
 
 void GraphicsTrajectoryItem::pushBackMap(QPixmap map_img, QPointF center_coords_px, double angle, double meters_per_pixel)
 {
+    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
     //setup map item
     shared_ptr<GraphicsMapItem> map_item = make_shared<GraphicsMapItem>(map_img);
 
@@ -81,6 +83,7 @@ void GraphicsTrajectoryItem::addKeyPoint(int map_num, QPointF center_px, double 
 
 void GraphicsTrajectoryItem::makeTransforms(shared_ptr<QGraphicsItem> item, QPointF item_center_px, QPointF scene_center_pos_px, double angle, double meters_per_pixel)
 {
+    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
     //old transformations set
     //because of translate from qt4.6 is obsolete
     //item->setTransform(QTransform::fromTranslate(-item_center_px.x(), -item_center_px.y()), false);

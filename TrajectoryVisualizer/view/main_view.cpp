@@ -91,8 +91,10 @@ void MainView::setSecondKeyPoints(const vector<int> &maps_num, const vector<QPoi
 
 void MainView::setMainMap(QPixmap map, double meter_per_pixel)
 {
+    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
+
     scene.getMainMap().setMapItem(map);
-    scene.getMainMap().setScale(  meter_per_pixel / scene.getMetersPerPixel() );
+    scene.getMainMap().setScale(  meter_per_pixel / m_per_px );
 }
 
 void MainView::on_load_btn_clicked()
@@ -136,9 +138,11 @@ void viewpkg::MainView::on_is_trajectory_show_chk_toggled(bool checked)
 
 void MainView::updateStatusBar()
 {
+    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
+
     QString position_str = QString("Position: (%1, %2) meters").arg(QString::number(mouse_scene_pos_m.x(), 'f', 3), QString::number(mouse_scene_pos_m.y(), 'f', 3));
     QString zoom_str = QString("Zoom: %1%").arg(QString::number(zoom*100));
-    QString meters_str = QString("Meters per pixel: %1").arg(QString::number(scene.getMetersPerPixel() / zoom));
+    QString meters_str = QString("Meters per pixel: %1").arg(QString::number(m_per_px / zoom));
     ui->statusBar->showMessage( QString("%3 | %2 | %1").arg(position_str, meters_str, zoom_str) );
 }
 

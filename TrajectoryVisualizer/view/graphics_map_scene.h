@@ -15,7 +15,7 @@ namespace viewpkg
     class GraphicsMapScene : public QGraphicsScene
     {
     public:
-        GraphicsMapScene(double m_per_px = 2);
+        GraphicsMapScene();
 
         void    setMainView(MainView *main_view)   { this->main_view = main_view;   }
 
@@ -28,7 +28,7 @@ namespace viewpkg
         const GraphicsTrajectoryItem&     getSecondTrajectory() const   { return trajectory2; }
         const GraphicsMapItem&            getMainMap() const            { return main_map; }
 
-        double                            getMetersPerPixel() const     { return m_per_px; }
+        //double                            getMetersPerPixel() const     { return m_per_px; }
     protected:
         void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 
@@ -40,7 +40,7 @@ namespace viewpkg
 
         GraphicsMapItem main_map;
 
-        double m_per_px;
+        //double m_per_px;
     };
 
 }

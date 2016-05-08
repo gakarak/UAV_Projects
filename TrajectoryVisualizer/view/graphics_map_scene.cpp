@@ -4,11 +4,12 @@
 #include <QGraphicsSceneMouseEvent>
 
 #include "main_view.h"
+#include "config_singleton.h"
 
 using namespace viewpkg;
 
-GraphicsMapScene::GraphicsMapScene(double m_per_px)
-    :  m_per_px(m_per_px), main_view(nullptr)
+GraphicsMapScene::GraphicsMapScene()
+    :  main_view(nullptr)
 {
     //trajectory1.setOrientationVisible(ui->is_orientation_show_chk->isChecked());
     //trajectory2.setOrientationVisible(ui->is_orientation_show_chk->isChecked());
@@ -24,6 +25,8 @@ GraphicsMapScene::GraphicsMapScene(double m_per_px)
 
 void GraphicsMapScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
+    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
+
     if (main_view)
     {
         main_view->setMouseScenePosition(event->scenePos() * m_per_px);

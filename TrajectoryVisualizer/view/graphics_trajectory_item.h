@@ -19,7 +19,7 @@ namespace viewpkg
     class GraphicsTrajectoryItem : public QGraphicsItemGroup
     {
     public:
-        GraphicsTrajectoryItem(double meters_per_pixel = 2);
+        GraphicsTrajectoryItem();
 
         void pushBackMap(QPixmap map_img, QPointF center_coords_px, double angle, double meters_per_pixel);
         void addKeyPoint(int map_num, QPointF center_px, double angle, double radius, QColor color);
@@ -31,7 +31,7 @@ namespace viewpkg
         void setDirectionVisible(bool is_visible);
         void setKeyPointsVisible(bool is_visible);
 
-        double getMetersPerPixel() const { return m_per_px; }
+        //double getMetersPerPixel() const { return m_per_px; }
 
     protected:
         void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
@@ -53,7 +53,7 @@ namespace viewpkg
 
         //std::vector<std::shared_ptr<QGraphicsEllipseItem>>
 
-        double m_per_px;
+        //double m_per_px;
     };
 
 }
