@@ -46,7 +46,9 @@ void GraphicsTrajectoryItem::pushBackMap(QPixmap map_img, QPointF center_coords_
     orientations.push_back(orient_item);
     orientation_layer.addToGroup(orientations.back().get());
 
-    direction_layer.pushBackWayPoint(center_coords_px / (m_per_px / meters_per_pixel), QColor(int(255*(1-quality)), int(255*quality), 0));
+    double red_mul = quality < 0.5? 1.: 2*quality - 1;
+    double green_mul = quality < 0.5? 2*quality: 1.;
+    direction_layer.pushBackWayPoint(center_coords_px / (m_per_px / meters_per_pixel), QColor(int(255*red_mul), int(255*green_mul), 0));
 }
 
 void GraphicsTrajectoryItem::addKeyPoint(int map_num, QPointF center_px, double angle, double radius, QColor color)
@@ -64,8 +66,6 @@ void GraphicsTrajectoryItem::addKeyPoint(int map_num, QPointF center_px, double 
     key_point->setAngle(angle);
     key_point->setColor(color);
 
-    //qDebug() << "pos " << item_center - map_center;
-
     key_point->setTransformOriginPoint((map_center - item_center)/scale);
     key_point->setPos(item_center);
     key_point->setRotation(map->rotation());
@@ -74,8 +74,6 @@ void GraphicsTrajectoryItem::addKeyPoint(int map_num, QPointF center_px, double 
     //makeTransforms(key_point.get(), QPointF(0, 0), center_px, map->rotation(), meters_per_pixel);
     //key_point_layer.addToGroup(new QGraphicsEllipseItem(map_center.x() - 10, map_center.y() - 10, 20, 20));
     //key_point_layer.addToGroup(new QGraphicsEllipseItem(item_center.x() - 5, item_center.y() - 5, 10, 10));
-
-    //qDebug() << "Transform: " << map->transformOriginPoint();
 
     key_points.push_back(key_point);
     key_point_layer.addToGroup(key_points.back().get());
