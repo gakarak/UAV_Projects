@@ -217,12 +217,10 @@ void MainController::saveKeyPoints(string filename, int trj_num)
     ofstream out(filename, ios::binary);
     size_t n = key_points.size();
     out.write(reinterpret_cast<char*>(&n), sizeof(n));
-    qDebug() << n;
     for (int i = 0; i < key_points.size(); i++)
     {
         size_t m = key_points[i].size();
         out.write(reinterpret_cast<char*>(&m), sizeof(m));
-        qDebug() << m;
         for (int j = 0; j < key_points[i].size(); j++)
         {
             out.write(reinterpret_cast<char*>(&key_points[i][j]), sizeof(key_points[i][j]));
@@ -247,14 +245,12 @@ void MainController::loadKeyPoints(string filename, int trj_num)
     //maybe format checking
     size_t n = 0;
     in.read(reinterpret_cast<char*>(&n), sizeof(n));
-    qDebug() << n;
     for (int i = 0; i < n; i++)
     {
         key_points.push_back(vector<cv::KeyPoint>());
 
         size_t m = 0;
         in.read(reinterpret_cast<char*>(&m), sizeof(m));
-        qDebug() << m;
         for (int j = 0; j < m; j++)
         {
             cv::KeyPoint kp;
@@ -324,12 +320,16 @@ Trajectory MainController::loadTrjFromCsv(string csv_filename)
     {
         auto parsed_csv = utils::csvtools::read_csv(csv_filename);
 
-        for (auto row : parsed_csv)
+        size_t found = csv_filename.find_last_of("/\\");
+        string folder = csv_filename.substr(0,found);
+
+        for (auto &row : parsed_csv)
         {
             if (row[0] == "Path")
             {//column names
                 continue;
             }
+            row[0] = folder + "/" + row[0];
             Map map = loadMapFromRow(row);
             trj.maps.push_back(map);
         }
