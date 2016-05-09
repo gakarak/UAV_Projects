@@ -21,6 +21,9 @@ namespace controllerpkg
         void loadTrajectories(std::string trj1_filename, std::string trj2_filename);
         void loadMainMap(std::string filename, double meters_per_pixel);
 
+        void loadKeyPoints(std::string filename, int trj_num);
+        void saveKeyPoints(std::string filename, int trj_num);
+
         void showFirstTrajectory();
         void showSecondTrajectory();
         void showMainMap();

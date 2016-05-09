@@ -71,6 +71,8 @@ namespace viewpkg
 
         void on_load_ini_btn_clicked();
 
+        void on_save_kp_btn_clicked();
+
     private://for statusBar
         void updateStatusBar();
         QPointF mouse_scene_pos_m;

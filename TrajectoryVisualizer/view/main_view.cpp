@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QPen>
+#include <QFileDialog>
 
 #include "controller/main_controller.h"
 #include "config_singleton.h"
@@ -169,6 +170,7 @@ void viewpkg::MainView::on_is_direction_show_chk_toggled(bool checked)
 void viewpkg::MainView::on_calculate_btn_clicked()
 {
     controller->calculateKeyPoints();
+    ui->save_kp_btn->setEnabled(true);
 }
 
 void viewpkg::MainView::on_is_key_point_show_chk_toggled(bool checked)
@@ -187,4 +189,20 @@ void viewpkg::MainView::on_load_ini_btn_clicked()
     controller->loadIni(ini_filename);
 
     ui->calculate_btn->setEnabled(true);
+}
+
+void viewpkg::MainView::on_save_kp_btn_clicked()
+{
+    ConfigSingleton &cfg = ConfigSingleton::getInstance();
+    QString filename1 = QFileDialog::getSaveFileName(this, "Save First Trajectory key points", cfg.getPathToFirstTrajectoryCsv().c_str());
+    QString filename2 = QFileDialog::getSaveFileName(this, "Save Second Trajectory key points", cfg.getPathToSecondTrajectoryCsv().c_str());
+
+    if (filename1 != "")
+    {
+        controller->saveKeyPoints(filename1.toStdString(), 0);
+    }
+    if (filename2 != "")
+    {
+        controller->saveKeyPoints(filename2.toStdString(), 1);
+    }
 }
