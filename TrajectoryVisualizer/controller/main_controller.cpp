@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
+#include <algorithm>
 
 #include <QPixmap>
 #include <QPointF>
@@ -30,11 +31,23 @@ void MainController::calculateKeyPoints()
         detector->detect(map.image, model->first_trj.key_points.back());
     }
 
+    for (auto &frame_kp: model->first_trj.key_points)
+    {
+        std::sort(frame_kp.begin(), frame_kp.end(), []( const cv::KeyPoint &left, const cv::KeyPoint &right ) ->
+                                         bool { return left.response > right.response; });
+    }
+
     model->second_trj.key_points.clear();
     for (const Map& map: model->second_trj.maps)
     {
         model->second_trj.key_points.push_back(vector<cv::KeyPoint>());
         detector->detect(map.image, model->second_trj.key_points.back());
+    }
+
+    for (auto &frame_kp: model->second_trj.key_points)
+    {
+        std::sort(frame_kp.begin(), frame_kp.end(), []( const cv::KeyPoint &left, const cv::KeyPoint &right ) ->
+                                         bool { return left.response > right.response; });
     }
 
     this->showFirstKeyPoints();
@@ -56,7 +69,6 @@ void MainController::loadIni(string ini_filename)
         }
         if (cfg.getPathToSecondKeyPointsBin() != "")
         {
-            qDebug() << "kp2";
             loadKeyPoints(cfg.getPathToSecondKeyPointsBin(), 1);
         }
 
@@ -155,15 +167,12 @@ void MainController::showFirstKeyPoints()
 
     for (int i = 0; i < key_points.size(); i+=1)
     {
-        for (int j = 0; j < key_points[i].size(); j++)
+        for (int j = 0; j < std::min((size_t)100, key_points[i].size()); j++)
         {
             Map &map = model->first_trj.maps[i];
             cv::KeyPoint &kp = key_points[i][j];
 
-            if (kp.response < 60)
-                continue;
-
-            double mul = (kp.response - 60) / 70;
+            double mul = kp.response / 100;
             if (mul > 1) mul = 1;
 
             maps_num.push_back(i);
@@ -188,15 +197,12 @@ void MainController::showSecondKeyPoints()
 
     for (int i = 0; i < key_points.size(); i+=1)
     {
-        for (int j = 0; j < key_points[i].size(); j++)
+        for (int j = 0; j < std::min((size_t)100, key_points[i].size()); j++)
         {
             Map &map = model->second_trj.maps[i];
             cv::KeyPoint &kp = key_points[i][j];
 
-            if (kp.response < 60)
-                continue;
-
-            double mul = (kp.response - 60) / 40;
+            double mul = kp.response / 160;
             if (mul > 1) mul = 1;
 
             maps_num.push_back(i);
