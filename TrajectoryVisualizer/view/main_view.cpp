@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QPen>
 #include <QFileDialog>
+#include <QIntValidator>
 
 #include "controller/main_controller.h"
 #include "config_singleton.h"
@@ -24,6 +25,9 @@ MainView::MainView(QWidget *parent) :
     ui->graphicsView->setMainView(this);
     ui->graphicsView->setMouseTracking(true);
     zoom = ui->graphicsView->getZoom();
+
+    ui->trj2_shift_x_edit->setValidator( new QIntValidator(this) );
+    ui->trj2_shift_y_edit->setValidator( new QIntValidator(this) );
 
 
     scene.getFirstTrajectory().setOrientationVisible(ui->is_orientation_show_chk->isChecked());
@@ -205,4 +209,12 @@ void viewpkg::MainView::on_save_kp_btn_clicked()
     {
         controller->saveKeyPoints(filename2.toStdString(), 1);
     }
+}
+
+void viewpkg::MainView::on_trj2_shift_btn_clicked()
+{
+    QPointF shift;
+    shift.setX( ui->trj2_shift_x_edit->text().toInt() );
+    shift.setY( ui->trj2_shift_y_edit->text().toInt() );
+    scene.getSecondTrajectory().setPos(shift);
 }
