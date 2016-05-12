@@ -1,0 +1,6 @@
+map_path: /home/pisarik/datasets/maps/my_set/yandex_roi_z19.png
+map_size_m: [1630 x 1715.75]
+start_pt_m: [400, 1100]
+finish_pt_m: [1400, 400]
+start_pt_px: [1143, 3143]
+finish_pt_px: [4000, 1143]
