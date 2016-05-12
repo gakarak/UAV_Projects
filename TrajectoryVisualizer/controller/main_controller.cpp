@@ -179,7 +179,7 @@ void MainController::showFirstKeyPoints()
             center_coords_px.push_back(QPointF(kp.pt.x, kp.pt.y) - QPointF(map.image.cols/2, map.image.rows/2) + QPointF(map.pos_m.x / map.m_per_px, map.pos_m.y / map.m_per_px));
             angles.push_back(kp.angle);
             radius.push_back(kp.size / 2.);
-            colors.push_back( QColor(255*mul, 255*(1-mul), 0) );//QColor(255*mul, 165*mul, 0));
+            colors.push_back( QColor(255*(1-mul), 255*(mul), 0) );//QColor(255*mul, 165*mul, 0));
         }
     }
 
@@ -209,7 +209,7 @@ void MainController::showSecondKeyPoints()
             center_coords_px.push_back(QPointF(kp.pt.x, kp.pt.y) - QPointF(map.image.cols/2, map.image.rows/2) + QPointF(map.pos_m.x / map.m_per_px, map.pos_m.y / map.m_per_px));
             angles.push_back(kp.angle);
             radius.push_back(kp.size / 2.);
-            colors.push_back( QColor(255*mul, 255*(1-mul), 0) );//QColor(255*mul, 165*mul, 0));
+            colors.push_back( QColor(255*(1-mul), 255*(mul), 0) );//QColor(255*mul, 165*mul, 0));
         }
     }
 
