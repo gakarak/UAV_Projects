@@ -3,6 +3,7 @@
 using namespace modelpkg;
 
 MainModel::MainModel()
+    :trj_count(2)
 {
 
 }

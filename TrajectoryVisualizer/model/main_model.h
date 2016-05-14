@@ -13,6 +13,8 @@ namespace modelpkg
         Trajectory  first_trj;
         Trajectory  second_trj;
         Map         main_map;
+
+        int trj_count;
     };
 }
 
