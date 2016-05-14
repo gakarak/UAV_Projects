@@ -23,6 +23,9 @@ public:
 
     void loadIni(std::string path_to_ini);
 
+    std::string getPathToKeyPoints(int trj_num, std::string detector_name);
+    std::string getPathToDescriptors(int trj_num, std::string detector_name, std::string descriptor_name);
+
     //getters
     std::string getPathToIni()                  { return path_to_ini; }
 

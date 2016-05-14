@@ -84,3 +84,15 @@ void ConfigSingleton::loadIni(string path_to_ini)
     }
 
 }
+
+string ConfigSingleton::getPathToKeyPoints(int trj_num, string detector_name)
+{
+    string path_to_trj = trj_num == 0? path_to_trj1_csv: path_to_trj2_csv;
+    return path_to_trj + "_" + detector_name + "_key_points.bin";
+}
+
+string ConfigSingleton::getPathToDescriptors(int trj_num, string detector_name, string descriptor_name)
+{
+    string path_to_trj = trj_num == 0? path_to_trj1_csv: path_to_trj2_csv;
+    return path_to_trj + "_" + detector_name + "_" + descriptor_name + "_descriptors.bin";
+}
