@@ -33,10 +33,7 @@ public:
     double      getMapMetersPerPixel()          { return map_m_per_px; }
 
     std::string getPathToFirstTrajectoryCsv()   { return path_to_trj1_csv; }
-    std::string getPathToFirstKeyPointsBin()    { return path_to_kp1_bin; }
-
     std::string getPathToSecondTrajectoryCsv()  { return path_to_trj2_csv; }
-    std::string getPathToSecondKeyPointsBin()   { return path_to_kp2_bin; }
 
     double      getCommonMetersPerPixel()       { return common_m_per_px; }
     double      getGradientMetersPerPixel()     { return gradient_m_per_px; }
@@ -58,10 +55,7 @@ private:
     double      map_m_per_px;
 
     std::string path_to_trj1_csv;
-    std::string path_to_kp1_bin;
-
     std::string path_to_trj2_csv;
-    std::string path_to_kp2_bin;
 
     double      common_m_per_px;
     double      gradient_m_per_px;

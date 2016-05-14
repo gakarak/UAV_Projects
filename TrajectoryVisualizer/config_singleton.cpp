@@ -52,10 +52,7 @@ void ConfigSingleton::loadIni(string path_to_ini)
     map_m_per_px = ini.value("Map/meters_per_pixel").toDouble();
 
     path_to_trj1_csv = ini.value("Trajectory1/path_to_csv").toString().toStdString();
-    path_to_kp1_bin = ini.value("Trajectory1/path_to_key_points_bin", "").toString().toStdString();
-
     path_to_trj2_csv = ini.value("Trajectory2/path_to_csv").toString().toStdString();
-    path_to_kp2_bin = ini.value("Trajectory2/path_to_key_points_bin", "").toString().toStdString();
 
     quality_threshold = ini.value("Common/quality_threshold").toDouble();
 
