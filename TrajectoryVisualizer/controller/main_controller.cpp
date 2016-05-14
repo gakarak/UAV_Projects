@@ -20,38 +20,42 @@ using namespace std;
 using namespace modelpkg;
 using namespace controllerpkg;
 
-void MainController::calculateKeyPoints()
+MainController::MainController()
 {
-    cv::Ptr<cv::Feature2D> detector = cv::BRISK::create();
+    initDetectors();
+    initDescriptors();
+}
 
-    model->first_trj.key_points.clear();
-    for (const Map& map: model->first_trj.maps)
+void MainController::loadOrCalculateKeyPoints(int detector_idx)
+{
+    ConfigSingleton &cfg = ConfigSingleton::getInstance();
+
+    for (int trj_num = 0; trj_num < model->trj_count; trj_num++)
     {
-        model->first_trj.key_points.push_back(vector<cv::KeyPoint>());
-        detector->detect(map.image, model->first_trj.key_points.back());
-    }
+        string path_to_kp_bin = cfg.getPathToKeyPoints(trj_num, detectors_names[detector_idx].toStdString());
 
-    for (auto &frame_kp: model->first_trj.key_points)
-    {
-        std::sort(frame_kp.begin(), frame_kp.end(), []( const cv::KeyPoint &left, const cv::KeyPoint &right ) ->
-                                         bool { return left.response > right.response; });
-    }
+        try
+        {
+            loadKeyPoints(trj_num, path_to_kp_bin);
+        }
+        catch (MainController::NoFileExist &e)
+        {
+            clog << e.what() << endl;
+            clog << "Calculating key points for trajectory #" << trj_num+1 << endl;
+            calculateKeyPoints(trj_num, detector_idx);
+            clog << "Saving key points" << endl;
+            saveKeyPoints(trj_num, path_to_kp_bin);
+        }
 
-    model->second_trj.key_points.clear();
-    for (const Map& map: model->second_trj.maps)
-    {
-        model->second_trj.key_points.push_back(vector<cv::KeyPoint>());
-        detector->detect(map.image, model->second_trj.key_points.back());
+        if (trj_num == 0)
+        {
+            this->showFirstKeyPoints();
+        }
+        else
+        {
+            this->showSecondKeyPoints();
+        }
     }
-
-    for (auto &frame_kp: model->second_trj.key_points)
-    {
-        std::sort(frame_kp.begin(), frame_kp.end(), []( const cv::KeyPoint &left, const cv::KeyPoint &right ) ->
-                                         bool { return left.response > right.response; });
-    }
-
-    this->showFirstKeyPoints();
-    this->showSecondKeyPoints();
 }
 
 void MainController::loadIni(string ini_filename)
@@ -62,16 +66,6 @@ void MainController::loadIni(string ini_filename)
         cfg.loadIni(ini_filename);
         loadTrajectories(cfg.getPathToFirstTrajectoryCsv(),
                          cfg.getPathToSecondTrajectoryCsv());
-
-        if (cfg.getPathToFirstKeyPointsBin() != "")
-        {
-            loadKeyPoints(cfg.getPathToFirstKeyPointsBin(), 0);
-        }
-        if (cfg.getPathToSecondKeyPointsBin() != "")
-        {
-            loadKeyPoints(cfg.getPathToSecondKeyPointsBin(), 1);
-        }
-
 
         loadMainMap(cfg.getPathToMapCsv(),
                     cfg.getMapMetersPerPixel());
@@ -216,69 +210,17 @@ void MainController::showSecondKeyPoints()
     view->setSecondKeyPoints(maps_num, center_coords_px, angles, radius, colors);
 }
 
-void MainController::saveKeyPoints(string filename, int trj_num)
-{
-    vector<vector<cv::KeyPoint>> &key_points = trj_num == 0? model->first_trj.key_points: model->second_trj.key_points;
-
-    ofstream out(filename, ios::binary);
-    size_t n = key_points.size();
-    out.write(reinterpret_cast<char*>(&n), sizeof(n));
-    for (int i = 0; i < key_points.size(); i++)
-    {
-        size_t m = key_points[i].size();
-        out.write(reinterpret_cast<char*>(&m), sizeof(m));
-        for (int j = 0; j < key_points[i].size(); j++)
-        {
-            out.write(reinterpret_cast<char*>(&key_points[i][j]), sizeof(key_points[i][j]));
-        }
-    }
-}
-
-void MainController::loadKeyPoints(string filename, int trj_num)
-{
-    ifstream in(filename, ios::binary);
-    if (!in)
-    {
-        //bad show
-        //because if it fails, then we can try to load second trajectory
-        this->showException("Cannot open file: " + filename);
-        return;
-    }
-
-    vector<vector<cv::KeyPoint>> &key_points = trj_num == 0? model->first_trj.key_points: model->second_trj.key_points;
-    key_points.clear();
-
-    //maybe format checking
-    size_t n = 0;
-    in.read(reinterpret_cast<char*>(&n), sizeof(n));
-    for (int i = 0; i < n; i++)
-    {
-        key_points.push_back(vector<cv::KeyPoint>());
-
-        size_t m = 0;
-        in.read(reinterpret_cast<char*>(&m), sizeof(m));
-        for (int j = 0; j < m; j++)
-        {
-            cv::KeyPoint kp;
-            in.read(reinterpret_cast<char*>(&kp), sizeof(kp));
-            key_points[i].push_back(kp);
-        }
-    }
-
-    if (trj_num == 0)
-    {
-        this->showFirstKeyPoints();
-    }
-    else
-    {
-        this->showSecondKeyPoints();
-    }
-}
-
 void MainController::showException(string what)
 {
     clog << "Exception! " << what << endl;
     view->showException(QString::fromStdString(what));
+}
+
+void MainController::showView()
+{
+    view->setDetectors(detectors_names);
+    view->setDescriptors(descriptors_names);
+    view->show();
 }
 
 /*
@@ -319,8 +261,127 @@ void MainController::calculateMapsQuality()
 
 }
 
-Trajectory MainController::loadTrjFromCsv(string csv_filename)
+void MainController::calculateKeyPoints(int trj_num, int detector_idx)
 {
+    cv::Ptr<cv::Feature2D> &detector = detectors[detector_idx];
+
+    auto &trj = trj_num == 0? model->first_trj: model->second_trj;
+
+    trj.key_points.clear();
+    for (const Map& map: trj.maps)
+    {
+        trj.key_points.push_back(vector<cv::KeyPoint>());
+        detector->detect(map.image, trj.key_points.back());
+    }
+
+    for (auto &frame_kp: trj.key_points)
+    {
+        std::sort(frame_kp.begin(), frame_kp.end(), []( const cv::KeyPoint &left, const cv::KeyPoint &right ) ->
+                                         bool { return left.response > right.response; });
+    }
+}
+
+void MainController::loadKeyPoints(int trj_num, string filename)
+{
+    ifstream in(filename, ios::binary);
+    if (!in)
+    {
+        throw MainController::NoFileExist(filename);
+    }
+
+    vector<vector<cv::KeyPoint>> &key_points = trj_num == 0? model->first_trj.key_points: model->second_trj.key_points;
+    key_points.clear();
+
+    //maybe format checking
+    size_t n = 0;
+    in.read(reinterpret_cast<char*>(&n), sizeof(n));
+    for (int i = 0; i < n; i++)
+    {
+        key_points.push_back(vector<cv::KeyPoint>());
+
+        size_t m = 0;
+        in.read(reinterpret_cast<char*>(&m), sizeof(m));
+        for (int j = 0; j < m; j++)
+        {
+            cv::KeyPoint kp;
+            in.read(reinterpret_cast<char*>(&kp), sizeof(kp));
+            key_points[i].push_back(kp);
+        }
+    }
+}
+
+void MainController::saveKeyPoints(int trj_num, string filename)
+{
+    vector<vector<cv::KeyPoint>> &key_points = trj_num == 0? model->first_trj.key_points: model->second_trj.key_points;
+
+    ofstream out(filename, ios::binary);
+    size_t n = key_points.size();
+    out.write(reinterpret_cast<char*>(&n), sizeof(n));
+    for (int i = 0; i < key_points.size(); i++)
+    {
+        size_t m = key_points[i].size();
+        out.write(reinterpret_cast<char*>(&m), sizeof(m));
+        for (int j = 0; j < key_points[i].size(); j++)
+        {
+            out.write(reinterpret_cast<char*>(&key_points[i][j]), sizeof(key_points[i][j]));
+        }
+    }
+}
+
+void MainController::initDetectors()
+{
+    detectors_names.push_back("SIFT");
+    detectors.push_back(cv::xfeatures2d::SIFT::create());
+
+    detectors_names.push_back("SURF");
+    detectors.push_back(cv::xfeatures2d::SURF::create());
+
+    detectors_names.push_back("KAZE");
+    detectors.push_back(cv::KAZE::create());
+
+    detectors_names.push_back("AKAZE");
+    detectors.push_back(cv::AKAZE::create());
+
+    detectors_names.push_back("BRISK");
+    detectors.push_back(cv::BRISK::create());
+
+    detectors_names.push_back("ORB");
+    detectors.push_back(cv::ORB::create());
+}
+
+void MainController::initDescriptors()
+{
+    descriptors_names.push_back("SIFT");
+    descriptors.push_back(cv::xfeatures2d::SIFT::create());
+    norm_types.push_back(cv::NORM_L2SQR);
+
+    descriptors_names.push_back("SURF");
+    descriptors.push_back(cv::xfeatures2d::SURF::create());
+    norm_types.push_back(cv::NORM_L2SQR);
+
+    descriptors_names.push_back("KAZE");
+    descriptors.push_back(cv::KAZE::create());
+    norm_types.push_back(cv::NORM_L2SQR);
+
+    descriptors_names.push_back("AKAZE");
+    descriptors.push_back(cv::AKAZE::create());
+    norm_types.push_back(cv::NORM_L2SQR);
+
+    descriptors_names.push_back("BRISK");
+    descriptors.push_back(cv::BRISK::create());
+    norm_types.push_back(cv::NORM_HAMMING);
+
+    descriptors_names.push_back("ORB");
+    descriptors.push_back(cv::ORB::create());
+    norm_types.push_back(cv::NORM_HAMMING);
+
+    descriptors_names.push_back("FREAK");
+    descriptors.push_back(cv::xfeatures2d::FREAK::create());
+    norm_types.push_back(cv::NORM_HAMMING);
+}
+
+Trajectory MainController::loadTrjFromCsv(string csv_filename)
+{        
     Trajectory trj;
     try
     {

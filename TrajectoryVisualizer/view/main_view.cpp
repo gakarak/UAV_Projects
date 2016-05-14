@@ -101,6 +101,24 @@ void MainView::setMainMap(QPixmap map, double meter_per_pixel)
     scene.getMainMap().setScale(  meter_per_pixel / m_per_px );
 }
 
+void MainView::setDetectors(const vector<QString> &detectors_names)
+{
+    ui->detector_combo->clear();
+    for (const auto &name: detectors_names)
+    {
+        ui->detector_combo->addItem(name);
+    }
+}
+
+void MainView::setDescriptors(const vector<QString> &descriptors_names)
+{
+    ui->descriptor_combo->clear();
+    for (const auto &name: descriptors_names)
+    {
+        ui->descriptor_combo->addItem(name);
+    }
+}
+
 void MainView::on_load_btn_clicked()
 {
     string trj1_filename = ui->first_traj_edit->text().trimmed().toStdString();
@@ -170,8 +188,11 @@ void viewpkg::MainView::on_is_direction_show_chk_toggled(bool checked)
 
 void viewpkg::MainView::on_calculate_btn_clicked()
 {
-    controller->calculateKeyPoints();
-    ui->save_kp_btn->setEnabled(true);
+    int detector_idx = ui->detector_combo->currentIndex();
+    int descriptor_idx = ui->descriptor_combo->currentIndex();
+
+    controller->loadOrCalculateKeyPoints(detector_idx);
+    //ui->save_kp_btn->setEnabled(true);
 }
 
 void viewpkg::MainView::on_is_key_point_show_chk_toggled(bool checked)
@@ -190,22 +211,6 @@ void viewpkg::MainView::on_load_ini_btn_clicked()
     controller->loadIni(ini_filename);
 
     ui->calculate_btn->setEnabled(true);
-}
-
-void viewpkg::MainView::on_save_kp_btn_clicked()
-{
-    ConfigSingleton &cfg = ConfigSingleton::getInstance();
-    QString filename1 = QFileDialog::getSaveFileName(this, "Save First Trajectory key points", cfg.getPathToFirstTrajectoryCsv().c_str());
-    QString filename2 = QFileDialog::getSaveFileName(this, "Save Second Trajectory key points", cfg.getPathToSecondTrajectoryCsv().c_str());
-
-    if (filename1 != "")
-    {
-        controller->saveKeyPoints(filename1.toStdString(), 0);
-    }
-    if (filename2 != "")
-    {
-        controller->saveKeyPoints(filename2.toStdString(), 1);
-    }
 }
 
 void viewpkg::MainView::on_trj2_shift_btn_clicked()

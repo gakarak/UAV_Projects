@@ -49,6 +49,9 @@ namespace viewpkg
 
         void setMainMap(QPixmap map, double meter_per_pixel);
 
+        void setDetectors(const std::vector<QString> &detectors_names);
+        void setDescriptors(const std::vector<QString> &descriptors_names);
+
         //for statusBar
         void setMouseScenePosition(QPointF pos);
         void setZoom(double zoom);
@@ -70,8 +73,6 @@ namespace viewpkg
         void on_is_key_point_show_chk_toggled(bool checked);
 
         void on_load_ini_btn_clicked();
-
-        void on_save_kp_btn_clicked();
 
         void on_trj2_shift_btn_clicked();
 

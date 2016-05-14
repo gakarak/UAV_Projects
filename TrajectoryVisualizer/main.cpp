@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
     main_view->setController(main_controller);
 
-    main_view->show();
+    main_controller->showView();
 
     return a.exec();
 }

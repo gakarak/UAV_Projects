@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>943</width>
-    <height>620</height>
+    <width>932</width>
+    <height>687</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -138,26 +138,58 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="calculate_btn">
-        <property name="enabled">
-         <bool>false</bool>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="styleSheet">
+         <string notr="true">QGroupBox {
+    border: 1px solid gray;
+    border-radius: 9px;
+    margin-top: 0.5em;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 3px 0 3px;
+}</string>
         </property>
-        <property name="text">
-         <string>Calculate key points</string>
+        <property name="title">
+         <string/>
         </property>
-        <property name="default">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="save_kp_btn">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Save key points</string>
-        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Detector</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="detector_combo"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Descriptor</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="descriptor_combo"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="calculate_btn">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Load | Calculate</string>
+           </property>
+           <property name="default">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
@@ -346,8 +378,8 @@ QGroupBox::title {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>943</width>
-     <height>25</height>
+     <width>932</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
