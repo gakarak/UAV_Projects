@@ -53,7 +53,7 @@ void GraphicsTrajectoryItem::pushBackMap(QPixmap map_img, QPointF center_coords_
 
 void GraphicsTrajectoryItem::addKeyPoint(int map_num, QPointF center_px, double angle, double radius, QColor color)
 {
-    shared_ptr<GraphicsKeyPointItem> key_point = make_shared<GraphicsKeyPointItem>();
+    shared_ptr<GraphicsFastKeyPointItem> key_point = make_shared<GraphicsFastKeyPointItem>();
     shared_ptr<GraphicsMapItem> &map = trajectory[map_num];
 
     double scale = map->transform().m11();

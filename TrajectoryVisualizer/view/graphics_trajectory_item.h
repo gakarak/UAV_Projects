@@ -12,6 +12,7 @@
 #include "graphics_orientation_item.h"
 #include "graphics_direction_item.h"
 #include "graphics_keypoint_item.h"
+#include "graphics_fast_keypoint_item.h"
 
 namespace viewpkg
 {
@@ -48,7 +49,7 @@ namespace viewpkg
         std::vector<std::shared_ptr<GraphicsMapItem>> trajectory;
         std::vector<std::shared_ptr<GraphicsOrientationItem>> orientations;
 
-        std::vector<std::shared_ptr<GraphicsKeyPointItem>> key_points;
+        std::vector<std::shared_ptr<GraphicsFastKeyPointItem>> key_points;
         std::vector<int> maps_num;
 
         //std::vector<std::shared_ptr<QGraphicsEllipseItem>>
