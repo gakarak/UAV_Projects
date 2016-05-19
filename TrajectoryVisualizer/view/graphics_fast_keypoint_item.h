@@ -3,27 +3,32 @@
 
 #include <QGraphicsItem>
 
-class GraphicsFastKeyPointItem : public QGraphicsItem
+namespace viewpkg
 {
-public:
-    GraphicsFastKeyPointItem(QPointF center = QPointF(0, 0), double angle = 0, double radius = 1);
 
-    void setCenter(QPointF center);
-    void setRadius(double radius);
-    void setColor(QColor color);
-    void setAngle(double angle);
+    class GraphicsFastKeyPointItem : public QGraphicsItem
+    {
+    public:
+        GraphicsFastKeyPointItem(QPointF center = QPointF(0, 0), double angle = 0, double radius = 1);
 
-public:
-    QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+        void setCenter(QPointF center);
+        void setRadius(double radius);
+        void setColor(QColor color);
+        void setAngle(double angle);
 
-private:
+    public:
+        QRectF boundingRect() const override;
+        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
-    QPointF center;
-    double radius;
-    double angle;
+    private:
 
-    QColor color;
-};
+        QPointF center;
+        double radius;
+        double angle;
+
+        QColor color;
+    };
+
+}
 
 #endif // GRAPHICSFASTKEYPOINTITEM_H
