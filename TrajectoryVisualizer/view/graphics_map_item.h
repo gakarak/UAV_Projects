@@ -27,12 +27,12 @@ namespace viewpkg
         void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
         void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
+
+    protected:
+        QGraphicsRectItem           bound_item;
+
     private:
         QGraphicsPixmapItem         map_item;
-        QGraphicsRectItem           bound_item;
-        //GraphicsOrientationItem     orient_item;
-
-        //bool is_hoverable;
     };
 
 }
