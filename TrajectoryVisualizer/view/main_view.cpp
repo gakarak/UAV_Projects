@@ -195,8 +195,7 @@ void viewpkg::MainView::on_calculate_btn_clicked()
     int detector_idx = ui->detector_combo->currentIndex();
     int descriptor_idx = ui->descriptor_combo->currentIndex();
 
-    controller->loadOrCalculateKeyPoints(detector_idx);
-    //ui->save_kp_btn->setEnabled(true);
+    controller->loadOrCalculateModel(detector_idx, descriptor_idx);
 }
 
 void viewpkg::MainView::on_is_key_point_show_chk_toggled(bool checked)

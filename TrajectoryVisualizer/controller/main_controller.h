@@ -21,7 +21,7 @@ namespace controllerpkg
     public:
         MainController();
 
-        void loadOrCalculateKeyPoints(int detector_idx);
+        void loadOrCalculateModel(int detector_idx, int descriptor_idx);
 
         void loadIni(std::string ini_filename);
         void loadTrajectories(std::string trj1_filename, std::string trj2_filename);
@@ -59,11 +59,18 @@ namespace controllerpkg
         void initDescriptors();
 
         void calculateMapsQuality();
-        void calculateKeyPoints(int trj_num, int detector_idx);
-        void      loadKeyPoints(int trj_num, std::string filename);
-        void      saveKeyPoints(int trj_num, std::string filename);
 
-        //params - filename, x_m, y_m, angle, m_per_px
+        void loadOrCalculateKeyPoints(int detector_idx);
+        void       calculateKeyPoints(int trj_num, int detector_idx);
+        void            loadKeyPoints(int trj_num, std::string filename);
+        void            saveKeyPoints(int trj_num, std::string filename);
+
+        void loadOrCalculateDescriptions(int detector_idx, int descriptor_idx);
+        void       calculateDescriptions(int trj_num, int descriptor_idx);
+        void            loadDescriptions(int trj_num, std::string filename);
+        void            saveDescriptions(int trj_num, std::string filename);
+
+                                //params - filename, x_m, y_m, angle, m_per_px
         modelpkg::Map           loadMapFromRow(std::vector<std::string> params);
         modelpkg::Trajectory    loadTrjFromCsv(std::string csv_filename);
 

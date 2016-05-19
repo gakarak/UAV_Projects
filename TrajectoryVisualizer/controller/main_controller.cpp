@@ -26,36 +26,13 @@ MainController::MainController()
     initDescriptors();
 }
 
-void MainController::loadOrCalculateKeyPoints(int detector_idx)
+void MainController::loadOrCalculateModel(int detector_idx, int descriptor_idx)
 {
-    ConfigSingleton &cfg = ConfigSingleton::getInstance();
+    loadOrCalculateKeyPoints(detector_idx);
+    loadOrCalculateDescriptions(detector_idx, descriptor_idx);
 
-    for (int trj_num = 0; trj_num < model->trj_count; trj_num++)
-    {
-        string path_to_kp_bin = cfg.getPathToKeyPoints(trj_num, detectors_names[detector_idx].toStdString());
-
-        try
-        {
-            loadKeyPoints(trj_num, path_to_kp_bin);
-        }
-        catch (MainController::NoFileExist &e)
-        {
-            clog << e.what() << endl;
-            clog << "Calculating key points for trajectory #" << trj_num+1 << endl;
-            calculateKeyPoints(trj_num, detector_idx);
-            clog << "Saving key points" << endl;
-            saveKeyPoints(trj_num, path_to_kp_bin);
-        }
-
-        if (trj_num == 0)
-        {
-            this->showFirstKeyPoints();
-        }
-        else
-        {
-            this->showSecondKeyPoints();
-        }
-    }
+    this->showFirstKeyPoints();
+    this->showSecondKeyPoints();
 }
 
 void MainController::loadIni(string ini_filename)
@@ -261,6 +238,33 @@ void MainController::calculateMapsQuality()
 
 }
 
+/*
+ * Key points
+ */
+void MainController::loadOrCalculateKeyPoints(int detector_idx)
+{
+    ConfigSingleton &cfg = ConfigSingleton::getInstance();
+
+    for (int trj_num = 0; trj_num < model->trj_count; trj_num++)
+    {
+        string path_to_kp_bin = cfg.getPathToKeyPoints(trj_num, detectors_names[detector_idx].toStdString());
+
+        try
+        {
+            loadKeyPoints(trj_num, path_to_kp_bin);
+        }
+        catch (MainController::NoFileExist &e)
+        {
+            clog << e.what() << endl;
+            clog << "Calculating key points for trajectory #" << trj_num+1 << endl;
+            calculateKeyPoints(trj_num, detector_idx);
+
+            clog << "Saving key points" << endl;
+            saveKeyPoints(trj_num, path_to_kp_bin);
+        }
+    }
+}
+
 void MainController::calculateKeyPoints(int trj_num, int detector_idx)
 {
     cv::Ptr<cv::Feature2D> &detector = detectors[detector_idx];
@@ -326,6 +330,90 @@ void MainController::saveKeyPoints(int trj_num, string filename)
             out.write(reinterpret_cast<char*>(&key_points[i][j]), sizeof(key_points[i][j]));
         }
     }
+}
+
+/*
+ * Descriptions
+ */
+
+void MainController::loadOrCalculateDescriptions(int detector_idx, int descriptor_idx)
+{
+    ConfigSingleton &cfg = ConfigSingleton::getInstance();
+
+    for (int trj_num = 0; trj_num < model->trj_count; trj_num++)
+    {
+        string path_to_dscr_xml = cfg.getPathToDescriptors(trj_num, detectors_names[detector_idx].toStdString(),
+                                                                    descriptors_names[descriptor_idx].toStdString());
+
+        try
+        {
+            loadDescriptions(trj_num, path_to_dscr_xml);
+        }
+        catch (MainController::NoFileExist &e)
+        {
+            clog << e.what() << endl;
+            clog << "Calculating descriptors for trajectory #" << trj_num+1 << endl;
+            calculateDescriptions(trj_num, detector_idx);
+
+            clog << "Saving descriptors" << endl;
+            saveDescriptions(trj_num, path_to_dscr_xml);
+        }
+    }
+
+}
+
+void MainController::calculateDescriptions(int trj_num, int descriptor_idx)
+{
+    cv::Ptr<cv::Feature2D> &descriptor = descriptors[descriptor_idx];
+    auto &trj = trj_num == 0? model->first_trj: model->second_trj;
+
+    trj.descriptions.clear();
+    for (int i = 0; i < trj.key_points.size(); i++)
+    {
+        cv::Mat descr;
+        descriptor->compute(trj.maps[i].image, trj.key_points[i], descr);
+
+        trj.descriptions.push_back(descr);
+    }
+}
+
+void MainController::loadDescriptions(int trj_num, string filename)
+{
+    cv::FileStorage file(filename, cv::FileStorage::READ);
+
+    if (!file.isOpened())
+    {
+        throw MainController::NoFileExist(filename);
+    }
+
+    auto &descriptions = trj_num == 0? model->first_trj.descriptions: model->second_trj.descriptions;
+    descriptions.clear();
+
+    int n = 0;
+    file["count"] >> n;
+    clog << "count " << n << endl;
+    for (int i = 0; i < n; i++)
+    {
+        descriptions.push_back(cv::Mat());
+        file[to_string(i)] >> descriptions[i];
+    }
+    file.release();
+}
+
+void MainController::saveDescriptions(int trj_num, string filename)
+{
+    auto &descriptions = trj_num == 0? model->first_trj.descriptions: model->second_trj.descriptions;
+
+    cv::FileStorage file(filename, cv::FileStorage::WRITE);
+
+    int n = descriptions.size();
+    file << "count" << n;
+    clog << "count " << n << endl;
+    for (int i = 0; i < descriptions.size(); i++)
+    {
+        file << "img"+to_string(i) << descriptions[i];
+    }
+    file.release();
 }
 
 void MainController::initDetectors()
