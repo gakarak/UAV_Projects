@@ -138,7 +138,10 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_2">
+       <widget class="QGroupBox" name="model_settings_group">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="styleSheet">
          <string notr="true">QGroupBox {
     border: 1px solid gray;
@@ -154,6 +157,9 @@ QGroupBox::title {
         </property>
         <property name="title">
          <string/>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_6">
          <item>
@@ -178,9 +184,6 @@ QGroupBox::title {
          </item>
          <item>
           <widget class="QPushButton" name="calculate_btn">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
            <property name="text">
             <string>Load | Calculate</string>
            </property>
@@ -379,7 +382,7 @@ QGroupBox::title {
      <x>0</x>
      <y>0</y>
      <width>932</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

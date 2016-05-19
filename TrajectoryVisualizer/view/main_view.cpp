@@ -36,12 +36,6 @@ MainView::MainView(QWidget *parent) :
 
     scene.getMainMap().setVisible(ui->is_map_show_check->isChecked());
 
-    /*QGraphicsItem *r1 = new QGraphicsRectItem(0, 0, 50, 50);
-    QGraphicsItem *r2 = new QGraphicsRectItem(0, 0, 50, 50);
-
-    scene.addItem(r1);
-    scene.addItem(r2);*/
-
     scene.setMainView(this);
 }
 
@@ -119,6 +113,14 @@ void MainView::setDescriptors(const vector<QString> &descriptors_names)
     }
 }
 
+void viewpkg::MainView::on_load_ini_btn_clicked()
+{
+    string ini_filename = ui->ini_edit->text().trimmed().toStdString();
+    controller->loadIni(ini_filename);
+
+    ui->model_settings_group->setEnabled(true);
+}
+
 void MainView::on_load_btn_clicked()
 {
     string trj1_filename = ui->first_traj_edit->text().trimmed().toStdString();
@@ -127,7 +129,7 @@ void MainView::on_load_btn_clicked()
     controller->loadMainMap("/home/pisarik/datasets/maps/my_set/yandex_roi_z16.png", 2.7958833);
     controller->loadTrajectories(trj1_filename, trj2_filename);
 
-    ui->calculate_btn->setEnabled(true);
+    ui->model_settings_group->setEnabled(true);
 }
 
 void MainView::setController(shared_ptr<controllerpkg::MainController> controller)
@@ -139,6 +141,8 @@ void viewpkg::MainView::on_clear_btn_clicked()
 {
     scene.getFirstTrajectory().clear();
     scene.getSecondTrajectory().clear();
+
+    ui->model_settings_group->setEnabled(false);
 }
 
 void viewpkg::MainView::on_is_orientation_show_chk_toggled(bool checked)
@@ -204,13 +208,6 @@ void viewpkg::MainView::on_is_key_point_show_chk_toggled(bool checked)
 void MainView::showException(QString what)
 {
     QMessageBox::critical(this, "Error", what, QMessageBox::Ok, QMessageBox::Default);
-}
-void viewpkg::MainView::on_load_ini_btn_clicked()
-{
-    string ini_filename = ui->ini_edit->text().trimmed().toStdString();
-    controller->loadIni(ini_filename);
-
-    ui->calculate_btn->setEnabled(true);
 }
 
 void viewpkg::MainView::on_trj2_shift_btn_clicked()
