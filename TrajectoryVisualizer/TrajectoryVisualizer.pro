@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     view/graphics_direction_item.cpp \
     view/graphics_keypoint_item.cpp \
     config_singleton.cpp \
-    view/graphics_fast_keypoint_item.cpp
+    view/graphics_fast_keypoint_item.cpp \
+    view/graphics_frame_item.cpp
 
 HEADERS  += \
     utils/csv.h \
@@ -45,7 +46,8 @@ HEADERS  += \
     view/graphics_keypoint_item.h \
     config_singleton.h \
     utils/gradient_density.h \
-    view/graphics_fast_keypoint_item.h
+    view/graphics_fast_keypoint_item.h \
+    view/graphics_frame_item.h
 
 INCLUDEPATH += /home/ar/dev/opencv-3.1/include #/home/pisarik/Libs/opencv-3.1.0-build-debug/include
 LIBS += -L/home/ar/dev/opencv-3.1/lib \ #/home/pisarik/Libs/opencv-3.1.0-build-debug/lib \
