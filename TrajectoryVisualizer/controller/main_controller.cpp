@@ -391,7 +391,6 @@ void MainController::loadDescriptions(int trj_num, string filename)
 
     int n = 0;
     file["count"] >> n;
-    clog << "count " << n << endl;
     for (int i = 0; i < n; i++)
     {
         descriptions.push_back(cv::Mat());
@@ -408,7 +407,6 @@ void MainController::saveDescriptions(int trj_num, string filename)
 
     int n = descriptions.size();
     file << "count" << n;
-    clog << "count " << n << endl;
     for (int i = 0; i < descriptions.size(); i++)
     {
         file << "img"+to_string(i) << descriptions[i];
