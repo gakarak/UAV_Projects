@@ -58,7 +58,7 @@ void MainController::loadTrajectories(string trj1_filename, string trj2_filename
     model->first_trj = loadTrjFromCsv(trj1_filename);
     model->second_trj = loadTrjFromCsv(trj2_filename);
 
-    this->calculateMapsQuality();
+    this->calculateFramesQuality();
     this->showFirstTrajectory();
     this->showSecondTrajectory();
 }
@@ -80,18 +80,18 @@ void MainController::showFirstTrajectory()
     vector<QPointF> center_coords_px;
     vector<double>  angles;
     vector<double>  meter_per_pixels;
-    vector<double> &qualities = model->first_trj.map_quality;
+    vector<double> &qualities = model->first_trj.frames_quality;
 
-    for (const auto &map: model->first_trj.maps)
+    for (const auto &frame: model->first_trj.frames)
     {
         QPointF center_px;
-        center_px.setX( map.pos_m.x / map.m_per_px );
-        center_px.setY( map.pos_m.y / map.m_per_px );
+        center_px.setX( frame.pos_m.x / frame.m_per_px );
+        center_px.setY( frame.pos_m.y / frame.m_per_px );
 
-        qpixs.push_back( utils::ASM::cvMatToQPixmap(map.image) );
+        qpixs.push_back( utils::ASM::cvMatToQPixmap(frame.image) );
         center_coords_px.push_back( center_px );
-        angles.push_back( map.angle );
-        meter_per_pixels.push_back( map.m_per_px );
+        angles.push_back( frame.angle );
+        meter_per_pixels.push_back( frame.m_per_px );
     }
 
     view->setFirstTrajectory(qpixs, center_coords_px, angles, meter_per_pixels, qualities);
@@ -103,18 +103,18 @@ void MainController::showSecondTrajectory()
     vector<QPointF> center_coords_px;
     vector<double>  angles;
     vector<double>  meter_per_pixels;
-    vector<double> &qualities = model->second_trj.map_quality;
+    vector<double> &qualities = model->second_trj.frames_quality;
 
-    for (const auto &map: model->second_trj.maps)
+    for (const auto &frame: model->second_trj.frames)
     {
         QPointF center_px;
-        center_px.setX( map.pos_m.x / map.m_per_px );
-        center_px.setY( map.pos_m.y / map.m_per_px );
+        center_px.setX( frame.pos_m.x / frame.m_per_px );
+        center_px.setY( frame.pos_m.y / frame.m_per_px );
 
-        qpixs.push_back( utils::ASM::cvMatToQPixmap(map.image) );
+        qpixs.push_back( utils::ASM::cvMatToQPixmap(frame.image) );
         center_coords_px.push_back( center_px );
-        angles.push_back( map.angle );
-        meter_per_pixels.push_back( map.m_per_px );
+        angles.push_back( frame.angle );
+        meter_per_pixels.push_back( frame.m_per_px );
     }
 
     view->setSecondTrajectory(qpixs, center_coords_px, angles, meter_per_pixels, qualities);
@@ -130,7 +130,7 @@ void MainController::showMainMap()
 void MainController::showFirstKeyPoints()
 {
     vector<vector<cv::KeyPoint>> &key_points = model->first_trj.key_points;
-    vector<int> maps_num;
+    vector<int> frames_num;
     vector<QPointF> center_coords_px;
     vector<double> angles;
     vector<double> radius;
@@ -140,27 +140,27 @@ void MainController::showFirstKeyPoints()
     {
         for (int j = 0; j < std::min((size_t)100, key_points[i].size()); j++)
         {
-            Map &map = model->first_trj.maps[i];
+            Map &frame = model->first_trj.frames[i];
             cv::KeyPoint &kp = key_points[i][j];
 
             double mul = kp.response / 100;
             if (mul > 1) mul = 1;
 
-            maps_num.push_back(i);
-            center_coords_px.push_back(QPointF(kp.pt.x, kp.pt.y) - QPointF(map.image.cols/2, map.image.rows/2) + QPointF(map.pos_m.x / map.m_per_px, map.pos_m.y / map.m_per_px));
+            frames_num.push_back(i);
+            center_coords_px.push_back(QPointF(kp.pt.x, kp.pt.y) - QPointF(frame.image.cols/2, frame.image.rows/2) + QPointF(frame.pos_m.x / frame.m_per_px, frame.pos_m.y / frame.m_per_px));
             angles.push_back(kp.angle);
             radius.push_back(kp.size / 2.);
             colors.push_back( QColor(255*(1-mul), 255*(mul), 0) );//QColor(255*mul, 165*mul, 0));
         }
     }
 
-    view->setFirstKeyPoints(maps_num, center_coords_px, angles, radius, colors);
+    view->setFirstKeyPoints(frames_num, center_coords_px, angles, radius, colors);
 }
 
 void MainController::showSecondKeyPoints()
 {
     vector<vector<cv::KeyPoint>> &key_points = model->second_trj.key_points;
-    vector<int> maps_num;
+    vector<int> frames_num;
     vector<QPointF> center_coords_px;
     vector<double> angles;
     vector<double> radius;
@@ -170,21 +170,21 @@ void MainController::showSecondKeyPoints()
     {
         for (int j = 0; j < std::min((size_t)100, key_points[i].size()); j++)
         {
-            Map &map = model->second_trj.maps[i];
+            Map &frame = model->second_trj.frames[i];
             cv::KeyPoint &kp = key_points[i][j];
 
             double mul = kp.response / 160;
             if (mul > 1) mul = 1;
 
-            maps_num.push_back(i);
-            center_coords_px.push_back(QPointF(kp.pt.x, kp.pt.y) - QPointF(map.image.cols/2, map.image.rows/2) + QPointF(map.pos_m.x / map.m_per_px, map.pos_m.y / map.m_per_px));
+            frames_num.push_back(i);
+            center_coords_px.push_back(QPointF(kp.pt.x, kp.pt.y) - QPointF(frame.image.cols/2, frame.image.rows/2) + QPointF(frame.pos_m.x / frame.m_per_px, frame.pos_m.y / frame.m_per_px));
             angles.push_back(kp.angle);
             radius.push_back(kp.size / 2.);
             colors.push_back( QColor(255*(1-mul), 255*(mul), 0) );//QColor(255*mul, 165*mul, 0));
         }
     }
 
-    view->setSecondKeyPoints(maps_num, center_coords_px, angles, radius, colors);
+    view->setSecondKeyPoints(frames_num, center_coords_px, angles, radius, colors);
 }
 
 void MainController::showException(string what)
@@ -204,36 +204,36 @@ void MainController::showView()
  * PRIVATE SECTION
  */
 
-void MainController::calculateMapsQuality()
+void MainController::calculateFramesQuality()
 {
     double threshold = ConfigSingleton::getInstance().getQualityThreshold();
 
     //first trajectory
-    for (const auto& map: model->first_trj.maps)
+    for (const auto& frame: model->first_trj.frames)
     {
-        double scale = map.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
-        cv::Size new_size(map.image.size().width * scale, map.image.size().height * scale);
+        double scale = frame.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
+        cv::Size new_size(frame.image.size().width * scale, frame.image.size().height * scale);
 
         cv::Mat resized;
-        cv::resize(map.image, resized, new_size);
+        cv::resize(frame.image, resized, new_size);
 
         double quality = std::min( 1., utils::cv::gradientDensity(resized) / threshold );
 
-        model->first_trj.map_quality.push_back(quality);
+        model->first_trj.frames_quality.push_back(quality);
     }
 
     //second trajectory
-    for (const auto& map: model->second_trj.maps)
+    for (const auto& frame: model->second_trj.frames)
     {
-        double scale = map.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
-        cv::Size new_size(map.image.size().width * scale, map.image.size().height * scale);
+        double scale = frame.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
+        cv::Size new_size(frame.image.size().width * scale, frame.image.size().height * scale);
 
         cv::Mat resized;
-        cv::resize(map.image, resized, new_size);
+        cv::resize(frame.image, resized, new_size);
 
         double quality = std::min( 1., utils::cv::gradientDensity(resized) / threshold );
 
-        model->second_trj.map_quality.push_back(quality);
+        model->second_trj.frames_quality.push_back(quality);
     }
 
 }
@@ -272,10 +272,10 @@ void MainController::calculateKeyPoints(int trj_num, int detector_idx)
     auto &trj = trj_num == 0? model->first_trj: model->second_trj;
 
     trj.key_points.clear();
-    for (const Map& map: trj.maps)
+    for (const Map& frame: trj.frames)
     {
         trj.key_points.push_back(vector<cv::KeyPoint>());
-        detector->detect(map.image, trj.key_points.back());
+        detector->detect(frame.image, trj.key_points.back());
     }
 
     for (auto &frame_kp: trj.key_points)
@@ -371,7 +371,7 @@ void MainController::calculateDescriptions(int trj_num, int descriptor_idx)
     for (int i = 0; i < trj.key_points.size(); i++)
     {
         cv::Mat descr;
-        descriptor->compute(trj.maps[i].image, trj.key_points[i], descr);
+        descriptor->compute(trj.frames[i].image, trj.key_points[i], descr);
 
         trj.descriptions.push_back(descr);
     }
@@ -483,8 +483,8 @@ Trajectory MainController::loadTrjFromCsv(string csv_filename)
                 continue;
             }
             row[0] = folder + "/" + row[0];
-            Map map = loadMapFromRow(row);
-            trj.maps.push_back(map);
+            Map frame = loadMapFromRow(row);
+            trj.frames.push_back(frame);
         }
     }
     catch (runtime_error er)

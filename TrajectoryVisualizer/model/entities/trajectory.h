@@ -13,12 +13,12 @@ namespace modelpkg
     {
         Trajectory() {}
 
-        std::vector<Map> maps;
+        std::vector<Map> frames;
 
         std::vector<std::vector<cv::KeyPoint>> key_points;
         std::vector<cv::Mat> descriptions; //for each frame of key points
 
-        std::vector<double> map_quality;
+        std::vector<double> frames_quality;
     };
 
 }

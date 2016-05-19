@@ -25,23 +25,23 @@ GraphicsTrajectoryItem::GraphicsTrajectoryItem()
     this->addToGroup(&key_point_layer);
 }
 
-void GraphicsTrajectoryItem::pushBackMap(QPixmap map_img, QPointF center_coords_px, double angle, double meters_per_pixel, double quality)
+void GraphicsTrajectoryItem::pushBackFrame(QPixmap img, QPointF center_coords_px, double angle, double meters_per_pixel, double quality)
 {
     double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
     //setup map item
-    shared_ptr<GraphicsMapItem> map_item = make_shared<GraphicsMapItem>(map_img);
+    shared_ptr<GraphicsFrameItem> frame_item = make_shared<GraphicsFrameItem>(img, frames.size()); //the frame_number is size
 
-    makeTransforms(map_item, map_item->getMapItem().boundingRect().center(), center_coords_px, angle, meters_per_pixel);
+    makeTransforms(frame_item, frame_item->getMapItem().boundingRect().center(), center_coords_px, angle, meters_per_pixel);
 
-    trajectory.push_back(map_item);
-    trajectory_layer.addToGroup(trajectory.back().get());
+    frames.push_back(frame_item);
+    trajectory_layer.addToGroup(frames.back().get());
 
     //setup orientation
     shared_ptr<GraphicsOrientationItem> orient_item = make_shared<GraphicsOrientationItem>();
-    orient_item->setCenter(map_item->getMapItem().boundingRect().center());
-    orient_item->setAxisLength(map_item->getMapItem().boundingRect().width()/4.0);
+    orient_item->setCenter(frame_item->getMapItem().boundingRect().center());
+    orient_item->setAxisLength(frame_item->getMapItem().boundingRect().width()/4.0);
 
-    makeTransforms(orient_item, map_item->getMapItem().boundingRect().center(), center_coords_px, angle, meters_per_pixel);
+    makeTransforms(orient_item, frame_item->getMapItem().boundingRect().center(), center_coords_px, angle, meters_per_pixel);
 
     orientations.push_back(orient_item);
     orientation_layer.addToGroup(orientations.back().get());
@@ -51,24 +51,24 @@ void GraphicsTrajectoryItem::pushBackMap(QPixmap map_img, QPointF center_coords_
     direction_layer.pushBackWayPoint(center_coords_px / (m_per_px / meters_per_pixel), QColor(int(255*red_mul), int(255*green_mul), 0));
 }
 
-void GraphicsTrajectoryItem::addKeyPoint(int map_num, QPointF center_px, double angle, double radius, QColor color)
+void GraphicsTrajectoryItem::addKeyPoint(int frame_num, QPointF center_px, double angle, double radius, QColor color)
 {
     shared_ptr<GraphicsFastKeyPointItem> key_point = make_shared<GraphicsFastKeyPointItem>();
-    shared_ptr<GraphicsMapItem> &map = trajectory[map_num];
+    shared_ptr<GraphicsFrameItem> &frame_item = frames[frame_num];
 
-    double scale = map->transform().m11();
+    double scale = frame_item->transform().m11();
     QPointF item_center = center_px * scale;
-    QPointF orig = QTransform().rotate(map->rotation()).map(map->transformOriginPoint());
-    QPointF map_center = map->pos() + orig*scale;
+    QPointF orig = QTransform().rotate(frame_item->rotation()).map(frame_item->transformOriginPoint());
+    QPointF frame_center = frame_item->pos() + orig*scale;
     //key_point->setTransform(QTransform().translate(item_center - map->pos()).rotate(45).translate(map->pos() - item_center));
 
     key_point->setRadius(radius);
     key_point->setAngle(angle);
     key_point->setColor(color);
 
-    key_point->setTransformOriginPoint((map_center - item_center)/scale);
+    key_point->setTransformOriginPoint((frame_center - item_center)/scale);
     key_point->setPos(item_center);
-    key_point->setRotation(map->rotation());
+    key_point->setRotation(frame_item->rotation());
     key_point->setTransform(QTransform().translate(0, 0).scale(scale, scale).translate(0, 0));
 
     //makeTransforms(key_point.get(), QPointF(0, 0), center_px, map->rotation(), meters_per_pixel);
@@ -77,7 +77,7 @@ void GraphicsTrajectoryItem::addKeyPoint(int map_num, QPointF center_px, double 
 
     key_points.push_back(key_point);
     key_point_layer.addToGroup(key_points.back().get());
-    maps_num.push_back(map_num);
+    frames_num.push_back(frame_num);
 }
 
 void GraphicsTrajectoryItem::makeTransforms(shared_ptr<QGraphicsItem> item, QPointF item_center_px, QPointF scene_center_pos_px, double angle, double meters_per_pixel)
@@ -116,7 +116,7 @@ void GraphicsTrajectoryItem::setKeyPointsVisible(bool is_visible)
 
 void GraphicsTrajectoryItem::clear()
 {
-    trajectory.clear();
+    frames.clear();
     orientations.clear();
     direction_layer.clear();
 
@@ -126,7 +126,7 @@ void GraphicsTrajectoryItem::clear()
 void GraphicsTrajectoryItem::clearKeyPoints()
 {
     key_points.clear();
-    maps_num.clear();
+    frames_num.clear();
 }
 
 void GraphicsTrajectoryItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

@@ -8,7 +8,7 @@
 #include <QPixmap>
 #include <QColor>
 
-#include "graphics_map_item.h"
+#include "graphics_frame_item.h"
 #include "graphics_orientation_item.h"
 #include "graphics_direction_item.h"
 #include "graphics_keypoint_item.h"
@@ -22,8 +22,8 @@ namespace viewpkg
     public:
         GraphicsTrajectoryItem();
 
-        void pushBackMap(QPixmap map_img, QPointF center_coords_px, double angle, double meters_per_pixel, double quality);
-        void addKeyPoint(int map_num, QPointF center_px, double angle, double radius, QColor color);
+        void pushBackFrame(QPixmap img, QPointF center_coords_px, double angle, double meters_per_pixel, double quality);
+        void addKeyPoint(int frame_num, QPointF center_px, double angle, double radius, QColor color);
         void clear();
         void clearKeyPoints();
 
@@ -46,11 +46,11 @@ namespace viewpkg
         QGraphicsItemGroup orientation_layer;
         QGraphicsItemGroup key_point_layer;
 
-        std::vector<std::shared_ptr<GraphicsMapItem>> trajectory;
+        std::vector<std::shared_ptr<GraphicsFrameItem>> frames;
         std::vector<std::shared_ptr<GraphicsOrientationItem>> orientations;
 
         std::vector<std::shared_ptr<GraphicsFastKeyPointItem>> key_points;
-        std::vector<int> maps_num;
+        std::vector<int> frames_num;
 
         //std::vector<std::shared_ptr<QGraphicsEllipseItem>>
 

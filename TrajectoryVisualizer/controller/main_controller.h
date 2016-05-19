@@ -58,7 +58,7 @@ namespace controllerpkg
         void initDetectors();
         void initDescriptors();
 
-        void calculateMapsQuality();
+        void calculateFramesQuality();
 
         void loadOrCalculateKeyPoints(int detector_idx);
         void       calculateKeyPoints(int trj_num, int detector_idx);

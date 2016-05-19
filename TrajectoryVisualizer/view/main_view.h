@@ -42,9 +42,9 @@ namespace viewpkg
         void setSecondTrajectory(const std::vector<QPixmap> &imgs, const std::vector<QPointF> center_coords_px,
                                  const std::vector<double> &angles, const std::vector<double> &meters_per_pixels,
                                  const std::vector<double> &qualities);
-        void setFirstKeyPoints(const std::vector<int> &maps_num, const std::vector<QPointF> &centers_px, const std::vector<double> &angles,
+        void setFirstKeyPoints(const std::vector<int> &frames_num, const std::vector<QPointF> &centers_px, const std::vector<double> &angles,
                                const std::vector<double> &radius, const std::vector<QColor> &colors);
-        void setSecondKeyPoints(const std::vector<int> &maps_num, const std::vector<QPointF> &centers_px, const std::vector<double> &angles,
+        void setSecondKeyPoints(const std::vector<int> &frames_num, const std::vector<QPointF> &centers_px, const std::vector<double> &angles,
                                const std::vector<double> &radius, const std::vector<QColor> &colors);
 
         void setMainMap(QPixmap map, double meter_per_pixel);
