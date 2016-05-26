@@ -5,8 +5,8 @@
 
 using namespace viewpkg;
 
-GraphicsOrientationItem::GraphicsOrientationItem(QPointF center, double length)
-    : center(center), axis_length(length)
+GraphicsOrientationItem::GraphicsOrientationItem(QPointF center, double length, QGraphicsItem *parent)
+    : QGraphicsItemGroup(parent), center(center), axis_length(length)
 {
     xAxis.setPen(QPen(QBrush(QColor(255, 0, 0)), 8, Qt::SolidLine));
     yAxis.setPen(QPen(QBrush(QColor(0, 255, 0)), 8, Qt::SolidLine));

@@ -4,13 +4,13 @@
 
 using namespace viewpkg;
 
-GraphicsFrameItem::GraphicsFrameItem()
-    : GraphicsMapItem(), selected(false)
+GraphicsFrameItem::GraphicsFrameItem(QGraphicsItem *parent)
+    : GraphicsMapItem(parent), selected(false)
 {
 }
 
-GraphicsFrameItem::GraphicsFrameItem(const QPixmap &frame, int frame_num)
-    : GraphicsMapItem(frame), frame_num(frame_num), selected(false)
+GraphicsFrameItem::GraphicsFrameItem(const QPixmap &frame, int frame_num, QGraphicsItem *parent)
+    : GraphicsMapItem(frame, parent), frame_num(frame_num), selected(false)
 {
 }
 

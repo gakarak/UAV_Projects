@@ -307,6 +307,9 @@ QGroupBox::title {
                <property name="singleStep">
                 <number>5</number>
                </property>
+               <property name="value">
+                <number>100</number>
+               </property>
               </widget>
              </item>
             </layout>
@@ -342,6 +345,9 @@ QGroupBox::title {
                </property>
                <property name="singleStep">
                 <number>5</number>
+               </property>
+               <property name="value">
+                <number>100</number>
                </property>
               </widget>
              </item>

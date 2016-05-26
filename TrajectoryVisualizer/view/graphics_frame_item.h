@@ -9,8 +9,8 @@ namespace viewpkg
     class GraphicsFrameItem : public GraphicsMapItem
     {
     public:
-        GraphicsFrameItem();
-        GraphicsFrameItem(const QPixmap &frame, int frame_num);
+        GraphicsFrameItem(QGraphicsItem *parent = 0);
+        GraphicsFrameItem(const QPixmap &frame, int frame_num, QGraphicsItem *parent = 0);
 
         void setFrameNumber(int frame_num)  { this->frame_num = frame_num; }
         int  getFrameNumber() const         { return frame_num; }

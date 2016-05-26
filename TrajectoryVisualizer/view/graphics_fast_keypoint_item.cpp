@@ -5,7 +5,8 @@
 
 using namespace viewpkg;
 
-GraphicsFastKeyPointItem::GraphicsFastKeyPointItem(QPointF center, double angle, double radius)
+GraphicsFastKeyPointItem::GraphicsFastKeyPointItem(QPointF center, double angle, double radius, QGraphicsItem *parent)
+    : QGraphicsItem(parent), center(center), angle(angle), radius(radius)
 {
 
 }

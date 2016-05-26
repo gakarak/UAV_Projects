@@ -13,8 +13,8 @@ namespace viewpkg
     class GraphicsMapItem : public QGraphicsItemGroup
     {
     public:
-        GraphicsMapItem();
-        GraphicsMapItem(const QPixmap &map);
+        GraphicsMapItem(QGraphicsItem *parent = 0);
+        GraphicsMapItem(const QPixmap &map, QGraphicsItem *parent = 0);
 
         void setMapItem(const QPixmap &pixmap);
 

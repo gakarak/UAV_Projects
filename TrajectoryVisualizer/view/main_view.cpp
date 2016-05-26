@@ -36,6 +36,19 @@ MainView::MainView(QWidget *parent) :
 
     scene.getMainMap().setVisible(ui->is_map_show_check->isChecked());
 
+
+    /*scene.addEllipse(-5, -5, 10, 10);
+
+    QGraphicsItemGroup *gr = new QGraphicsItemGroup();
+    scene.addItem(gr);
+
+    gr->addToGroup(new QGraphicsEllipseItem(-5, -5, 10, 10));
+
+    gr->setPos(50, 50);
+
+    gr->addToGroup(new QGraphicsEllipseItem(-2, -2, 4, 4));*/
+
+
     scene.setMainView(this);
 }
 

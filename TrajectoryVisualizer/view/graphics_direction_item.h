@@ -15,7 +15,7 @@ namespace viewpkg
     class GraphicsDirectionItem : public QGraphicsItemGroup
     {
     public:
-        GraphicsDirectionItem();
+        GraphicsDirectionItem(QGraphicsItem *parent = 0);
 
         void pushBackWayPoint(QPointF scene_center_pos_px, QColor brush_color = QColor(0, 0, 0));
         void clear();

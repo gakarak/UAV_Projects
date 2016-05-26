@@ -9,7 +9,7 @@ namespace viewpkg{
     class GraphicsOrientationItem : public QGraphicsItemGroup
     {
     public:
-        GraphicsOrientationItem(QPointF center = QPointF(0, 0), double axis_length = 1);
+        GraphicsOrientationItem(QPointF center = QPointF(0, 0), double axis_length = 1, QGraphicsItem *parent = 0);
 
         void setCenter(QPointF center);
         void setAxisLength(double length);

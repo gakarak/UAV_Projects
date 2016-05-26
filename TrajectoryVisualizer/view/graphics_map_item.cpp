@@ -6,7 +6,8 @@
 
 using namespace viewpkg;
 
-GraphicsMapItem::GraphicsMapItem() : QGraphicsItemGroup()
+GraphicsMapItem::GraphicsMapItem(QGraphicsItem *parent)
+    : QGraphicsItemGroup(parent)
 {
     bound_item.setPen(QPen(QBrush(QColor(255, 0, 0)), 8, Qt::SolidLine));
     bound_item.setVisible(false);
@@ -19,7 +20,8 @@ GraphicsMapItem::GraphicsMapItem() : QGraphicsItemGroup()
     this->setHandlesChildEvents(true);
 }
 
-GraphicsMapItem::GraphicsMapItem(const QPixmap &map) : GraphicsMapItem()
+GraphicsMapItem::GraphicsMapItem(const QPixmap &map, QGraphicsItem *parent)
+    : GraphicsMapItem(parent)
 {
     setMapItem(map);
 }

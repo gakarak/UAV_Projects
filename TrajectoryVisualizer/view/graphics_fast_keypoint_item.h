@@ -9,7 +9,7 @@ namespace viewpkg
     class GraphicsFastKeyPointItem : public QGraphicsItem
     {
     public:
-        GraphicsFastKeyPointItem(QPointF center = QPointF(0, 0), double angle = 0, double radius = 1);
+        GraphicsFastKeyPointItem(QPointF center = QPointF(0, 0), double angle = 0, double radius = 1, QGraphicsItem *parent = 0);
 
         void setCenter(QPointF center);
         void setRadius(double radius);
