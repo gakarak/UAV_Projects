@@ -17,8 +17,10 @@
 namespace viewpkg
 {
 
-    class GraphicsTrajectoryItem : public QGraphicsItemGroup
+    class GraphicsTrajectoryItem : public QObject, public QGraphicsItemGroup
     {
+        Q_OBJECT
+
     public:
         GraphicsTrajectoryItem();
 
@@ -33,6 +35,8 @@ namespace viewpkg
         void setKeyPointsVisible(bool is_visible);
 
         //double getMetersPerPixel() const { return m_per_px; }
+    public slots:
+        void frameStateChanged(int frame_num, bool isSelected);
 
     protected:
         void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;

@@ -35,6 +35,8 @@ void GraphicsTrajectoryItem::pushBackFrame(QPixmap img, QPointF center_coords_px
 
     makeTransforms(frame_item, frame_item->getMapItem().boundingRect().center(), center_coords_px, angle, meters_per_pixel);
 
+    QObject::connect( frame_item.get(), SIGNAL(stateChanged(int, bool)), this, SLOT(frameStateChanged(int, bool)) );
+
     frames.push_back(frame_item);
     trajectory_layer.addToGroup(frames.back().get());
 
@@ -115,6 +117,11 @@ void GraphicsTrajectoryItem::setDirectionVisible(bool is_visible)
 void GraphicsTrajectoryItem::setKeyPointsVisible(bool is_visible)
 {
     key_point_layer.setVisible(is_visible);
+}
+
+void GraphicsTrajectoryItem::frameStateChanged(int frame_num, bool isSelected)
+{
+    qDebug() << frame_num << " changed to " << isSelected;
 }
 
 void GraphicsTrajectoryItem::clear()

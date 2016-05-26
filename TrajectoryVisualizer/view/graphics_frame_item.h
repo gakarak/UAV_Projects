@@ -6,8 +6,10 @@
 namespace viewpkg
 {
 
-    class GraphicsFrameItem : public GraphicsMapItem
+    class GraphicsFrameItem : public QObject, public GraphicsMapItem
     {
+        Q_OBJECT
+
     public:
         GraphicsFrameItem(QGraphicsItem *parent = 0);
         GraphicsFrameItem(const QPixmap &frame, int frame_num, QGraphicsItem *parent = 0);
@@ -16,6 +18,9 @@ namespace viewpkg
         int  getFrameNumber() const         { return frame_num; }
 
         bool isSelected() const             { return selected; }
+
+    signals:
+        void stateChanged(int frame_num, bool isSelected);
 
     protected:
         void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;

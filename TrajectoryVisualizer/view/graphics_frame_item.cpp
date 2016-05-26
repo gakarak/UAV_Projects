@@ -20,6 +20,8 @@ void GraphicsFrameItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 
     //selected item always have bounds
     bound_item.setVisible(selected);
+
+    emit stateChanged(frame_num, selected);
 }
 
 void GraphicsFrameItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
