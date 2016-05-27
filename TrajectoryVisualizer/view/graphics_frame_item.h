@@ -17,6 +17,7 @@ namespace viewpkg
         void setFrameNumber(int frame_num)  { this->frame_num = frame_num; }
         int  getFrameNumber() const         { return frame_num; }
 
+        void setSelected(bool value);
         bool isSelected() const             { return selected; }
 
     signals:

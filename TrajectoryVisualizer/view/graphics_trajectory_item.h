@@ -37,6 +37,10 @@ namespace viewpkg
         //double getMetersPerPixel() const { return m_per_px; }
     public slots:
         void frameStateChanged(int frame_num, bool isSelected);
+        void cleanSelection();
+
+    signals:
+        void frameDoubleClicked(int frame_num, bool isSelected);
 
     protected:
         void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;

@@ -121,7 +121,16 @@ void GraphicsTrajectoryItem::setKeyPointsVisible(bool is_visible)
 
 void GraphicsTrajectoryItem::frameStateChanged(int frame_num, bool isSelected)
 {
-    qDebug() << frame_num << " changed to " << isSelected;
+    //qDebug() << frame_num << " changed to " << isSelected;
+    emit frameDoubleClicked(frame_num, isSelected);
+}
+
+void GraphicsTrajectoryItem::cleanSelection()
+{
+    for (auto &frame: frames)
+    {
+        frame->setSelected(false);
+    }
 }
 
 void GraphicsTrajectoryItem::clear()

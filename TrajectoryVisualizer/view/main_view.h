@@ -76,6 +76,9 @@ namespace viewpkg
 
         void on_trj2_shift_btn_clicked();
 
+        void onFirstTrajectoryDoubleClicked(int frame_num, bool isSelected);
+        void onSecondTrajectoryDoubleClicked(int frame_num, bool isSelected);
+
     private://for statusBar
         void updateStatusBar();
         QPointF mouse_scene_pos_m;

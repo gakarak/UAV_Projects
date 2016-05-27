@@ -26,11 +26,18 @@ MainView::MainView(QWidget *parent) :
     ui->graphicsView->setMouseTracking(true);
     zoom = ui->graphicsView->getZoom();
 
+    QObject::connect(ui->calculate_btn, SIGNAL(clicked(bool)), &scene.getFirstTrajectory(), SLOT(cleanSelection()));
+    QObject::connect(ui->calculate_btn, SIGNAL(clicked(bool)), &scene.getSecondTrajectory(), SLOT(cleanSelection()));
+
+    QObject::connect(&scene.getFirstTrajectory(), SIGNAL(frameDoubleClicked(int,bool)), this, SLOT(onFirstTrajectoryDoubleClicked(int,bool)));
+    QObject::connect(&scene.getSecondTrajectory(), SIGNAL(frameDoubleClicked(int,bool)), this, SLOT(onSecondTrajectoryDoubleClicked(int,bool)));
 
     scene.getFirstTrajectory().setOrientationVisible(ui->is_orientation_show_chk->isChecked());
     scene.getSecondTrajectory().setOrientationVisible(ui->is_orientation_show_chk->isChecked());
+
     scene.getFirstTrajectory().setDirectionVisible(ui->is_direction_show_chk->isChecked());
     scene.getSecondTrajectory().setDirectionVisible(ui->is_direction_show_chk->isChecked());
+
     scene.getFirstTrajectory().setKeyPointsVisible(ui->is_key_point_show_chk->isChecked());
     scene.getSecondTrajectory().setKeyPointsVisible(ui->is_key_point_show_chk->isChecked());
 
@@ -228,4 +235,28 @@ void viewpkg::MainView::on_trj2_shift_btn_clicked()
     shift.setX( ui->trj2_shift_x_spin->text().toInt() );
     shift.setY( ui->trj2_shift_y_spin->text().toInt() );
     scene.getSecondTrajectory().setPos(shift);
+}
+
+void MainView::onFirstTrajectoryDoubleClicked(int frame_num, bool isSelected)
+{
+    if (isSelected)
+    {
+        controller->selectedFrame(0, frame_num);
+    }
+    else
+    {
+        controller->unselectedFrame(0, frame_num);
+    }
+}
+
+void MainView::onSecondTrajectoryDoubleClicked(int frame_num, bool isSelected)
+{
+    if (isSelected)
+    {
+        controller->selectedFrame(1, frame_num);
+    }
+    else
+    {
+        controller->unselectedFrame(1, frame_num);
+    }
 }

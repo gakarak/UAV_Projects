@@ -24,6 +24,9 @@ MainController::MainController()
 {
     initDetectors();
     initDescriptors();
+
+    trajectories_kp_cloud.assign(2, vector<cv::KeyPoint>());
+    trajectories_selected_frames.assign(2, vector<int>());
 }
 
 void MainController::loadOrCalculateModel(int detector_idx, int descriptor_idx)
@@ -39,6 +42,8 @@ void MainController::loadOrCalculateModel(int detector_idx, int descriptor_idx)
 
 void MainController::loadIni(string ini_filename)
 {
+    clear();
+
     ConfigSingleton &cfg = ConfigSingleton::getInstance();
     try
     {
@@ -57,8 +62,8 @@ void MainController::loadIni(string ini_filename)
 
 void MainController::loadTrajectories(string trj1_filename, string trj2_filename)
 {
-    model->getTrajectory(0) = loadTrjFromCsv(trj1_filename);
-    model->getTrajectory(1) = loadTrjFromCsv(trj2_filename);
+    model->setTrajectory(0, loadTrjFromCsv(trj1_filename));
+    model->setTrajectory(1, loadTrjFromCsv(trj2_filename));
 
     this->calculateFramesQuality();
 
@@ -154,6 +159,22 @@ void MainController::showKeyPoints(int trj_num)
     }
 }
 
+void MainController::selectedFrame(int trj_num, int frame_num)
+{
+    trajectories_selected_frames[trj_num].push_back(frame_num);
+
+    updateTrajectoryKeyPointsCloud(trj_num);
+}
+
+void MainController::unselectedFrame(int trj_num, int frame_num)
+{
+    auto &selected_frames = trajectories_selected_frames[trj_num];
+    auto where = find(selected_frames.begin(), selected_frames.end(), frame_num);
+    selected_frames.erase(where);
+
+    updateTrajectoryKeyPointsCloud(trj_num);
+}
+
 void MainController::showException(string what)
 {
     clog << "Exception! " << what << endl;
@@ -220,6 +241,13 @@ void MainController::loadOrCalculateKeyPoints(int detector_idx)
             clog << "Saving key points" << endl;
             saveKeyPoints(trj_num, path_to_kp_bin);
         }
+
+        //making cloud of key_points
+        /*Trajectory &trj = model->getTrajectory(trj_num);
+        for (const auto& frame_key_points: trj.key_points)
+        {
+            trj.cloud.insert(trj.cloud.end(), frame_key_points.begin(), frame_key_points.end());
+        }*/
     }
 }
 
@@ -371,6 +399,23 @@ void MainController::saveDescriptions(int trj_num, string filename)
     file.release();
 }
 
+void MainController::updateTrajectoryKeyPointsCloud(int trj_num)
+{
+    auto &selected_frames = trajectories_selected_frames[trj_num];
+    auto &key_points = model->getTrajectory(trj_num).key_points;
+    std::vector<cv::KeyPoint> &cloud = trajectories_kp_cloud[trj_num];
+    cloud.clear();
+
+    if (!key_points.empty())
+    {
+        for (auto& frame_num: selected_frames)
+        {
+            cloud.insert(cloud.end(), key_points[frame_num].begin(), key_points[frame_num].end());
+        }
+    }
+    qDebug() << "trj_num = " << trj_num << " size: " << cloud.size();
+}
+
 void MainController::initDetectors()
 {
     detectors_names.push_back("SIFT");
@@ -421,6 +466,15 @@ void MainController::initDescriptors()
     descriptors_names.push_back("FREAK");
     descriptors.push_back(cv::xfeatures2d::FREAK::create());
     norm_types.push_back(cv::NORM_HAMMING);
+}
+
+void MainController::clear()
+{
+    for (int i = 0; i < trajectories_kp_cloud.size(); i++)
+    {
+        trajectories_kp_cloud[i].clear();
+        trajectories_selected_frames[i].clear();
+    }
 }
 
 Trajectory MainController::loadTrjFromCsv(string csv_filename)

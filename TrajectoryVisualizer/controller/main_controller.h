@@ -34,6 +34,9 @@ namespace controllerpkg
         void setView(std::shared_ptr<viewpkg::MainView> view)       { this->view = view; }
         void setModel(std::shared_ptr<modelpkg::MainModel> model)   { this->model = model; }
 
+        void selectedFrame(int trj_num, int frame_num);
+        void unselectedFrame(int trj_num, int frame_num);
+
         void showException(std::string what);
         void showView();
 
@@ -56,6 +59,8 @@ namespace controllerpkg
         void initDetectors();
         void initDescriptors();
 
+        void clear();
+
         void calculateFramesQuality();
 
         void loadOrCalculateKeyPoints(int detector_idx);
@@ -67,6 +72,8 @@ namespace controllerpkg
         void       calculateDescriptions(int trj_num, int descriptor_idx);
         void            loadDescriptions(int trj_num, std::string filename);
         void            saveDescriptions(int trj_num, std::string filename);
+
+        void updateTrajectoryKeyPointsCloud(int trj_num);
 
                                 //params - filename, x_m, y_m, angle, m_per_px
         modelpkg::Map           loadMapFromRow(std::vector<std::string> params);
@@ -82,6 +89,9 @@ namespace controllerpkg
         std::vector<QString> descriptors_names;
         std::vector<cv::Ptr<cv::Feature2D>> descriptors;
         std::vector<cv::NormTypes> norm_types;
+
+        std::vector<std::vector<cv::KeyPoint>> trajectories_kp_cloud;
+        std::vector<std::vector<int>> trajectories_selected_frames;
     };
 
 }
