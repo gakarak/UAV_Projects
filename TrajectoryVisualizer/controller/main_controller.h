@@ -22,6 +22,7 @@ namespace controllerpkg
         MainController();
 
         void loadOrCalculateModel(int detector_idx, int descriptor_idx);
+        void calculateMatches(int descriptor_idx);
 
         void loadIni(std::string ini_filename);
         void loadTrajectories(std::string trj1_filename, std::string trj2_filename);
@@ -30,6 +31,7 @@ namespace controllerpkg
         void showTrajectory(int trj_num);
         void showMainMap();
         void showKeyPoints(int trj_num);
+        void showMatches();
 
         void setView(std::shared_ptr<viewpkg::MainView> view)       { this->view = view; }
         void setModel(std::shared_ptr<modelpkg::MainModel> model)   { this->model = model; }
@@ -92,6 +94,8 @@ namespace controllerpkg
 
         std::vector<std::vector<cv::KeyPoint>> trajectories_kp_cloud;
         std::vector<std::vector<int>> trajectories_selected_frames;
+        std::vector<cv::DMatch> matches;
+        std::vector<std::vector<int>> accumulative_trj_cuts;
     };
 
 }

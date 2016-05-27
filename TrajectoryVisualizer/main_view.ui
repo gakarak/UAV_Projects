@@ -192,6 +192,13 @@ QGroupBox::title {
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QPushButton" name="match_btn">
+           <property name="text">
+            <string>Match</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>

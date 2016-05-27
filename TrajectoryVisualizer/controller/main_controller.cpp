@@ -27,6 +27,7 @@ MainController::MainController()
 
     trajectories_kp_cloud.assign(2, vector<cv::KeyPoint>());
     trajectories_selected_frames.assign(2, vector<int>());
+    accumulative_trj_cuts.assign(2, vector<int>());
 }
 
 void MainController::loadOrCalculateModel(int detector_idx, int descriptor_idx)
@@ -38,6 +39,73 @@ void MainController::loadOrCalculateModel(int detector_idx, int descriptor_idx)
     {
         this->showKeyPoints(trj_num);
     }
+}
+
+void MainController::calculateMatches(int descriptor_idx)
+{
+    //norm_type for each descriptor setted
+    cv::BFMatcher matcher(norm_types[descriptor_idx]);
+
+    //generate descriptors clouds
+    vector<cv::Mat> trajectories_descr_clouds(2, cv::Mat());
+
+    for (int trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
+    {
+        const auto &trj = model->getTrajectory(trj_num);
+        const auto &selected_frames = trajectories_selected_frames[trj_num];
+        vector<cv::Mat> descriptions_cloud;//trajectories_descr_clouds[trj_num];
+        auto &accumulative_cut = accumulative_trj_cuts[trj_num];
+
+        accumulative_cut.clear();
+        accumulative_cut.push_back(0);
+        if (selected_frames.empty())
+        {//take all trajectory
+            for (const auto &description: trj.descriptions)
+            {
+                descriptions_cloud.push_back(description);
+
+                //sum of all counts of key_poins on frame
+
+                /*if (accumulative_cut.empty())
+                {
+                    accumulative_cut.push_back(description.size().height());
+                }
+                else*/
+                {
+                    accumulative_cut.push_back(accumulative_cut.back() + description.size().height);
+                }
+                //qDebug() << "width " << description.size().width << " height " << description.size().height;
+            }
+        }
+        else
+        {//only selected
+            for (const auto &frame_num: selected_frames)
+            {
+                descriptions_cloud.push_back(trj.descriptions[frame_num]);
+
+                //sum of all counts of key_poins on frame
+                //accumulative_cut.push_back(0);
+                /*if (accumulative_cut.empty())
+                {
+                    accumulative_cut.push_back(trj.key_points.size());
+                }
+                else*/
+                {
+                    accumulative_cut.push_back(accumulative_cut.back() + trj.key_points.size());
+                }
+                //qDebug() << "width " << trj.descriptions[frame_num].size().width << " height " << trj.descriptions[frame_num].size().height;
+            }
+        }
+
+        cv::vconcat(descriptions_cloud, trajectories_descr_clouds[trj_num]);
+    }
+
+    matcher.match(trajectories_descr_clouds[0],
+                  trajectories_descr_clouds[1],
+                  matches);
+
+
+    this->showMatches();
 }
 
 void MainController::loadIni(string ini_filename)
@@ -156,6 +224,43 @@ void MainController::showKeyPoints(int trj_num)
     else
     {
         view->setSecondKeyPoints(frames_num, center_coords_px, angles, radius, colors);
+    }
+}
+
+void MainController::showMatches()
+{
+    //DMatch query_idx = first_trj, train_idx = second_trj
+
+
+    for (const cv::DMatch &match: matches)
+    {
+        vector<int> frame_nums(model->getTrajectoriesCount(), 0);
+        vector<int> kp_nums(model->getTrajectoriesCount(), 0);
+
+        for (int trj_num = 0; trj_num < frame_nums.size(); trj_num++)
+        {
+            const auto &accumulate_cuts = accumulative_trj_cuts[trj_num];
+            const auto &selected_frames = trajectories_selected_frames[trj_num];
+            auto &frame_num = frame_nums[trj_num];
+            auto &kp_num = kp_nums[trj_num];
+
+            const auto &idx = trj_num == 0? match.queryIdx: match.trainIdx;
+
+            while (idx < accumulate_cuts[frame_num])
+            {
+                frame_num++;
+            }
+
+            kp_num = idx - accumulate_cuts[frame_num];
+
+            if (!selected_frames.empty())
+            {
+                frame_num = selected_frames[frame_num];
+            }
+        }
+
+        qDebug() << "frame from: " << frame_nums[0] << " frame to: " << frame_nums[1];
+        qDebug() << "kp_num from : " << kp_nums[0] << " frame to: " << kp_nums[1];
     }
 }
 

@@ -115,6 +115,14 @@ void MainView::setMainMap(QPixmap map, double meter_per_pixel)
     scene.getMainMap().setScale(  meter_per_pixel / m_per_px );
 }
 
+void MainView::setMatches(const std::vector<QPointF> &first_trj_pts, const std::vector<QPointF> &second_trj_pts)
+{
+    for (int i = 0; i < first_trj_pts.size(); i++)
+    {
+        scene.getMatches().addLine(first_trj_pts[i], second_trj_pts[i]);
+    }
+}
+
 void MainView::setDetectors(const vector<QString> &detectors_names)
 {
     ui->detector_combo->clear();
@@ -234,7 +242,9 @@ void viewpkg::MainView::on_trj2_shift_btn_clicked()
     QPointF shift;
     shift.setX( ui->trj2_shift_x_spin->text().toInt() );
     shift.setY( ui->trj2_shift_y_spin->text().toInt() );
+
     scene.getSecondTrajectory().setPos(shift);
+    scene.getMatches().setShift(shift);
 }
 
 void MainView::onFirstTrajectoryDoubleClicked(int frame_num, bool isSelected)
@@ -259,4 +269,11 @@ void MainView::onSecondTrajectoryDoubleClicked(int frame_num, bool isSelected)
     {
         controller->unselectedFrame(1, frame_num);
     }
+}
+
+void viewpkg::MainView::on_match_btn_clicked()
+{
+    int descriptor_idx = ui->descriptor_combo->currentIndex();
+
+    controller->calculateMatches(descriptor_idx);
 }
