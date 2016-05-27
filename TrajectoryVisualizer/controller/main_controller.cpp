@@ -379,7 +379,7 @@ void MainController::loadDescriptions(int trj_num, string filename)
     for (int i = 0; i < n; i++)
     {
         descriptions.push_back(cv::Mat());
-        file[to_string(i)] >> descriptions[i];
+        file["img"+to_string(i)] >> descriptions[i];
     }
     file.release();
 }
