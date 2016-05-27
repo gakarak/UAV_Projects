@@ -8,6 +8,11 @@ MainModel::MainModel()
 
 }
 
+void MainModel::setTrajectory(int trj_num, const Trajectory &trj)
+{
+    getTrajectory(trj_num) = trj;
+}
+
 Trajectory& MainModel::getTrajectory(int trj_num)
 {
     if (trj_num > trj_count)

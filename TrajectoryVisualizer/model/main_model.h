@@ -13,6 +13,9 @@ namespace modelpkg
     public:
         MainModel();
 
+        //must be used for settings new trajectories,
+        //     otherwise  you must manually amended matches
+        void                setTrajectory(int trj_num, const Trajectory &trj);
 
                 Trajectory& getTrajectory(int trj_num);
         const   Trajectory& getTrajectory(int trj_num) const;
@@ -35,6 +38,9 @@ namespace modelpkg
         Trajectory  first_trj;
         Trajectory  second_trj;
         Map         main_map;
+
+        //from frame from second to the full first_trajectory
+        std::vector<std::vector<cv::DMatch>> matches;
 
         int trj_count;
     };
