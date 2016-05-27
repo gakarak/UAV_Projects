@@ -18,9 +18,12 @@ GraphicsMapScene::GraphicsMapScene()
     //main_map.setVisible(ui->is_map_show_check->isChecked());
     main_map.setHoverable(false);
 
+    matches.setZValue(1);
+
     this->addItem(&trajectory1);
     this->addItem(&trajectory2);
     this->addItem(&main_map);
+    this->addItem(&matches);
 }
 
 void GraphicsMapScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
