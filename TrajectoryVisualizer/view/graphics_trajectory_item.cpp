@@ -96,7 +96,7 @@ void GraphicsTrajectoryItem::makeTransforms(shared_ptr<QGraphicsItem> item, QPoi
     qreal dx = 0;//item_center_px.x()/scale;
     qreal dy = 0;//item_center_px.y()/scale;
     item->setTransform(QTransform().translate(dx, dy).scale(scale, scale).translate(-dx, -dy), true);
-    item->setPos( (scene_center_pos_px - item_center_px) * scale + item_center_px*scale);
+    item->setPos( (scene_center_pos_px - item_center_px) * scale + this->pos());
 }
 
 void GraphicsTrajectoryItem::setOrientationVisible(bool is_visible)
