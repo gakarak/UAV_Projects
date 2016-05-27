@@ -27,11 +27,9 @@ namespace controllerpkg
         void loadTrajectories(std::string trj1_filename, std::string trj2_filename);
         void loadMainMap(std::string filename, double meters_per_pixel);
 
-        void showFirstTrajectory();
-        void showSecondTrajectory();
+        void showTrajectory(int trj_num);
         void showMainMap();
-        void showFirstKeyPoints();
-        void showSecondKeyPoints();
+        void showKeyPoints(int trj_num);
 
         void setView(std::shared_ptr<viewpkg::MainView> view)       { this->view = view; }
         void setModel(std::shared_ptr<modelpkg::MainModel> model)   { this->model = model; }

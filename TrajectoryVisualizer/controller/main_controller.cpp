@@ -31,8 +31,10 @@ void MainController::loadOrCalculateModel(int detector_idx, int descriptor_idx)
     loadOrCalculateKeyPoints(detector_idx);
     loadOrCalculateDescriptions(detector_idx, descriptor_idx);
 
-    this->showFirstKeyPoints();
-    this->showSecondKeyPoints();
+    for (int trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
+    {
+        this->showKeyPoints(trj_num);
+    }
 }
 
 void MainController::loadIni(string ini_filename)
@@ -55,34 +57,37 @@ void MainController::loadIni(string ini_filename)
 
 void MainController::loadTrajectories(string trj1_filename, string trj2_filename)
 {
-    model->first_trj = loadTrjFromCsv(trj1_filename);
-    model->second_trj = loadTrjFromCsv(trj2_filename);
+    model->getTrajectory(0) = loadTrjFromCsv(trj1_filename);
+    model->getTrajectory(1) = loadTrjFromCsv(trj2_filename);
 
     this->calculateFramesQuality();
-    this->showFirstTrajectory();
-    this->showSecondTrajectory();
+
+    for (int trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
+    {
+        this->showTrajectory(trj_num);
+    }
 }
 
 void MainController::loadMainMap(string filename, double meters_per_pixel)
 {
-    model->main_map = modelpkg::Map(filename, 0, 0, 0, meters_per_pixel);
+    model->getMainMap() = modelpkg::Map(filename, 0, 0, 0, meters_per_pixel);
 
-    double center_x_m = model->main_map.image.cols / 2.0 * meters_per_pixel;
-    double center_y_m = model->main_map.image.rows / 2.0 * meters_per_pixel;
-    model->main_map.pos_m = cv::Point2f(center_x_m, center_y_m);
+    double center_x_m = model->getMainMap().image.cols / 2.0 * meters_per_pixel;
+    double center_y_m = model->getMainMap().image.rows / 2.0 * meters_per_pixel;
+    model->getMainMap().pos_m = cv::Point2f(center_x_m, center_y_m);
 
     this->showMainMap();
 }
 
-void MainController::showFirstTrajectory()
+void MainController::showTrajectory(int trj_num)
 {
     vector<QPixmap> qpixs;
     vector<QPointF> center_coords_px;
     vector<double>  angles;
     vector<double>  meter_per_pixels;
-    vector<double> &qualities = model->first_trj.frames_quality;
+    const vector<double> &qualities = model->getTrajectory(trj_num).frames_quality;
 
-    for (const auto &frame: model->first_trj.frames)
+    for (const auto &frame: model->getTrajectory(trj_num).frames)
     {
         QPointF center_px;
         center_px.setX( frame.pos_m.x / frame.m_per_px );
@@ -93,43 +98,28 @@ void MainController::showFirstTrajectory()
         angles.push_back( frame.angle );
         meter_per_pixels.push_back( frame.m_per_px );
     }
-
-    view->setFirstTrajectory(qpixs, center_coords_px, angles, meter_per_pixels, qualities);
-}
-
-void MainController::showSecondTrajectory()
-{
-    vector<QPixmap> qpixs;
-    vector<QPointF> center_coords_px;
-    vector<double>  angles;
-    vector<double>  meter_per_pixels;
-    vector<double> &qualities = model->second_trj.frames_quality;
-
-    for (const auto &frame: model->second_trj.frames)
+    if (trj_num == 0)
     {
-        QPointF center_px;
-        center_px.setX( frame.pos_m.x / frame.m_per_px );
-        center_px.setY( frame.pos_m.y / frame.m_per_px );
-
-        qpixs.push_back( utils::ASM::cvMatToQPixmap(frame.image) );
-        center_coords_px.push_back( center_px );
-        angles.push_back( frame.angle );
-        meter_per_pixels.push_back( frame.m_per_px );
+        view->setFirstTrajectory(qpixs, center_coords_px, angles, meter_per_pixels, qualities);
     }
-
-    view->setSecondTrajectory(qpixs, center_coords_px, angles, meter_per_pixels, qualities);
+    else
+    {
+        view->setSecondTrajectory(qpixs, center_coords_px, angles, meter_per_pixels, qualities);
+    }
 }
 
 void MainController::showMainMap()
 {
-    QPixmap qpix = utils::ASM::cvMatToQPixmap(model->main_map.image);
+    QPixmap qpix = utils::ASM::cvMatToQPixmap(model->getMainMap().image);
 
-    view->setMainMap(qpix, model->main_map.m_per_px);
+    view->setMainMap(qpix, model->getMainMap().m_per_px);
 }
 
-void MainController::showFirstKeyPoints()
+void MainController::showKeyPoints(int trj_num)
 {
-    vector<vector<cv::KeyPoint>> &key_points = model->first_trj.key_points;
+    const Trajectory &trj = model->getTrajectory(trj_num);
+    const auto &key_points = trj.key_points;
+
     vector<int> frames_num;
     vector<QPointF> center_coords_px;
     vector<double> angles;
@@ -140,8 +130,8 @@ void MainController::showFirstKeyPoints()
     {
         for (int j = 0; j < std::min((size_t)100, key_points[i].size()); j++)
         {
-            Map &frame = model->first_trj.frames[i];
-            cv::KeyPoint &kp = key_points[i][j];
+            const Map &frame = trj.frames[i];
+            const cv::KeyPoint &kp = key_points[i][j];
 
             double mul = kp.response / 100;
             if (mul > 1) mul = 1;
@@ -154,37 +144,14 @@ void MainController::showFirstKeyPoints()
         }
     }
 
-    view->setFirstKeyPoints(frames_num, center_coords_px, angles, radius, colors);
-}
-
-void MainController::showSecondKeyPoints()
-{
-    vector<vector<cv::KeyPoint>> &key_points = model->second_trj.key_points;
-    vector<int> frames_num;
-    vector<QPointF> center_coords_px;
-    vector<double> angles;
-    vector<double> radius;
-    vector<QColor> colors;
-
-    for (int i = 0; i < key_points.size(); i+=1)
+    if (trj_num == 0)
     {
-        for (int j = 0; j < std::min((size_t)100, key_points[i].size()); j++)
-        {
-            Map &frame = model->second_trj.frames[i];
-            cv::KeyPoint &kp = key_points[i][j];
-
-            double mul = kp.response / 160;
-            if (mul > 1) mul = 1;
-
-            frames_num.push_back(i);
-            center_coords_px.push_back(QPointF(kp.pt.x, kp.pt.y) - QPointF(frame.image.cols/2, frame.image.rows/2) + QPointF(frame.pos_m.x / frame.m_per_px, frame.pos_m.y / frame.m_per_px));
-            angles.push_back(kp.angle);
-            radius.push_back(kp.size / 2.);
-            colors.push_back( QColor(255*(1-mul), 255*(mul), 0) );//QColor(255*mul, 165*mul, 0));
-        }
+        view->setFirstKeyPoints(frames_num, center_coords_px, angles, radius, colors);
     }
-
-    view->setSecondKeyPoints(frames_num, center_coords_px, angles, radius, colors);
+    else
+    {
+        view->setSecondKeyPoints(frames_num, center_coords_px, angles, radius, colors);
+    }
 }
 
 void MainController::showException(string what)
@@ -208,32 +175,23 @@ void MainController::calculateFramesQuality()
 {
     double threshold = ConfigSingleton::getInstance().getQualityThreshold();
 
-    //first trajectory
-    for (const auto& frame: model->first_trj.frames)
+    for (int trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
     {
-        double scale = frame.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
-        cv::Size new_size(frame.image.size().width * scale, frame.image.size().height * scale);
+        Trajectory &trj = model->getTrajectory(trj_num);
+        const auto& frames = trj.frames;
 
-        cv::Mat resized;
-        cv::resize(frame.image, resized, new_size);
+        for (const auto& frame: frames)
+        {
+            double scale = frame.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
+            cv::Size new_size(frame.image.size().width * scale, frame.image.size().height * scale);
 
-        double quality = std::min( 1., utils::cv::gradientDensity(resized) / threshold );
+            cv::Mat resized;
+            cv::resize(frame.image, resized, new_size);
 
-        model->first_trj.frames_quality.push_back(quality);
-    }
+            double quality = std::min( 1., utils::cv::gradientDensity(resized) / threshold );
 
-    //second trajectory
-    for (const auto& frame: model->second_trj.frames)
-    {
-        double scale = frame.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
-        cv::Size new_size(frame.image.size().width * scale, frame.image.size().height * scale);
-
-        cv::Mat resized;
-        cv::resize(frame.image, resized, new_size);
-
-        double quality = std::min( 1., utils::cv::gradientDensity(resized) / threshold );
-
-        model->second_trj.frames_quality.push_back(quality);
+            trj.frames_quality.push_back(quality);
+        }
     }
 
 }
@@ -245,7 +203,7 @@ void MainController::loadOrCalculateKeyPoints(int detector_idx)
 {
     ConfigSingleton &cfg = ConfigSingleton::getInstance();
 
-    for (int trj_num = 0; trj_num < model->trj_count; trj_num++)
+    for (int trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
     {
         string path_to_kp_bin = cfg.getPathToKeyPoints(trj_num, detectors_names[detector_idx].toStdString());
 
@@ -268,8 +226,7 @@ void MainController::loadOrCalculateKeyPoints(int detector_idx)
 void MainController::calculateKeyPoints(int trj_num, int detector_idx)
 {
     cv::Ptr<cv::Feature2D> &detector = detectors[detector_idx];
-
-    auto &trj = trj_num == 0? model->first_trj: model->second_trj;
+    Trajectory &trj = model->getTrajectory(trj_num);
 
     trj.key_points.clear();
     for (const Map& frame: trj.frames)
@@ -293,7 +250,7 @@ void MainController::loadKeyPoints(int trj_num, string filename)
         throw MainController::NoFileExist(filename);
     }
 
-    vector<vector<cv::KeyPoint>> &key_points = trj_num == 0? model->first_trj.key_points: model->second_trj.key_points;
+    auto &key_points = model->getTrajectory(trj_num).key_points;
     key_points.clear();
 
     //maybe format checking
@@ -316,7 +273,7 @@ void MainController::loadKeyPoints(int trj_num, string filename)
 
 void MainController::saveKeyPoints(int trj_num, string filename)
 {
-    vector<vector<cv::KeyPoint>> &key_points = trj_num == 0? model->first_trj.key_points: model->second_trj.key_points;
+    const auto &key_points = model->getTrajectory(trj_num).key_points;
 
     ofstream out(filename, ios::binary);
     size_t n = key_points.size();
@@ -327,7 +284,7 @@ void MainController::saveKeyPoints(int trj_num, string filename)
         out.write(reinterpret_cast<char*>(&m), sizeof(m));
         for (int j = 0; j < key_points[i].size(); j++)
         {
-            out.write(reinterpret_cast<char*>(&key_points[i][j]), sizeof(key_points[i][j]));
+            out.write(reinterpret_cast<const char*>(&key_points[i][j]), sizeof(key_points[i][j]));
         }
     }
 }
@@ -340,7 +297,7 @@ void MainController::loadOrCalculateDescriptions(int detector_idx, int descripto
 {
     ConfigSingleton &cfg = ConfigSingleton::getInstance();
 
-    for (int trj_num = 0; trj_num < model->trj_count; trj_num++)
+    for (int trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
     {
         string path_to_dscr_xml = cfg.getPathToDescriptors(trj_num, detectors_names[detector_idx].toStdString(),
                                                                     descriptors_names[descriptor_idx].toStdString());
@@ -365,7 +322,7 @@ void MainController::loadOrCalculateDescriptions(int detector_idx, int descripto
 void MainController::calculateDescriptions(int trj_num, int descriptor_idx)
 {
     cv::Ptr<cv::Feature2D> &descriptor = descriptors[descriptor_idx];
-    auto &trj = trj_num == 0? model->first_trj: model->second_trj;
+    Trajectory &trj = model->getTrajectory(trj_num);
 
     trj.descriptions.clear();
     for (int i = 0; i < trj.key_points.size(); i++)
@@ -386,7 +343,7 @@ void MainController::loadDescriptions(int trj_num, string filename)
         throw MainController::NoFileExist(filename);
     }
 
-    auto &descriptions = trj_num == 0? model->first_trj.descriptions: model->second_trj.descriptions;
+    auto &descriptions = model->getTrajectory(trj_num).descriptions;
     descriptions.clear();
 
     int n = 0;
@@ -401,7 +358,7 @@ void MainController::loadDescriptions(int trj_num, string filename)
 
 void MainController::saveDescriptions(int trj_num, string filename)
 {
-    auto &descriptions = trj_num == 0? model->first_trj.descriptions: model->second_trj.descriptions;
+    const auto &descriptions = model->getTrajectory(trj_num).descriptions;
 
     cv::FileStorage file(filename, cv::FileStorage::WRITE);
 
