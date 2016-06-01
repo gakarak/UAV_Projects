@@ -23,6 +23,7 @@ GraphicsMapScene::GraphicsMapScene()
     this->addItem(&trajectory1);
     this->addItem(&trajectory2);
     this->addItem(&main_map);
+    matches.setOpacity(0.3);
     this->addItem(&matches);
 }
 
