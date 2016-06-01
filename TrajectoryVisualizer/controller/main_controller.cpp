@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdlib>
 #include <algorithm>
+#include <chrono>
 
 #include <QPixmap>
 #include <QPointF>
@@ -56,6 +57,7 @@ void MainController::calculateMatches(int descriptor_idx)
         vector<cv::Mat> descriptions_cloud;//trajectories_descr_clouds[trj_num];
         auto &accumulative_cut = accumulative_trj_cuts[trj_num];
 
+        //accumulative_cut need for further relevant key points extraction
         accumulative_cut.clear();
         accumulative_cut.push_back(0);
         if (selected_frames.empty())
@@ -65,16 +67,7 @@ void MainController::calculateMatches(int descriptor_idx)
                 descriptions_cloud.push_back(description);
 
                 //sum of all counts of key_poins on frame
-
-                /*if (accumulative_cut.empty())
-                {
-                    accumulative_cut.push_back(description.size().height());
-                }
-                else*/
-                {
-                    accumulative_cut.push_back(accumulative_cut.back() + description.size().height);
-                }
-                //qDebug() << "width " << description.size().width << " height " << description.size().height;
+                accumulative_cut.push_back(accumulative_cut.back() + description.size().height);
             }
         }
         else
@@ -84,25 +77,32 @@ void MainController::calculateMatches(int descriptor_idx)
                 descriptions_cloud.push_back(trj.descriptions[frame_num]);
 
                 //sum of all counts of key_poins on frame
-                //accumulative_cut.push_back(0);
-                /*if (accumulative_cut.empty())
-                {
-                    accumulative_cut.push_back(trj.key_points.size());
-                }
-                else*/
-                {
-                    accumulative_cut.push_back(accumulative_cut.back() + trj.key_points.size());
-                }
-                //qDebug() << "width " << trj.descriptions[frame_num].size().width << " height " << trj.descriptions[frame_num].size().height;
+                accumulative_cut.push_back(accumulative_cut.back() + trj.key_points[frame_num].size());
             }
         }
 
         cv::vconcat(descriptions_cloud, trajectories_descr_clouds[trj_num]);
     }
 
-    matcher.match(trajectories_descr_clouds[0],
-                  trajectories_descr_clouds[1],
-                  matches);
+    isFirstMatchingOnSecond = trajectories_selected_frames[1].empty();
+
+    auto start_match_time = chrono::high_resolution_clock::now();
+    if (isFirstMatchingOnSecond)
+    {
+        matcher.match(trajectories_descr_clouds[0],
+                      trajectories_descr_clouds[1],
+                      matches);
+    }
+    else
+    {
+        matcher.match(trajectories_descr_clouds[1],
+                      trajectories_descr_clouds[0],
+                      matches);
+    }
+    auto finish_match_time = chrono::high_resolution_clock::now();
+    clog << "Match time: " <<
+            chrono::duration_cast<chrono::milliseconds>(finish_match_time - start_match_time).count() <<
+            "ms" << endl;
 
 
     this->showMatches();
@@ -230,26 +230,34 @@ void MainController::showKeyPoints(int trj_num)
 void MainController::showMatches()
 {
     //DMatch query_idx = first_trj, train_idx = second_trj
+    vector<vector<QPointF>> trajectories_kp(matches.size(), vector<QPointF>(model->getTrajectoriesCount(), QPointF(0, 0)));
+    vector<vector<QPointF>> frames_center_on_map(matches.size(), vector<QPointF>());
+    vector<vector<double>> angles(matches.size(), vector<double>());
+    vector<vector<double>> meters_per_pixels(matches.size(), vector<double>());
 
-
-    for (const cv::DMatch &match: matches)
+    for (int match_num = 0; match_num < matches.size(); match_num++)
     {
+        const cv::DMatch &match = matches[match_num];
         vector<int> frame_nums(model->getTrajectoriesCount(), 0);
         vector<int> kp_nums(model->getTrajectoriesCount(), 0);
 
-        for (int trj_num = 0; trj_num < frame_nums.size(); trj_num++)
+        for (int trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
         {
+            const auto &trj = model->getTrajectory(trj_num);
             const auto &accumulate_cuts = accumulative_trj_cuts[trj_num];
             const auto &selected_frames = trajectories_selected_frames[trj_num];
             auto &frame_num = frame_nums[trj_num];
             auto &kp_num = kp_nums[trj_num];
 
-            const auto &idx = trj_num == 0? match.queryIdx: match.trainIdx;
+            //tricky code
+            const auto &idx = isFirstMatchingOnSecond == trj_num? match.trainIdx:  match.queryIdx;
 
-            while (idx < accumulate_cuts[frame_num])
+            //calculating frame_num and kp_num
+            while (idx >= accumulate_cuts[frame_num])
             {
                 frame_num++;
             }
+            frame_num--; //because start from 0
 
             kp_num = idx - accumulate_cuts[frame_num];
 
@@ -257,11 +265,19 @@ void MainController::showMatches()
             {
                 frame_num = selected_frames[frame_num];
             }
-        }
 
-        qDebug() << "frame from: " << frame_nums[0] << " frame to: " << frame_nums[1];
-        qDebug() << "kp_num from : " << kp_nums[0] << " frame to: " << kp_nums[1];
+
+            //get point
+            const Map &frame = trj.frames[frame_num];
+            const cv::KeyPoint &kp = trj.key_points[frame_num][kp_num];
+            trajectories_kp[match_num][trj_num] = (QPointF(kp.pt.x, kp.pt.y) - QPointF(frame.image.cols/2, frame.image.rows/2) +
+                                               QPointF(frame.pos_m.x / frame.m_per_px, frame.pos_m.y / frame.m_per_px));
+            frames_center_on_map[match_num].push_back(QPointF(frame.pos_m.x / frame.m_per_px, frame.pos_m.y / frame.m_per_px));
+            angles[match_num].push_back(frame.angle);
+            meters_per_pixels[match_num].push_back(frame.m_per_px);
+        }
     }
+    view->setMatches(trajectories_kp, frames_center_on_map, angles, meters_per_pixels);
 }
 
 void MainController::selectedFrame(int trj_num, int frame_num)
@@ -275,7 +291,10 @@ void MainController::unselectedFrame(int trj_num, int frame_num)
 {
     auto &selected_frames = trajectories_selected_frames[trj_num];
     auto where = find(selected_frames.begin(), selected_frames.end(), frame_num);
-    selected_frames.erase(where);
+    if (where != selected_frames.end())
+    {
+        selected_frames.erase(where);
+    }
 
     updateTrajectoryKeyPointsCloud(trj_num);
 }

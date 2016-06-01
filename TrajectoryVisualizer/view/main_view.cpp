@@ -117,11 +117,15 @@ void MainView::setMainMap(QPixmap map, double meter_per_pixel)
     scene.getMainMap().setScale(  meter_per_pixel / m_per_px );
 }
 
-void MainView::setMatches(const std::vector<QPointF> &first_trj_pts, const std::vector<QPointF> &second_trj_pts)
+void MainView::setMatches(const std::vector<std::vector<QPointF>> &trajectory_pts,
+                          const std::vector<std::vector<QPointF>> &frames_center_on_map,
+                          const std::vector<std::vector<double>> &angles,
+                          const std::vector<std::vector<double>> &meters_per_pixels)
 {
-    for (int i = 0; i < first_trj_pts.size(); i++)
+    scene.getMatches().clear();
+    for (int i = 0; i < trajectory_pts.size(); i++)
     {
-        scene.getMatches().addLine(first_trj_pts[i], second_trj_pts[i]);
+        scene.getMatches().addLine(trajectory_pts[i], frames_center_on_map[i], angles[i], meters_per_pixels[i]);
     }
 }
 
@@ -171,6 +175,7 @@ void viewpkg::MainView::on_clear_btn_clicked()
 {
     scene.getFirstTrajectory().clear();
     scene.getSecondTrajectory().clear();
+    scene.getMatches().clear();
 
     ui->model_settings_group->setEnabled(false);
 }
@@ -253,6 +258,7 @@ void MainView::onFirstTrajectoryDoubleClicked(int frame_num, bool isSelected)
 {
     if (isSelected)
     {
+        scene.getSecondTrajectory().cleanSelection();
         controller->selectedFrame(0, frame_num);
     }
     else
@@ -265,6 +271,7 @@ void MainView::onSecondTrajectoryDoubleClicked(int frame_num, bool isSelected)
 {
     if (isSelected)
     {
+        scene.getFirstTrajectory().cleanSelection();
         controller->selectedFrame(1, frame_num);
     }
     else

@@ -94,6 +94,8 @@ namespace controllerpkg
 
         std::vector<std::vector<cv::KeyPoint>> trajectories_kp_cloud;
         std::vector<std::vector<int>> trajectories_selected_frames;
+
+        bool isFirstMatchingOnSecond;
         std::vector<cv::DMatch> matches;
         std::vector<std::vector<int>> accumulative_trj_cuts;
     };

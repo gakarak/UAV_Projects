@@ -1,6 +1,12 @@
 #include "graphics_matches_item.h"
 
+#include <vector>
+
 #include <QLineF>
+#include <QPen>
+#include <QBrush>
+
+#include "config_singleton.h"
 
 using namespace std;
 
@@ -10,13 +16,28 @@ GraphicsMatchesItem::GraphicsMatchesItem()
 
 }
 
-void GraphicsMatchesItem::addLine(QPointF first_trj_pt, QPointF second_trj_pt)
+void GraphicsMatchesItem::addLine(vector<QPointF> trajectories_pt, vector<QPointF> frames_center_on_map,
+                                  vector<double> angles, vector<double> meters_per_pixels)
 {
-    second_trj_pts.push_back(second_trj_pt);
+    for (int i = 0; i < 2; i++)
+    {
+        double scale = meters_per_pixels[i] / ConfigSingleton::getInstance().getCommonMetersPerPixel();
 
-    shared_ptr<QGraphicsLineItem> line = make_shared<QGraphicsLineItem>();
+        trajectories_pt[i] *= scale;
 
-    line->setLine(QLineF(first_trj_pt, second_trj_pt + shift));
+        frames_center_on_map[i] *= scale;
+        trajectories_pt[i] -= frames_center_on_map[i];
+        trajectories_pt[i] = QTransform().rotate(angles[i]).map(trajectories_pt[i]);
+        trajectories_pt[i] += frames_center_on_map[i];
+    }
+
+    second_trj_pts.push_back(trajectories_pt[1]);
+
+    shared_ptr<QGraphicsLineItem> line = make_shared<QGraphicsLineItem>(this);
+
+    line->setPen(QPen(QBrush(QColor(51, 102, 153)), 2));
+
+    line->setLine(QLineF(trajectories_pt[0], trajectories_pt[1] + shift));
 
     lines.push_back(line);
     this->addToGroup(lines.back().get());
@@ -37,6 +58,12 @@ void GraphicsMatchesItem::setShift(QPointF shift)
 
         line->setLine(QLineF(line->line().p1(), second_trj_pts[i] + shift));
     }
+}
+
+void GraphicsMatchesItem::clear()
+{
+    second_trj_pts.clear();
+    lines.clear();
 }
 
 

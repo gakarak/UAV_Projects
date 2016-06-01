@@ -49,7 +49,10 @@ namespace viewpkg
 
         void setMainMap(QPixmap map, double meter_per_pixel);
 
-        void setMatches(const std::vector<QPointF> &first_trj_pts, const std::vector<QPointF> &second_trj_pts);
+        void setMatches(const std::vector<std::vector<QPointF>> &trajectory_pts,
+                        const std::vector<std::vector<QPointF>> &frames_center_on_map,
+                        const std::vector<std::vector<double>> &angles,
+                        const std::vector<std::vector<double>> &meters_per_pixels);
 
         void setDetectors(const std::vector<QString> &detectors_names);
         void setDescriptors(const std::vector<QString> &descriptors_names);
@@ -82,6 +85,8 @@ namespace viewpkg
         void onSecondTrajectoryDoubleClicked(int frame_num, bool isSelected);
 
         void on_match_btn_clicked();
+
+        void on_is_matches_show_check_toggled(bool checked);
 
     private://for statusBar
         void updateStatusBar();
