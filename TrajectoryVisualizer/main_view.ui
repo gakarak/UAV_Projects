@@ -247,6 +247,13 @@ QGroupBox::title {
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="is_matches_show_check">
+        <property name="text">
+         <string>show matches</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QGroupBox" name="groupBox">
         <property name="minimumSize">
          <size>

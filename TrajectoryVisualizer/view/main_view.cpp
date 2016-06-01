@@ -43,6 +43,8 @@ MainView::MainView(QWidget *parent) :
 
     scene.getMainMap().setVisible(ui->is_map_show_check->isChecked());
 
+    scene.getMatches().setVisible(ui->is_matches_show_check->isChecked());
+
 
     /*scene.addEllipse(-5, -5, 10, 10);
 
@@ -276,4 +278,9 @@ void viewpkg::MainView::on_match_btn_clicked()
     int descriptor_idx = ui->descriptor_combo->currentIndex();
 
     controller->calculateMatches(descriptor_idx);
+}
+
+void viewpkg::MainView::on_is_matches_show_check_toggled(bool checked)
+{
+    scene.getMatches().setVisible(checked);
 }
