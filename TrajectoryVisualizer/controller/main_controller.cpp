@@ -45,7 +45,8 @@ void MainController::loadOrCalculateModel(int detector_idx, int descriptor_idx)
 void MainController::calculateMatches(int descriptor_idx)
 {
     //norm_type for each descriptor setted
-    cv::BFMatcher matcher(norm_types[descriptor_idx]);
+    //cv::BFMatcher matcher(norm_types[descriptor_idx]);
+    cv::FlannBasedMatcher matcher;
 
     //generate descriptors clouds
     vector<cv::Mat> trajectories_descr_clouds(2, cv::Mat());
@@ -82,11 +83,16 @@ void MainController::calculateMatches(int descriptor_idx)
         }
 
         cv::vconcat(descriptions_cloud, trajectories_descr_clouds[trj_num]);
+
+        //it need for flann matcher | http://stackoverflow.com/a/11798593/2627487
+        if(trajectories_descr_clouds[trj_num].type() != CV_32F) {
+            trajectories_descr_clouds[trj_num].convertTo(trajectories_descr_clouds[trj_num], CV_32F);
+        }
     }
 
-    isFirstMatchingOnSecond = trajectories_selected_frames[1].empty();
-
     auto start_match_time = chrono::high_resolution_clock::now();
+
+    isFirstMatchingOnSecond = trajectories_selected_frames[1].empty();
     if (isFirstMatchingOnSecond)
     {
         matcher.match(trajectories_descr_clouds[0],
