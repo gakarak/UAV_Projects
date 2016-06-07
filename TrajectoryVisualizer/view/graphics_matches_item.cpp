@@ -52,7 +52,7 @@ void GraphicsMatchesItem::setShift(QPointF shift)
 {
     this->shift = shift;
 
-    for (int i = 0; i < lines.size(); i++)
+    for (size_t i = 0; i < lines.size(); i++)
     {
         auto &line = lines[i];
 
