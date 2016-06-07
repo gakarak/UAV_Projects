@@ -11,6 +11,7 @@
 #include <QDebug>
 
 #include <opencv2/features2d.hpp>
+#include <opencv2/calib3d.hpp>
 
 #include "utils/acmopencv.h"
 #include "utils/csv.h"
@@ -63,7 +64,7 @@ void MainController::calculateMatches(int descriptor_idx)
         accumulative_cut.push_back(0);
         if (selected_frames.empty())
         {//take all trajectory
-            for (const auto &description: trj.descriptions)
+            for (const auto &description: trj.getAllDescriptions())
             {
                 descriptions_cloud.push_back(description);
 
@@ -75,10 +76,10 @@ void MainController::calculateMatches(int descriptor_idx)
         {//only selected
             for (const auto &frame_num: selected_frames)
             {
-                descriptions_cloud.push_back(trj.descriptions[frame_num]);
+                descriptions_cloud.push_back(trj.getFrameDescription(frame_num));
 
                 //sum of all counts of key_poins on frame
-                accumulative_cut.push_back(accumulative_cut.back() + trj.key_points[frame_num].size());
+                accumulative_cut.push_back(accumulative_cut.back() + trj.getFrameAllKeyPoints(frame_num).size());
             }
         }
 
@@ -93,23 +94,46 @@ void MainController::calculateMatches(int descriptor_idx)
     auto start_match_time = chrono::high_resolution_clock::now();
 
     isFirstMatchingOnSecond = trajectories_selected_frames[1].empty();
-    if (isFirstMatchingOnSecond)
-    {
-        matcher.match(trajectories_descr_clouds[0],
-                      trajectories_descr_clouds[1],
-                      matches);
-    }
-    else
-    {
-        matcher.match(trajectories_descr_clouds[1],
-                      trajectories_descr_clouds[0],
-                      matches);
-    }
+    int from_trj_num = isFirstMatchingOnSecond? 0: 1;
+    int to_trj_num = isFirstMatchingOnSecond? 1: 0;
+    vector<cv::DMatch> rough_matches;
+
+    matcher.match(trajectories_descr_clouds[from_trj_num],
+                  trajectories_descr_clouds[to_trj_num],
+                  rough_matches);
+
     auto finish_match_time = chrono::high_resolution_clock::now();
     clog << "Match time: " <<
             chrono::duration_cast<chrono::milliseconds>(finish_match_time - start_match_time).count() <<
             "ms" << endl;
 
+    //prepare points for findHomography | using trajectories_kp_cloud
+    //we need to transform to_trj_pts to points on map
+    /*vector<cv::Point2f> from_trj_pts;
+    vector<cv::Point2f> to_trj_pts;
+
+    for (const auto &frame_key_points: model->getTrajectory(to_trj_num).getAllKeyPoints())
+    {
+        trajectories_kp_cloud[to_trj_num].insert(trajectories_kp_cloud[to_trj_num].end(),
+                                                 frame_key_points.begin(),
+                                                 frame_key_points.end());
+    }
+
+    //for (int i = 0; i < rough_matches.size(); i++)
+    for (const cv::DMatch &match: rough_matches)
+    {
+        from_trj_pts.push_back(trajectories_kp_cloud[from_trj_num][match.queryIdx].pt);
+        //HERE TODO!!
+        //we need to transform to_trj_pts to points on map
+        to_trj_pts.push_back(trajectories_kp_cloud[to_trj_num][match.trainIdx].pt);
+    }
+
+    cv::Mat homography;
+    vector<char> mask;
+    cv::findHomography(from_trj_pts, to_trj_pts, cv::RANSAC, 3, mask);
+    */
+
+    matches.assign(rough_matches.begin(), rough_matches.end());
 
     this->showMatches();
 }
@@ -164,9 +188,9 @@ void MainController::showTrajectory(int trj_num)
     vector<QPointF> center_coords_px;
     vector<double>  angles;
     vector<double>  meter_per_pixels;
-    const vector<double> &qualities = model->getTrajectory(trj_num).frames_quality;
+    const vector<double> &qualities = model->getTrajectory(trj_num).getAllFramesQuality();
 
-    for (const auto &frame: model->getTrajectory(trj_num).frames)
+    for (const auto &frame: model->getTrajectory(trj_num).getAllFrames())
     {
         QPointF center_px;
         center_px.setX( frame.pos_m.x / frame.m_per_px );
@@ -197,7 +221,7 @@ void MainController::showMainMap()
 void MainController::showKeyPoints(int trj_num)
 {
     const Trajectory &trj = model->getTrajectory(trj_num);
-    const auto &key_points = trj.key_points;
+    const auto &key_points = trj.getAllKeyPoints();
 
     vector<int> frames_num;
     vector<QPointF> center_coords_px;
@@ -205,17 +229,17 @@ void MainController::showKeyPoints(int trj_num)
     vector<double> radius;
     vector<QColor> colors;
 
-    for (int i = 0; i < key_points.size(); i+=1)
+    for (int frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
     {
-        for (int j = 0; j < std::min((size_t)100, key_points[i].size()); j++)
+        for (int j = 0; j < std::min((size_t)100, key_points[frame_num].size()); j++)
         {
-            const Map &frame = trj.frames[i];
-            const cv::KeyPoint &kp = key_points[i][j];
+            const Map &frame = trj.getFrame(frame_num);
+            const cv::KeyPoint &kp = key_points[frame_num][j];
 
             double mul = kp.response / 100;
             if (mul > 1) mul = 1;
 
-            frames_num.push_back(i);
+            frames_num.push_back(frame_num);
             center_coords_px.push_back(QPointF(kp.pt.x, kp.pt.y) - QPointF(frame.image.cols/2, frame.image.rows/2) + QPointF(frame.pos_m.x / frame.m_per_px, frame.pos_m.y / frame.m_per_px));
             angles.push_back(kp.angle);
             radius.push_back(kp.size / 2.);
@@ -274,8 +298,8 @@ void MainController::showMatches()
 
 
             //get point
-            const Map &frame = trj.frames[frame_num];
-            const cv::KeyPoint &kp = trj.key_points[frame_num][kp_num];
+            const Map &frame = trj.getFrame(frame_num);
+            const cv::KeyPoint &kp = trj.getFrameKeyPoint(frame_num, kp_num);
             trajectories_kp[match_num][trj_num] = (QPointF(kp.pt.x, kp.pt.y) - QPointF(frame.image.cols/2, frame.image.rows/2) +
                                                QPointF(frame.pos_m.x / frame.m_per_px, frame.pos_m.y / frame.m_per_px));
             frames_center_on_map[match_num].push_back(QPointF(frame.pos_m.x / frame.m_per_px, frame.pos_m.y / frame.m_per_px));
@@ -329,10 +353,11 @@ void MainController::calculateFramesQuality()
     for (int trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
     {
         Trajectory &trj = model->getTrajectory(trj_num);
-        const auto& frames = trj.frames;
 
-        for (const auto& frame: frames)
+        for (int frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
         {
+            const auto &frame = trj.getFrame(frame_num);
+
             double scale = frame.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
             cv::Size new_size(frame.image.size().width * scale, frame.image.size().height * scale);
 
@@ -341,7 +366,7 @@ void MainController::calculateFramesQuality()
 
             double quality = std::min( 1., utils::cv::gradientDensity(resized) / threshold );
 
-            trj.frames_quality.push_back(quality);
+            trj.setFrameQuality(frame_num, quality);
         }
     }
 
@@ -386,16 +411,15 @@ void MainController::calculateKeyPoints(int trj_num, int detector_idx)
     cv::Ptr<cv::Feature2D> &detector = detectors[detector_idx];
     Trajectory &trj = model->getTrajectory(trj_num);
 
-    trj.key_points.clear();
-    for (const Map& frame: trj.frames)
+    for (int frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
     {
-        trj.key_points.push_back(vector<cv::KeyPoint>());
-        detector->detect(frame.image, trj.key_points.back());
-    }
+        const auto &frame = trj.getFrame(frame_num);
+        auto &mutable_frame_kps = trj.getFrameAllKeyPoints(frame_num);
 
-    for (auto &frame_kp: trj.key_points)
-    {
-        std::sort(frame_kp.begin(), frame_kp.end(), []( const cv::KeyPoint &left, const cv::KeyPoint &right ) ->
+        detector->detect(frame.image, mutable_frame_kps);
+
+        //sort by response
+        std::sort(mutable_frame_kps.begin(), mutable_frame_kps.end(), []( const cv::KeyPoint &left, const cv::KeyPoint &right ) ->
                                          bool { return left.response > right.response; });
     }
 }
@@ -408,41 +432,44 @@ void MainController::loadKeyPoints(int trj_num, string filename)
         throw MainController::NoFileExist(filename);
     }
 
-    auto &key_points = model->getTrajectory(trj_num).key_points;
-    key_points.clear();
+    auto &trj = model->getTrajectory(trj_num);
 
     //maybe format checking
-    size_t n = 0;
-    in.read(reinterpret_cast<char*>(&n), sizeof(n));
-    for (int i = 0; i < n; i++)
+    size_t framesCount = 0;
+    in.read(reinterpret_cast<char*>(&framesCount), sizeof(framesCount));
+    for (int frame_num = 0; frame_num < framesCount; frame_num++)
     {
-        key_points.push_back(vector<cv::KeyPoint>());
+        auto &mutable_frame_kps = trj.getFrameAllKeyPoints(frame_num);
+        mutable_frame_kps.clear();
 
-        size_t m = 0;
-        in.read(reinterpret_cast<char*>(&m), sizeof(m));
-        for (int j = 0; j < m; j++)
+        size_t keyPointsCount = 0;
+        in.read(reinterpret_cast<char*>(&keyPointsCount), sizeof(keyPointsCount));
+        for (int kp_num = 0; kp_num < keyPointsCount; kp_num++)
         {
             cv::KeyPoint kp;
             in.read(reinterpret_cast<char*>(&kp), sizeof(kp));
-            key_points[i].push_back(kp);
+            mutable_frame_kps.push_back(kp);
         }
     }
 }
 
 void MainController::saveKeyPoints(int trj_num, string filename)
 {
-    const auto &key_points = model->getTrajectory(trj_num).key_points;
+    const auto &trj = model->getTrajectory(trj_num);
 
     ofstream out(filename, ios::binary);
-    size_t n = key_points.size();
-    out.write(reinterpret_cast<char*>(&n), sizeof(n));
-    for (int i = 0; i < key_points.size(); i++)
+
+    size_t framesCount = trj.getFramesCount();
+    out.write(reinterpret_cast<char*>(&framesCount), sizeof(framesCount));
+    for (int frame_num = 0; frame_num < framesCount; frame_num++)
     {
-        size_t m = key_points[i].size();
-        out.write(reinterpret_cast<char*>(&m), sizeof(m));
-        for (int j = 0; j < key_points[i].size(); j++)
+        const auto &frame_key_points = trj.getFrameAllKeyPoints(frame_num);
+
+        size_t keyPointsCount = frame_key_points.size();
+        out.write(reinterpret_cast<char*>(&keyPointsCount), sizeof(keyPointsCount));
+        for (int kp_num = 0; kp_num < keyPointsCount; kp_num++)
         {
-            out.write(reinterpret_cast<const char*>(&key_points[i][j]), sizeof(key_points[i][j]));
+            out.write(reinterpret_cast<const char*>(&frame_key_points[kp_num]), sizeof(frame_key_points[kp_num]));
         }
     }
 }
@@ -482,13 +509,12 @@ void MainController::calculateDescriptions(int trj_num, int descriptor_idx)
     cv::Ptr<cv::Feature2D> &descriptor = descriptors[descriptor_idx];
     Trajectory &trj = model->getTrajectory(trj_num);
 
-    trj.descriptions.clear();
-    for (int i = 0; i < trj.key_points.size(); i++)
+    for (int frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
     {
         cv::Mat descr;
-        descriptor->compute(trj.frames[i].image, trj.key_points[i], descr);
+        descriptor->compute(trj.getFrame(frame_num).image, trj.getFrameAllKeyPoints(frame_num), descr);
 
-        trj.descriptions.push_back(descr);
+        trj.setFrameDescription(frame_num, descr);
     }
 }
 
@@ -501,38 +527,39 @@ void MainController::loadDescriptions(int trj_num, string filename)
         throw MainController::NoFileExist(filename);
     }
 
-    auto &descriptions = model->getTrajectory(trj_num).descriptions;
-    descriptions.clear();
+    auto &trj = model->getTrajectory(trj_num);
 
-    int n = 0;
-    file["count"] >> n;
-    for (int i = 0; i < n; i++)
+    int framesCount = 0;
+    file["count"] >> framesCount;
+    for (int frame_num = 0; frame_num < framesCount; frame_num++)
     {
-        descriptions.push_back(cv::Mat());
-        file["img"+to_string(i)] >> descriptions[i];
+        cv::Mat descr;
+        file["img"+to_string(frame_num)] >> descr;
+
+        trj.setFrameDescription(frame_num, descr);
     }
     file.release();
 }
 
 void MainController::saveDescriptions(int trj_num, string filename)
 {
-    const auto &descriptions = model->getTrajectory(trj_num).descriptions;
+    const auto &trj = model->getTrajectory(trj_num);
 
     cv::FileStorage file(filename, cv::FileStorage::WRITE);
 
-    int n = descriptions.size();
-    file << "count" << n;
-    for (int i = 0; i < descriptions.size(); i++)
+    int framesCount = trj.getFramesCount();
+    file << "count" << framesCount;
+    for (int frame_num = 0; frame_num < framesCount; frame_num++)
     {
-        file << "img"+to_string(i) << descriptions[i];
+        file << "img"+to_string(frame_num) << trj.getFrameDescription(frame_num);
     }
     file.release();
 }
 
 void MainController::updateTrajectoryKeyPointsCloud(int trj_num)
 {
-    auto &selected_frames = trajectories_selected_frames[trj_num];
-    auto &key_points = model->getTrajectory(trj_num).key_points;
+    const auto &selected_frames = trajectories_selected_frames[trj_num];
+    const auto &key_points = model->getTrajectory(trj_num).getAllKeyPoints();
     std::vector<cv::KeyPoint> &cloud = trajectories_kp_cloud[trj_num];
     cloud.clear();
 
@@ -625,7 +652,7 @@ Trajectory MainController::loadTrjFromCsv(string csv_filename)
             }
             row[0] = folder + "/" + row[0];
             Map frame = loadMapFromRow(row);
-            trj.frames.push_back(frame);
+            trj.pushBackFrame(frame);
         }
     }
     catch (runtime_error er)
