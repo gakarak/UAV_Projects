@@ -57,7 +57,7 @@ void MainController::calculateMatches(int descriptor_idx)
         const auto &trj = model->getTrajectory(trj_num);
         const auto &selected_frames = trajectories_selected_frames[trj_num];
         vector<cv::Mat> descriptions_cloud;
-        vector<cv::KeyPoint> key_points_cloud;
+        auto &key_points_cloud = trajectories_kp_cloud[trj_num];
         auto &accumulative_cut = accumulative_trj_cuts[trj_num];
 
         //accumulative_cut need for further relevant key points extraction
