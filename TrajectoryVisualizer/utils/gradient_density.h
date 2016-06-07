@@ -3,6 +3,8 @@
 
 #include <algorithm>
 
+#include <QPointF>
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
@@ -48,6 +50,11 @@ namespace utils
             }
 
             return grad_density / pixel_count;
+        }
+
+        QPointF toQPointF(::cv::Point2f pt)
+        {
+            return QPointF(pt.x, pt.y);
         }
 
     }

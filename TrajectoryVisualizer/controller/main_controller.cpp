@@ -249,7 +249,9 @@ void MainController::showKeyPoints(int trj_num)
             if (mul > 1) mul = 1;
 
             frames_num.push_back(frame_num);
-            center_coords_px.push_back(QPointF(kp.pt.x, kp.pt.y) - QPointF(frame.image.cols/2, frame.image.rows/2) + QPointF(frame.pos_m.x / frame.m_per_px, frame.pos_m.y / frame.m_per_px));
+            //pos_m - it's center of frame, so we need postpone vector (pt - image.center) from frame.centr
+            center_coords_px.push_back( utils::cv::toQPointF(kp.pt) - QPointF(frame.image.cols, frame.image.rows)/2 +
+                                        utils::cv::toQPointF(frame.pos_m) / frame.m_per_px);
             angles.push_back(kp.angle);
             radius.push_back(kp.size / 2.);
             colors.push_back( QColor(255*(1-mul), 255*(mul), 0) );//QColor(255*mul, 165*mul, 0));
@@ -309,9 +311,9 @@ void MainController::showMatches()
             //get point
             const Map &frame = trj.getFrame(frame_num);
             const cv::KeyPoint &kp = trj.getFrameKeyPoint(frame_num, kp_num);
-            trajectories_kp[match_num][trj_num] = (QPointF(kp.pt.x, kp.pt.y) - QPointF(frame.image.cols/2, frame.image.rows/2) +
-                                               QPointF(frame.pos_m.x / frame.m_per_px, frame.pos_m.y / frame.m_per_px));
-            frames_center_on_map[match_num].push_back(QPointF(frame.pos_m.x / frame.m_per_px, frame.pos_m.y / frame.m_per_px));
+            trajectories_kp[match_num][trj_num] = utils::cv::toQPointF(kp.pt) - QPointF(frame.image.cols, frame.image.rows)/2 +
+                                               utils::cv::toQPointF(frame.pos_m) / frame.m_per_px;
+            frames_center_on_map[match_num].push_back(utils::cv::toQPointF(frame.pos_m) / frame.m_per_px);
             angles[match_num].push_back(frame.angle);
             meters_per_pixels[match_num].push_back(frame.m_per_px);
         }
