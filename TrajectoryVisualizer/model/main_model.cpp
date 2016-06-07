@@ -8,12 +8,12 @@ MainModel::MainModel()
 
 }
 
-void MainModel::setTrajectory(int trj_num, const Trajectory &trj)
+void MainModel::setTrajectory(size_t trj_num, const Trajectory &trj)
 {
     getTrajectory(trj_num) = trj;
 }
 
-Trajectory& MainModel::getTrajectory(int trj_num)
+Trajectory& MainModel::getTrajectory(size_t trj_num)
 {
     if (trj_num > trj_count)
     {
@@ -22,7 +22,7 @@ Trajectory& MainModel::getTrajectory(int trj_num)
     return trj_num == 0? first_trj: second_trj;
 }
 
-const Trajectory &MainModel::getTrajectory(int trj_num) const
+const Trajectory &MainModel::getTrajectory(size_t trj_num) const
 {
     if (trj_num > trj_count)
     {

@@ -15,15 +15,15 @@ namespace modelpkg
 
         //must be used for settings new trajectories,
         //     otherwise  you must manually amended matches
-        void                setTrajectory(int trj_num, const Trajectory &trj);
+        void                setTrajectory(size_t trj_num, const Trajectory &trj);
 
-                Trajectory& getTrajectory(int trj_num);
-        const   Trajectory& getTrajectory(int trj_num) const;
+                Trajectory& getTrajectory(size_t trj_num);
+        const   Trajectory& getTrajectory(size_t trj_num) const;
 
                 Map&        getMainMap()        { return main_map; }
         const   Map&        getMainMap() const  { return main_map; }
 
-                int         getTrajectoriesCount() const { return trj_count; }
+                size_t         getTrajectoriesCount() const { return trj_count; }
 
     class Exception : public std::runtime_error
     {
@@ -42,7 +42,7 @@ namespace modelpkg
         //from frame from second to the full first_trajectory
         std::vector<std::vector<cv::DMatch>> matches;
 
-        int trj_count;
+        size_t trj_count;
     };
 }
 
