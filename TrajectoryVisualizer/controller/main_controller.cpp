@@ -118,31 +118,54 @@ void MainController::calculateMatches(int descriptor_idx)
 
     //prepare points for findHomography | using trajectories_kp_cloud
     //we need to transform to_trj_pts to points on map
-    /*vector<cv::Point2f> from_trj_pts;
+    vector<cv::Point2f> from_trj_pts;
     vector<cv::Point2f> to_trj_pts;
-
-    for (const auto &frame_key_points: model->getTrajectory(to_trj_num).getAllKeyPoints())
-    {
-        trajectories_kp_cloud[to_trj_num].insert(trajectories_kp_cloud[to_trj_num].end(),
-                                                 frame_key_points.begin(),
-                                                 frame_key_points.end());
-    }
 
     //for (int i = 0; i < rough_matches.size(); i++)
     for (const cv::DMatch &match: rough_matches)
     {
+        //here I assume that choosed one frame otherwise shitty code like for to_trj_pts
         from_trj_pts.push_back(trajectories_kp_cloud[from_trj_num][match.queryIdx].pt);
         //HERE TODO!!
-        //we need to transform to_trj_pts to points on map
-        to_trj_pts.push_back(trajectories_kp_cloud[to_trj_num][match.trainIdx].pt);
+        //we need to transform to_trj_pts from points on image to points on map
+        //SHITTY CODE START (doubled from showMatches() )
+        int frame_num = 0;
+
+        //tricky code
+        const auto &idx = isFirstMatchingOnSecond == to_trj_num? match.trainIdx:  match.queryIdx;
+
+        //calculating frame_num and kp_num
+        while (idx >= accumulative_trj_cuts[to_trj_num][frame_num])
+        {
+            frame_num++;
+        }
+        frame_num--; //because start from 0
+
+        int kp_num = idx - accumulative_trj_cuts[to_trj_num][frame_num];
+
+        const Map &frame = model->getTrajectory(to_trj_num).getFrame(frame_num);
+        const cv::KeyPoint &kp = model->getTrajectory(to_trj_num).getFrameKeyPoint(frame_num, kp_num);
+
+        //pos_m - it's center of frame, so we need postpone vector (pt - image.center) from frame.centr
+        QPointF pt_on_map( utils::cv::toQPointF(kp.pt) - QPointF(frame.image.cols, frame.image.rows)/2 +
+                           utils::cv::toQPointF(frame.pos_m) / frame.m_per_px);
+        to_trj_pts.push_back(cv::Point2f(pt_on_map.x(), pt_on_map.y()));
+        //to_trj_pts.push_back(trajectories_kp_cloud[to_trj_num][match.trainIdx].pt);
     }
 
     cv::Mat homography;
     vector<char> mask;
     cv::findHomography(from_trj_pts, to_trj_pts, cv::RANSAC, 3, mask);
-    */
 
-    matches.assign(rough_matches.begin(), rough_matches.end());
+    matches.clear();
+    for (int i = 0; i < mask.size(); i++)
+    {
+        if (mask[i])
+        {
+            matches.push_back(rough_matches[i]);
+        }
+    }
+    //matches.assign(rough_matches.begin(), rough_matches.end());
 
     this->showMatches();
 }
