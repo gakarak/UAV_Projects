@@ -75,8 +75,6 @@ namespace controllerpkg
         void            loadDescriptions(int trj_num, std::string filename);
         void            saveDescriptions(int trj_num, std::string filename);
 
-        void updateTrajectoryKeyPointsCloud(int trj_num);
-
                                 //params - filename, x_m, y_m, angle, m_per_px
         modelpkg::Map           loadMapFromRow(std::vector<std::string> params);
         modelpkg::Trajectory    loadTrjFromCsv(std::string csv_filename);
@@ -92,7 +90,6 @@ namespace controllerpkg
         std::vector<cv::Ptr<cv::Feature2D>> descriptors;
         std::vector<cv::NormTypes> norm_types;
 
-        std::vector<std::vector<cv::KeyPoint>> trajectories_kp_cloud;
         std::vector<std::vector<int>> trajectories_selected_frames;
 
         bool isFirstMatchingOnSecond;

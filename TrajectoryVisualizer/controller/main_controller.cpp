@@ -27,7 +27,6 @@ MainController::MainController()
     initDetectors();
     initDescriptors();
 
-    trajectories_kp_cloud.assign(2, vector<cv::KeyPoint>());
     trajectories_selected_frames.assign(2, vector<int>());
     accumulative_trj_cuts.assign(2, vector<int>());
 }
@@ -49,14 +48,16 @@ void MainController::calculateMatches(int descriptor_idx)
     //cv::BFMatcher matcher(norm_types[descriptor_idx]);
     cv::FlannBasedMatcher matcher;
 
-    //generate descriptors clouds
+    vector<vector<cv::KeyPoint>> trajectories_kp_cloud(2, vector<cv::KeyPoint>());
     vector<cv::Mat> trajectories_descr_clouds(2, cv::Mat());
 
+    //generate descriptors and key_points clouds
     for (size_t trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
     {
         const auto &trj = model->getTrajectory(trj_num);
         const auto &selected_frames = trajectories_selected_frames[trj_num];
-        vector<cv::Mat> descriptions_cloud;//trajectories_descr_clouds[trj_num];
+        vector<cv::Mat> descriptions_cloud;
+        vector<cv::KeyPoint> key_points_cloud;
         auto &accumulative_cut = accumulative_trj_cuts[trj_num];
 
         //accumulative_cut need for further relevant key points extraction
@@ -64,22 +65,30 @@ void MainController::calculateMatches(int descriptor_idx)
         accumulative_cut.push_back(0);
         if (selected_frames.empty())
         {//take all trajectory
+            for (const auto &frame_key_points: trj.getAllKeyPoints())
+            {
+                key_points_cloud.insert(key_points_cloud.end(),
+                                        frame_key_points.begin(), frame_key_points.end());
+
+                //sum of all counts of key_poins on frame
+                accumulative_cut.push_back(accumulative_cut.back() + frame_key_points.size());
+            }
             for (const auto &description: trj.getAllDescriptions())
             {
                 descriptions_cloud.push_back(description);
-
-                //sum of all counts of key_poins on frame
-                accumulative_cut.push_back(accumulative_cut.back() + description.size().height);
             }
         }
         else
         {//only selected
             for (const auto &frame_num: selected_frames)
             {
+                const auto &frame_key_points = trj.getFrameAllKeyPoints(frame_num);
+                key_points_cloud.insert(key_points_cloud.end(),
+                                        frame_key_points.begin(), frame_key_points.end());
                 descriptions_cloud.push_back(trj.getFrameDescription(frame_num));
 
                 //sum of all counts of key_poins on frame
-                accumulative_cut.push_back(accumulative_cut.back() + trj.getFrameAllKeyPoints(frame_num).size());
+                accumulative_cut.push_back(accumulative_cut.back() + frame_key_points.size());
             }
         }
 
@@ -313,8 +322,6 @@ void MainController::showMatches()
 void MainController::selectedFrame(int trj_num, int frame_num)
 {
     trajectories_selected_frames[trj_num].push_back(frame_num);
-
-    updateTrajectoryKeyPointsCloud(trj_num);
 }
 
 void MainController::unselectedFrame(int trj_num, int frame_num)
@@ -325,8 +332,6 @@ void MainController::unselectedFrame(int trj_num, int frame_num)
     {
         selected_frames.erase(where);
     }
-
-    updateTrajectoryKeyPointsCloud(trj_num);
 }
 
 void MainController::showException(string what)
@@ -396,13 +401,6 @@ void MainController::loadOrCalculateKeyPoints(int detector_idx)
             clog << "Saving key points" << endl;
             saveKeyPoints(trj_num, path_to_kp_bin);
         }
-
-        //making cloud of key_points
-        /*Trajectory &trj = model->getTrajectory(trj_num);
-        for (const auto& frame_key_points: trj.key_points)
-        {
-            trj.cloud.insert(trj.cloud.end(), frame_key_points.begin(), frame_key_points.end());
-        }*/
     }
 }
 
@@ -556,23 +554,6 @@ void MainController::saveDescriptions(int trj_num, string filename)
     file.release();
 }
 
-void MainController::updateTrajectoryKeyPointsCloud(int trj_num)
-{
-    const auto &selected_frames = trajectories_selected_frames[trj_num];
-    const auto &key_points = model->getTrajectory(trj_num).getAllKeyPoints();
-    std::vector<cv::KeyPoint> &cloud = trajectories_kp_cloud[trj_num];
-    cloud.clear();
-
-    if (!key_points.empty())
-    {
-        for (auto& frame_num: selected_frames)
-        {
-            cloud.insert(cloud.end(), key_points[frame_num].begin(), key_points[frame_num].end());
-        }
-    }
-    qDebug() << "trj_num = " << trj_num << " size: " << cloud.size();
-}
-
 void MainController::initDetectors()
 {
     detectors_names.push_back("SIFT");
@@ -627,10 +608,9 @@ void MainController::initDescriptors()
 
 void MainController::clear()
 {
-    for (size_t i = 0; i < trajectories_kp_cloud.size(); i++)
+    for (auto &selected_frames: trajectories_selected_frames)
     {
-        trajectories_kp_cloud[i].clear();
-        trajectories_selected_frames[i].clear();
+        selected_frames.clear();
     }
 }
 
