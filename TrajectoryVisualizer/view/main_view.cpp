@@ -15,6 +15,10 @@
 using namespace std;
 using namespace viewpkg;
 
+/*
+ * constructors
+ */
+
 MainView::MainView(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainView)
@@ -45,18 +49,8 @@ MainView::MainView(QWidget *parent) :
 
     scene.getMatches().setVisible(ui->is_matches_show_check->isChecked());
 
-
-    /*scene.addEllipse(-5, -5, 10, 10);
-
-    QGraphicsItemGroup *gr = new QGraphicsItemGroup();
-    scene.addItem(gr);
-
-    gr->addToGroup(new QGraphicsEllipseItem(-5, -5, 10, 10));
-
-    gr->setPos(50, 50);
-
-    gr->addToGroup(new QGraphicsEllipseItem(-2, -2, 4, 4));*/
-
+    //intially update shift
+    on_shift_second_trj_group_toggled(ui->shift_second_trj_group->isChecked());
 
     scene.setMainView(this);
 }
@@ -64,6 +58,15 @@ MainView::MainView(QWidget *parent) :
 MainView::~MainView()
 {
     delete ui;
+}
+
+/*
+ * main public interface
+ */
+
+void MainView::setController(shared_ptr<controllerpkg::MainController> controller)
+{
+    this->controller = controller;
 }
 
 void MainView::setFirstTrajectory(const vector<QPixmap> &imgs, const vector<QPointF> center_coords_px,
@@ -109,14 +112,6 @@ void MainView::setSecondKeyPoints(const vector<int> &frames_num, const vector<QP
     }
 }
 
-void MainView::setMainMap(QPixmap map, double meter_per_pixel)
-{
-    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
-
-    scene.getMainMap().setMapItem(map);
-    scene.getMainMap().setScale(  meter_per_pixel / m_per_px );
-}
-
 void MainView::setMatches(const std::vector<std::vector<QPointF>> &trajectory_pts,
                           const std::vector<std::vector<QPointF>> &frames_center_on_map,
                           const std::vector<std::vector<double>> &angles,
@@ -127,6 +122,14 @@ void MainView::setMatches(const std::vector<std::vector<QPointF>> &trajectory_pt
     {
         scene.getMatches().addLine(trajectory_pts[i], frames_center_on_map[i], angles[i], meters_per_pixels[i]);
     }
+}
+
+void MainView::setMainMap(QPixmap map, double meter_per_pixel)
+{
+    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
+
+    scene.getMainMap().setMapItem(map);
+    scene.getMainMap().setScale(  meter_per_pixel / m_per_px );
 }
 
 void MainView::setDetectors(const vector<QString> &detectors_names)
@@ -147,28 +150,22 @@ void MainView::setDescriptors(const vector<QString> &descriptors_names)
     }
 }
 
+void MainView::showException(QString what)
+{
+    QMessageBox::critical(this, "Error", what, QMessageBox::Ok, QMessageBox::Default);
+}
+
+/*
+ * private slots
+ * buttons
+ */
+
 void viewpkg::MainView::on_load_ini_btn_clicked()
 {
     string ini_filename = ui->ini_edit->text().trimmed().toStdString();
     controller->loadIni(ini_filename);
 
     ui->model_settings_group->setEnabled(true);
-}
-
-void MainView::on_load_btn_clicked()
-{
-    string trj1_filename = ui->first_traj_edit->text().trimmed().toStdString();
-    string trj2_filename = ui->second_traj_edit->text().trimmed().toStdString();
-
-    controller->loadMainMap("/home/pisarik/datasets/maps/my_set/yandex_roi_z16.png", 2.7958833);
-    controller->loadTrajectories(trj1_filename, trj2_filename);
-
-    ui->model_settings_group->setEnabled(true);
-}
-
-void MainView::setController(shared_ptr<controllerpkg::MainController> controller)
-{
-    this->controller = controller;
 }
 
 void viewpkg::MainView::on_clear_btn_clicked()
@@ -180,51 +177,6 @@ void viewpkg::MainView::on_clear_btn_clicked()
     ui->model_settings_group->setEnabled(false);
 }
 
-void viewpkg::MainView::on_is_orientation_show_chk_toggled(bool checked)
-{
-    scene.getFirstTrajectory().setOrientationVisible(checked);
-    scene.getSecondTrajectory().setOrientationVisible(checked);
-}
-
-void viewpkg::MainView::on_is_map_show_check_toggled(bool checked)
-{
-    scene.getMainMap().setVisible(checked);
-}
-
-void viewpkg::MainView::on_is_trajectory_show_chk_toggled(bool checked)
-{
-    scene.getFirstTrajectory().setTrajectoryVisible(checked);
-    scene.getSecondTrajectory().setTrajectoryVisible(checked);
-}
-
-void MainView::updateStatusBar()
-{
-    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
-
-    QString position_str = QString("Position: (%1, %2) meters").arg(QString::number(mouse_scene_pos_m.x(), 'f', 3), QString::number(mouse_scene_pos_m.y(), 'f', 3));
-    QString zoom_str = QString("Zoom: %1%").arg(QString::number(zoom*100));
-    QString meters_str = QString("Meters per pixel: %1").arg(QString::number(m_per_px / zoom));
-    ui->statusBar->showMessage( QString("%3 | %2 | %1").arg(position_str, meters_str, zoom_str) );
-}
-
-void MainView::setMouseScenePosition(QPointF pos)
-{
-    mouse_scene_pos_m = pos;
-    updateStatusBar();
-}
-
-void MainView::setZoom(double zoom)
-{
-    this->zoom = zoom;
-    updateStatusBar();
-}
-
-void viewpkg::MainView::on_is_direction_show_chk_toggled(bool checked)
-{
-    scene.getFirstTrajectory().setDirectionVisible(checked);
-    scene.getSecondTrajectory().setDirectionVisible(checked);
-}
-
 void viewpkg::MainView::on_calculate_btn_clicked()
 {
     int detector_idx = ui->detector_combo->currentIndex();
@@ -233,26 +185,66 @@ void viewpkg::MainView::on_calculate_btn_clicked()
     controller->loadOrCalculateModel(detector_idx, descriptor_idx);
 }
 
+void viewpkg::MainView::on_match_btn_clicked()
+{
+    int descriptor_idx = ui->descriptor_combo->currentIndex();
+
+    controller->calculateMatches(descriptor_idx);
+}
+
+//obsolete
+void MainView::on_load_btn_clicked()
+{
+    string trj1_filename = ui->first_traj_edit->text().trimmed().toStdString();
+    string trj2_filename = ui->second_traj_edit->text().trimmed().toStdString();
+
+    controller->loadMainMap("/home/pisarik/datasets/maps/my_set/yandex_roi_z16.png", 2.7958833);
+    controller->loadTrajectories(trj1_filename, trj2_filename);
+
+    ui->model_settings_group->setEnabled(true);
+}
+
+/*
+ * checkboxes
+ */
+
+void viewpkg::MainView::on_is_trajectory_show_chk_toggled(bool checked)
+{
+    scene.getFirstTrajectory().setTrajectoryVisible(checked);
+    scene.getSecondTrajectory().setTrajectoryVisible(checked);
+}
+
+void viewpkg::MainView::on_is_orientation_show_chk_toggled(bool checked)
+{
+    scene.getFirstTrajectory().setOrientationVisible(checked);
+    scene.getSecondTrajectory().setOrientationVisible(checked);
+}
+
+void viewpkg::MainView::on_is_direction_show_chk_toggled(bool checked)
+{
+    scene.getFirstTrajectory().setDirectionVisible(checked);
+    scene.getSecondTrajectory().setDirectionVisible(checked);
+}
+
 void viewpkg::MainView::on_is_key_point_show_chk_toggled(bool checked)
 {
     scene.getFirstTrajectory().setKeyPointsVisible(checked);
     scene.getSecondTrajectory().setKeyPointsVisible(checked);
 }
 
-void MainView::showException(QString what)
+void viewpkg::MainView::on_is_matches_show_check_toggled(bool checked)
 {
-    QMessageBox::critical(this, "Error", what, QMessageBox::Ok, QMessageBox::Default);
+    scene.getMatches().setVisible(checked);
 }
 
-void viewpkg::MainView::on_trj2_shift_btn_clicked()
+void viewpkg::MainView::on_is_map_show_check_toggled(bool checked)
 {
-    QPointF shift;
-    shift.setX( ui->trj2_shift_x_spin->text().toInt() );
-    shift.setY( ui->trj2_shift_y_spin->text().toInt() );
-
-    scene.getSecondTrajectory().setPos(shift);
-    scene.getMatches().setShift(shift);
+    scene.getMainMap().setVisible(checked);
 }
+
+/*
+ * frame selection
+ */
 
 void MainView::onFirstTrajectoryDoubleClicked(int frame_num, bool isSelected)
 {
@@ -280,14 +272,62 @@ void MainView::onSecondTrajectoryDoubleClicked(int frame_num, bool isSelected)
     }
 }
 
-void viewpkg::MainView::on_match_btn_clicked()
+/*
+ * interface for trajectory shifting
+ */
+void viewpkg::MainView::on_trj2_shift_x_spin_valueChanged(int shift_x)
 {
-    int descriptor_idx = ui->descriptor_combo->currentIndex();
-
-    controller->calculateMatches(descriptor_idx);
+    updateShift(shift_x, ui->trj2_shift_y_spin->value());
 }
 
-void viewpkg::MainView::on_is_matches_show_check_toggled(bool checked)
+void viewpkg::MainView::on_trj2_shift_y_spin_valueChanged(int shift_y)
 {
-    scene.getMatches().setVisible(checked);
+    updateShift(ui->trj2_shift_x_spin->value(), shift_y);
+}
+
+void viewpkg::MainView::on_shift_second_trj_group_toggled(bool isChecked)
+{
+    if (isChecked)
+    {
+        updateShift(ui->trj2_shift_x_spin->value(),
+                    ui->trj2_shift_y_spin->value());
+    }
+    else
+    {
+        updateShift(0, 0);
+    }
+}
+
+void MainView::updateShift(int shift_x, int shift_y)
+{
+    QPointF shift(shift_x, shift_y);
+
+    scene.getSecondTrajectory().setPos(shift);
+    scene.getMatches().setShift(shift);
+}
+
+/*
+ * interface for status bar
+ */
+
+void MainView::setMouseScenePosition(QPointF pos)
+{
+    mouse_scene_pos_m = pos;
+    updateStatusBar();
+}
+
+void MainView::setZoom(double zoom)
+{
+    this->zoom = zoom;
+    updateStatusBar();
+}
+
+void MainView::updateStatusBar()
+{
+    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
+
+    QString position_str = QString("Position: (%1, %2) meters").arg(QString::number(mouse_scene_pos_m.x(), 'f', 3), QString::number(mouse_scene_pos_m.y(), 'f', 3));
+    QString zoom_str = QString("Zoom: %1%").arg(QString::number(zoom*100));
+    QString meters_str = QString("Meters per pixel: %1").arg(QString::number(m_per_px / zoom));
+    ui->statusBar->showMessage( QString("%3 | %2 | %1").arg(position_str, meters_str, zoom_str) );
 }

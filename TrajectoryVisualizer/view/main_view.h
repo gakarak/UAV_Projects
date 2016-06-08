@@ -24,16 +24,16 @@ namespace Ui {
 
 namespace viewpkg
 {
-    //need refactor... trajectories and maps must be moved into scene
-    //also question abouts spread m_per_px param
     class MainView : public QMainWindow
     {
         Q_OBJECT
 
     public:
+        /* constructors */
         explicit MainView(QWidget *parent = 0);
         ~MainView();
 
+        /* main public interface */
         void setController(std::shared_ptr<controllerpkg::MainController> controller);
 
         void setFirstTrajectory(const std::vector<QPixmap> &imgs, const std::vector<QPointF> center_coords_px,
@@ -47,62 +47,66 @@ namespace viewpkg
         void setSecondKeyPoints(const std::vector<int> &frames_num, const std::vector<QPointF> &centers_px, const std::vector<double> &angles,
                                const std::vector<double> &radius, const std::vector<QColor> &colors);
 
-        void setMainMap(QPixmap map, double meter_per_pixel);
-
         void setMatches(const std::vector<std::vector<QPointF>> &trajectory_pts,
                         const std::vector<std::vector<QPointF>> &frames_center_on_map,
                         const std::vector<std::vector<double>> &angles,
                         const std::vector<std::vector<double>> &meters_per_pixels);
 
+        void setMainMap(QPixmap map, double meter_per_pixel);
+
         void setDetectors(const std::vector<QString> &detectors_names);
         void setDescriptors(const std::vector<QString> &descriptors_names);
-
-        //for statusBar
-        void setMouseScenePosition(QPointF pos);
-        void setZoom(double zoom);
 
         void showException(QString what);
 
     private slots:
-        void on_load_btn_clicked();
-        void on_clear_btn_clicked();
-
-        void on_is_orientation_show_chk_toggled(bool checked);
-        void on_is_map_show_check_toggled(bool checked);
-        void on_is_trajectory_show_chk_toggled(bool checked);
-
-        void on_is_direction_show_chk_toggled(bool checked);
-
-        void on_calculate_btn_clicked();
-
-        void on_is_key_point_show_chk_toggled(bool checked);
-
+        /* buttons */
         void on_load_ini_btn_clicked();
+        void on_clear_btn_clicked();
+        void on_calculate_btn_clicked();
+        void on_match_btn_clicked();
+        //obsolete
+        void on_load_btn_clicked();
 
-        void on_trj2_shift_btn_clicked();
+        /* checkboxes */
+        void on_is_trajectory_show_chk_toggled(bool checked);
+        void on_is_orientation_show_chk_toggled(bool checked);
+        void on_is_direction_show_chk_toggled(bool checked);
+        void on_is_key_point_show_chk_toggled(bool checked);
+        void on_is_matches_show_check_toggled(bool checked);
+        void on_is_map_show_check_toggled(bool checked);
 
+        /* frame selection */
         void onFirstTrajectoryDoubleClicked(int frame_num, bool isSelected);
         void onSecondTrajectoryDoubleClicked(int frame_num, bool isSelected);
 
-        void on_match_btn_clicked();
+    /* shift trajectory */
+    private slots:
+        void on_trj2_shift_x_spin_valueChanged(int shift_x);
+        void on_trj2_shift_y_spin_valueChanged(int shift_y);
+        void on_shift_second_trj_group_toggled(bool isChecked);
 
-        void on_is_matches_show_check_toggled(bool checked);
+    private:
+        void updateShift(int shift_x, int shift_y);
+    /* shift trajectory */
 
-    private://for statusBar
+    /* status bar */
+    public:
+        void setMouseScenePosition(QPointF pos);
+        void setZoom(double zoom);
+
+    private:
         void updateStatusBar();
+
         QPointF mouse_scene_pos_m;
         double  zoom;
+    /* status bar */
 
     private://members
         std::shared_ptr<controllerpkg::MainController> controller;
 
         Ui::MainView *ui;
         GraphicsMapScene scene;
-
-        /*GraphicsTrajectoryItem trajectory1;
-        GraphicsTrajectoryItem trajectory2;
-
-        GraphicsMapItem main_map;*/
     };
 }
 

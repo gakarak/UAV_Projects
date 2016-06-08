@@ -142,6 +142,12 @@
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="styleSheet">
          <string notr="true">QGroupBox {
     border: 1px solid gray;
@@ -240,13 +246,6 @@ QGroupBox::title {
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="is_map_show_check">
-        <property name="text">
-         <string>show map</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="is_matches_show_check">
         <property name="text">
          <string>show matches</string>
@@ -257,7 +256,14 @@ QGroupBox::title {
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox">
+       <widget class="QCheckBox" name="is_map_show_check">
+        <property name="text">
+         <string>show map</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="shift_second_trj_group">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -281,13 +287,13 @@ QGroupBox::title {
 }</string>
         </property>
         <property name="title">
-         <string>Shift trajectory #2</string>
+         <string>Shift trajectory</string>
         </property>
         <property name="flat">
          <bool>false</bool>
         </property>
         <property name="checkable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
@@ -371,13 +377,6 @@ QGroupBox::title {
             </layout>
            </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QPushButton" name="trj2_shift_btn">
-           <property name="text">
-            <string>Shift</string>
-           </property>
-          </widget>
          </item>
         </layout>
        </widget>
