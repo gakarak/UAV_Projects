@@ -48,7 +48,7 @@ void MainController::calculateMatches(int descriptor_idx)
     //cv::BFMatcher matcher(norm_types[descriptor_idx]);
     cv::FlannBasedMatcher matcher;
 
-    vector<vector<cv::KeyPoint>> trajectories_kp_cloud(2, vector<cv::KeyPoint>());
+    vector<vector<cv::KeyPoint>> trajectories_kp_clouds(2, vector<cv::KeyPoint>());
     vector<cv::Mat> trajectories_descr_clouds(2, cv::Mat());
 
     //generate descriptors and key_points clouds
@@ -57,7 +57,7 @@ void MainController::calculateMatches(int descriptor_idx)
         const auto &trj = model->getTrajectory(trj_num);
         const auto &selected_frames = trajectories_selected_frames[trj_num];
         vector<cv::Mat> descriptions_cloud;
-        auto &key_points_cloud = trajectories_kp_cloud[trj_num];
+        auto &key_points_cloud = trajectories_kp_clouds[trj_num];
         auto &accumulative_cut = accumulative_trj_cuts[trj_num];
 
         //accumulative_cut need for further relevant key points extraction
@@ -125,8 +125,7 @@ void MainController::calculateMatches(int descriptor_idx)
     for (const cv::DMatch &match: rough_matches)
     {
         //here I assume that choosed one frame otherwise shitty code like for to_trj_pts
-        from_trj_pts.push_back(trajectories_kp_cloud[from_trj_num][match.queryIdx].pt);
-        //HERE TODO!!
+        from_trj_pts.push_back(trajectories_kp_clouds[from_trj_num][match.queryIdx].pt);
         //we need to transform to_trj_pts from points on image to points on map
         //SHITTY CODE START (doubled from showMatches() )
         int frame_num = 0;
@@ -153,9 +152,8 @@ void MainController::calculateMatches(int descriptor_idx)
         //to_trj_pts.push_back(trajectories_kp_cloud[to_trj_num][match.trainIdx].pt);
     }
 
-    cv::Mat homography;
     vector<char> mask;
-    cv::findHomography(from_trj_pts, to_trj_pts, cv::RANSAC, 3, mask);
+    cv::Mat homography = cv::findHomography(from_trj_pts, to_trj_pts, cv::RANSAC, 3, mask);
 
     matches.clear();
     for (int i = 0; i < mask.size(); i++)
@@ -263,7 +261,7 @@ void MainController::showKeyPoints(int trj_num)
 
     for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
     {
-        for (size_t kp_num = 0; kp_num < std::min((size_t)100, key_points[frame_num].size()); kp_num++)
+        for (size_t kp_num = 0; kp_num < std::min((size_t)10000, key_points[frame_num].size()); kp_num++)
         {
             const Map &frame = trj.getFrame(frame_num);
             const cv::KeyPoint &kp = key_points[frame_num][kp_num];
