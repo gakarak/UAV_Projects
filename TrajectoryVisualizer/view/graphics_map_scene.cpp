@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
+#include <QBrush>
 
 #include "main_view.h"
 #include "config_singleton.h"
@@ -11,20 +12,21 @@ using namespace viewpkg;
 GraphicsMapScene::GraphicsMapScene()
     :  main_view(nullptr)
 {
-    //trajectory1.setOrientationVisible(ui->is_orientation_show_chk->isChecked());
-    //trajectory2.setOrientationVisible(ui->is_orientation_show_chk->isChecked());
-
-    main_map.setZValue(-1);
-    //main_map.setVisible(ui->is_map_show_check->isChecked());
     main_map.setHoverable(false);
 
+    ghostRecover.setPen(QPen(QBrush(QColor(255, 255, 0)), 3));
+    ghostRecover.setRect(0, 0, 100, 100);
+
+    main_map.setZValue(-1); 
     matches.setZValue(1);
+    ghostRecover.setZValue(2);
 
     this->addItem(&trajectory1);
     this->addItem(&trajectory2);
     this->addItem(&main_map);
     matches.setOpacity(0.3);
     this->addItem(&matches);
+    this->addItem(&ghostRecover);
 }
 
 void GraphicsMapScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)

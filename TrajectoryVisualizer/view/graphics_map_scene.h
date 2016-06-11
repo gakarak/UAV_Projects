@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <QGraphicsScene>
+#include <QGraphicsRectItem>
 
 #include "graphics_map_item.h"
 #include "graphics_trajectory_item.h"
@@ -25,11 +26,13 @@ namespace viewpkg
         GraphicsTrajectoryItem&     getSecondTrajectory()   { return trajectory2; }
         GraphicsMapItem&            getMainMap()            { return main_map; }
         GraphicsMatchesItem&        getMatches()            { return matches; }
+        QGraphicsRectItem&          getGhostRecover()       { return ghostRecover; }
 
         const GraphicsTrajectoryItem&     getFirstTrajectory() const    { return trajectory1; }
         const GraphicsTrajectoryItem&     getSecondTrajectory() const   { return trajectory2; }
         const GraphicsMapItem&            getMainMap() const            { return main_map; }
         const GraphicsMatchesItem&        getMatches() const            { return matches; }
+        const QGraphicsRectItem&          getGhostRecover() const       { return ghostRecover; }
 
         //double                            getMetersPerPixel() const     { return m_per_px; }
     protected:
@@ -41,9 +44,11 @@ namespace viewpkg
         GraphicsTrajectoryItem trajectory1;
         GraphicsTrajectoryItem trajectory2;
 
-        GraphicsMapItem main_map;
-
         GraphicsMatchesItem matches;
+
+        QGraphicsRectItem ghostRecover;
+
+        GraphicsMapItem main_map;
 
         //double m_per_px;
     };

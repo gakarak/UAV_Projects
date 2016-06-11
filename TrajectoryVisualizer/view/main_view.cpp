@@ -124,6 +124,22 @@ void MainView::setMatches(const std::vector<std::vector<QPointF>> &trajectory_pt
     }
 }
 
+void MainView::setGhostRecover(QPointF center_px, QSize size, double angle, double meters_per_pixel)
+{
+    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
+    double scale = meters_per_pixel / m_per_px;
+
+    scene.getGhostRecover().setRect(0, 0, size.width(), size.height());
+    scene.getGhostRecover().setTransformOriginPoint(QPointF(size.width(), size.height())/2.);
+    scene.getGhostRecover().setPos((center_px - QPointF(size.width(), size.height())/2.)*scale);
+    scene.getGhostRecover().setRotation(angle);
+    qreal dx = 0;//item_center_px.x()/scale;
+    qreal dy = 0;//item_center_px.y()/scale;
+    scene.getGhostRecover().setTransform(QTransform().translate(dx, dy).scale(scale, scale)
+                                                     .translate(-dx, -dy), true);
+    qDebug() << "ghost recover setted" << endl;
+}
+
 void MainView::setMainMap(QPixmap map, double meter_per_pixel)
 {
     double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();

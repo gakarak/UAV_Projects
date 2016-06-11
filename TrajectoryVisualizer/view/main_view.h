@@ -52,6 +52,8 @@ namespace viewpkg
                         const std::vector<std::vector<double>> &angles,
                         const std::vector<std::vector<double>> &meters_per_pixels);
 
+        void setGhostRecover(QPointF center_px, QSize size, double angle, double meters_per_pixel);
+
         void setMainMap(QPixmap map, double meter_per_pixel);
 
         void setDetectors(const std::vector<QString> &detectors_names);

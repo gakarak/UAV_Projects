@@ -130,8 +130,8 @@ void MainController::calculateMatches(int descriptor_idx)
         //SHITTY CODE START (doubled from showMatches() )
         int frame_num = 0;
 
-        //tricky code
-        const auto &idx = isFirstMatchingOnSecond == to_trj_num? match.trainIdx:  match.queryIdx;
+        //to_trj - it's always train
+        const auto &idx = match.trainIdx;
 
         //calculating frame_num and kp_num
         while (idx >= accumulative_trj_cuts[to_trj_num][frame_num])
@@ -144,10 +144,11 @@ void MainController::calculateMatches(int descriptor_idx)
 
         const Map &frame = model->getTrajectory(to_trj_num).getFrame(frame_num);
         const cv::KeyPoint &kp = model->getTrajectory(to_trj_num).getFrameKeyPoint(frame_num, kp_num);
+        QPointF kp_translated_to_center(kp.pt.x - frame.image.cols/2., kp.pt.y - frame.image.rows/2.);
+        QPointF rotated_kp = QTransform().rotate(frame.angle).map(kp_translated_to_center);
 
-        //pos_m - it's center of frame, so we need postpone vector (pt - image.center) from frame.centr
-        QPointF pt_on_map( utils::cv::toQPointF(kp.pt) - QPointF(frame.image.cols, frame.image.rows)/2 +
-                           utils::cv::toQPointF(frame.pos_m) / frame.m_per_px);
+        QPointF pt_on_map( rotated_kp + utils::cv::toQPointF(frame.pos_m) / frame.m_per_px);
+
         to_trj_pts.push_back(cv::Point2f(pt_on_map.x(), pt_on_map.y()));
         //to_trj_pts.push_back(trajectories_kp_cloud[to_trj_num][match.trainIdx].pt);
     }
@@ -155,6 +156,22 @@ void MainController::calculateMatches(int descriptor_idx)
     vector<char> mask;
     cv::Mat homography = cv::findHomography(from_trj_pts, to_trj_pts, cv::RANSAC, 3, mask);
 
+    //setting ghost recover
+    const Map &frame = model->getTrajectory(from_trj_num).getFrame(trajectories_selected_frames[from_trj_num].front());
+    cv::Point2f cv_center(frame.image.cols/2., frame.image.rows/2.);
+    vector<cv::Point2f> tmp_in(1, cv_center);
+    vector<cv::Point2f> tmp_out;
+    cv::perspectiveTransform(tmp_in, tmp_out, homography);
+    cv::Point2f cv_center_transformed = tmp_out[0];
+
+    QSize size(frame.image.cols, frame.image.rows);
+    QPointF center_px(cv_center_transformed.x, cv_center_transformed.y);
+    double angle = atan(homography.at<double>(0, 1) / homography.at<double>(0, 0))*180/M_PI;
+    double m_per_px = frame.m_per_px;
+
+    view->setGhostRecover(center_px, size, angle, m_per_px);
+
+    //setting matches
     matches.clear();
     for (int i = 0; i < mask.size(); i++)
     {
@@ -261,7 +278,7 @@ void MainController::showKeyPoints(int trj_num)
 
     for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
     {
-        for (size_t kp_num = 0; kp_num < std::min((size_t)10000, key_points[frame_num].size()); kp_num++)
+        for (size_t kp_num = 0; kp_num < std::min((size_t)100, key_points[frame_num].size()); kp_num++)
         {
             const Map &frame = trj.getFrame(frame_num);
             const cv::KeyPoint &kp = key_points[frame_num][kp_num];
