@@ -155,8 +155,15 @@ void MainController::calculateMatches(int descriptor_idx)
         //to_trj_pts.push_back(trajectories_kp_cloud[to_trj_num][match.trainIdx].pt);
     }
 
-    vector<char> mask;
+    auto start_homo_time = chrono::high_resolution_clock::now();
+
+    vector<char> mask;   
     cv::Mat homography = cv::findHomography(from_trj_pts, to_trj_pts, cv::RANSAC, 3, mask);
+
+    auto finish_homo_time = chrono::high_resolution_clock::now();
+    clog << "Finding homography time: " <<
+            chrono::duration_cast<chrono::milliseconds>(finish_homo_time - start_homo_time).count() <<
+            "ms" << endl;
 
     //setting ghost recover
     const Map &frame = model->getTrajectory(from_trj_num).getFrame(trajectories_selected_frames[from_trj_num].front());
