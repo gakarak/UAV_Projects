@@ -100,15 +100,17 @@ void MainController::calculateMatches(int descriptor_idx)
         }
     }
 
-    auto start_match_time = chrono::high_resolution_clock::now();
-
     isFirstMatchingOnSecond = trajectories_selected_frames[1].empty();
     int from_trj_num = isFirstMatchingOnSecond? 0: 1;
     int to_trj_num = isFirstMatchingOnSecond? 1: 0;
     vector<cv::DMatch> rough_matches;
 
+    matcher.add(trajectories_descr_clouds[to_trj_num]);
+    matcher.train();
+
+    auto start_match_time = chrono::high_resolution_clock::now();
+
     matcher.match(trajectories_descr_clouds[from_trj_num],
-                  trajectories_descr_clouds[to_trj_num],
                   rough_matches);
 
     auto finish_match_time = chrono::high_resolution_clock::now();
