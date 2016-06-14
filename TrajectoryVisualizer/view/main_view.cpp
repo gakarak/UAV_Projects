@@ -136,7 +136,7 @@ void MainView::setGhostRecover(QPointF center_px, QSize size, double angle, doub
     qreal dx = 0;//item_center_px.x()/scale;
     qreal dy = 0;//item_center_px.y()/scale;
     scene.getGhostRecover().setTransform(QTransform().translate(dx, dy).scale(scale, scale)
-                                                     .translate(-dx, -dy), true);
+                                                     .translate(-dx, -dy), false);
     qDebug() << "ghost recover setted" << endl;
 }
 
