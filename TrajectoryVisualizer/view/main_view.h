@@ -77,6 +77,7 @@ namespace viewpkg
         void on_is_key_point_show_chk_toggled(bool checked);
         void on_is_matches_show_check_toggled(bool checked);
         void on_is_map_show_check_toggled(bool checked);
+        void on_is_recovery_show_check_toggled(bool checked);
 
         /* frame selection */
         void onFirstTrajectoryDoubleClicked(int frame_num, bool isSelected);

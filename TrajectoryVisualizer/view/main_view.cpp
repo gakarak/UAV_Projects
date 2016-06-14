@@ -49,6 +49,8 @@ MainView::MainView(QWidget *parent) :
 
     scene.getMatches().setVisible(ui->is_matches_show_check->isChecked());
 
+    scene.getGhostRecover().setVisible(ui->is_recovery_show_check->isChecked());
+
     //intially update shift
     on_shift_second_trj_group_toggled(ui->shift_second_trj_group->isChecked());
 
@@ -256,6 +258,11 @@ void viewpkg::MainView::on_is_matches_show_check_toggled(bool checked)
 void viewpkg::MainView::on_is_map_show_check_toggled(bool checked)
 {
     scene.getMainMap().setVisible(checked);
+}
+
+void viewpkg::MainView::on_is_recovery_show_check_toggled(bool checked)
+{
+    scene.getGhostRecover().setVisible(checked);
 }
 
 /*
