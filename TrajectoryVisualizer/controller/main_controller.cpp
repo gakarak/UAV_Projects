@@ -175,7 +175,7 @@ void MainController::calculateMatches(int descriptor_idx)
 
     QSize size(frame.image.cols, frame.image.rows);
     QPointF center_px(cv_center_transformed.x, cv_center_transformed.y);
-    double angle = atan(homography.at<double>(0, 1) / homography.at<double>(0, 0))*180/M_PI;
+    double angle = atan(homography.at<double>(1, 0) / homography.at<double>(0, 0))*180/M_PI;
     double m_per_px = frame.m_per_px;
 
     view->setGhostRecover(center_px, size, angle, m_per_px);
