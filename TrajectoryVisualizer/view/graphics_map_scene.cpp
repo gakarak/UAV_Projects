@@ -14,8 +14,9 @@ GraphicsMapScene::GraphicsMapScene()
 {
     main_map.setHoverable(false);
 
+    matches.setFiltersChildEvents(true);
+
     ghostRecover.setPen(QPen(QBrush(QColor(255, 255, 0)), 3));
-    ghostRecover.setRect(0, 0, 100, 100);
 
     main_map.setZValue(-1); 
     matches.setZValue(1);
