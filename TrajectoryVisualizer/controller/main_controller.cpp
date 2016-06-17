@@ -178,7 +178,7 @@ void MainController::calculateMatches(int descriptor_idx)
     double angle = atan(homography.at<double>(1, 0) / homography.at<double>(0, 0))*180/M_PI;
     double m_per_px = frame.m_per_px;
 
-    view->setGhostRecover(center_px, size, angle, m_per_px);
+    view->setGhostRecovery(center_px, size, angle, m_per_px);
 
     //setting matches
     matches.clear();

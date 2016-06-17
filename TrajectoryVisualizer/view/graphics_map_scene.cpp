@@ -16,18 +16,18 @@ GraphicsMapScene::GraphicsMapScene()
 
     matches.setFiltersChildEvents(true);
 
-    ghostRecover.setPen(QPen(QBrush(QColor(255, 255, 0)), 3));
+    ghostRecovery.setPen(QPen(QBrush(QColor(255, 255, 0)), 3));
 
     main_map.setZValue(-1); 
     matches.setZValue(1);
-    ghostRecover.setZValue(2);
+    ghostRecovery.setZValue(2);
 
     this->addItem(&trajectory1);
     this->addItem(&trajectory2);
     this->addItem(&main_map);
     matches.setOpacity(0.3);
     this->addItem(&matches);
-    this->addItem(&ghostRecover);
+    this->addItem(&ghostRecovery);
 }
 
 void GraphicsMapScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)

@@ -49,7 +49,7 @@ MainView::MainView(QWidget *parent) :
 
     scene.getMatches().setVisible(ui->is_matches_show_check->isChecked());
 
-    scene.getGhostRecover().setVisible(ui->is_recovery_show_check->isChecked());
+    scene.getGhostRecovery().setVisible(ui->is_recovery_show_check->isChecked());
 
     //intially update shift
     on_shift_second_trj_group_toggled(ui->shift_second_trj_group->isChecked());
@@ -126,18 +126,18 @@ void MainView::setMatches(const std::vector<std::vector<QPointF>> &trajectory_pt
     }
 }
 
-void MainView::setGhostRecover(QPointF center_px, QSize size, double angle, double meters_per_pixel)
+void MainView::setGhostRecovery(QPointF center_px, QSize size, double angle, double meters_per_pixel)
 {
     double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
     double scale = meters_per_pixel / m_per_px;
 
-    scene.getGhostRecover().setRect(0, 0, size.width(), size.height());
-    scene.getGhostRecover().setTransformOriginPoint(QPointF(size.width(), size.height())/2.);
-    scene.getGhostRecover().setPos((center_px - QPointF(size.width(), size.height())/2.)*scale);
-    scene.getGhostRecover().setRotation(angle);
+    scene.getGhostRecovery().setRect(0, 0, size.width(), size.height());
+    scene.getGhostRecovery().setTransformOriginPoint(QPointF(size.width(), size.height())/2.);
+    scene.getGhostRecovery().setPos((center_px - QPointF(size.width(), size.height())/2.)*scale);
+    scene.getGhostRecovery().setRotation(angle);
     qreal dx = 0;//item_center_px.x()/scale;
     qreal dy = 0;//item_center_px.y()/scale;
-    scene.getGhostRecover().setTransform(QTransform().translate(dx, dy).scale(scale, scale)
+    scene.getGhostRecovery().setTransform(QTransform().translate(dx, dy).scale(scale, scale)
                                                      .translate(-dx, -dy), false);
     qDebug() << "ghost recover setted" << endl;
 }
@@ -262,7 +262,7 @@ void viewpkg::MainView::on_is_map_show_check_toggled(bool checked)
 
 void viewpkg::MainView::on_is_recovery_show_check_toggled(bool checked)
 {
-    scene.getGhostRecover().setVisible(checked);
+    scene.getGhostRecovery().setVisible(checked);
 }
 
 /*
