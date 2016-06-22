@@ -16,7 +16,8 @@ GraphicsMapScene::GraphicsMapScene()
 
     matches.setFiltersChildEvents(true);
 
-    ghostRecovery.setPen(QPen(QBrush(QColor(255, 255, 0)), 3));
+    ghostRecovery.setPen(QPen(QBrush(QColor(255, 255, 0)), 5));
+    ghostRecovery.setBrush(QBrush(QColor(255, 255, 0), Qt::FDiagPattern));
 
     main_map.setZValue(-1); 
     matches.setZValue(1);

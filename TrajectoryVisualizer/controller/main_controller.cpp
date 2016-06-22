@@ -177,8 +177,10 @@ void MainController::calculateMatches(int descriptor_idx)
     QPointF center_px(cv_center_transformed.x, cv_center_transformed.y);
     double angle = atan(homography.at<double>(1, 0) / homography.at<double>(0, 0))*180/M_PI;
     double m_per_px = frame.m_per_px;
+    double coords_m_per_px = model->getTrajectory(to_trj_num).getFrame(0).m_per_px;
 
-    view->setGhostRecovery(center_px, size, angle, m_per_px);
+    view->setGhostRecovery(center_px, size, angle,
+                           m_per_px, coords_m_per_px);
 
     //setting matches
     matches.clear();
