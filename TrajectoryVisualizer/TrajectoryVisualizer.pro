@@ -28,7 +28,9 @@ SOURCES += main.cpp\
     config_singleton.cpp \
     view/graphics_fast_keypoint_item.cpp \
     view/graphics_frame_item.cpp \
-    view/graphics_matches_item.cpp
+    view/graphics_matches_item.cpp \
+    algorithms/trajectory_recover.cpp \
+    algorithms/transformator.cpp
 
 HEADERS  += \
     utils/csv.h \
@@ -49,7 +51,9 @@ HEADERS  += \
     utils/gradient_density.h \
     view/graphics_fast_keypoint_item.h \
     view/graphics_frame_item.h \
-    view/graphics_matches_item.h
+    view/graphics_matches_item.h \
+    algorithms/trajectory_recover.h \
+    algorithms/transformator.h
 
 INCLUDEPATH += /home/ar/dev/opencv-3.1/include #/home/pisarik/Libs/opencv-3.1.0-build-debug/include
 LIBS += -L/home/ar/dev/opencv-3.1/lib \ #/home/pisarik/Libs/opencv-3.1.0-build-debug/lib \
