@@ -82,6 +82,20 @@ void GraphicsTrajectoryItem::addKeyPoint(int frame_num, QPointF center_px, doubl
     frames_num.push_back(frame_num);
 }
 
+void GraphicsTrajectoryItem::addKeyPointNew(QPointF pos, double angle, double radius, double scale, QColor color)
+{
+    shared_ptr<GraphicsFastKeyPointItem> key_point = make_shared<GraphicsFastKeyPointItem>(QPointF(0, 0), 0, 1, &key_point_layer);
+
+    key_point->setRadius(radius * scale);
+    key_point->setAngle(angle);
+    key_point->setColor(color);
+
+    key_point->setPos(pos);
+    key_points.push_back(key_point);
+    key_point_layer.addToGroup(key_points.back().get());
+    //frames_num.push_back(frame_num);
+}
+
 void GraphicsTrajectoryItem::makeTransforms(shared_ptr<QGraphicsItem> item, QPointF item_center_px, QPointF scene_center_pos_px, double angle, double meters_per_pixel)
 {
     double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();

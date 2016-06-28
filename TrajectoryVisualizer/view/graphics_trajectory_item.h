@@ -26,6 +26,8 @@ namespace viewpkg
 
         void pushBackFrame(QPixmap img, QPointF center_coords_px, double angle, double meters_per_pixel, double quality);
         void addKeyPoint(int frame_num, QPointF center_px, double angle, double radius, QColor color);
+        void addKeyPointNew(QPointF pos, double angle, double radius, double scale, QColor color);
+
         void clear();
         void clearKeyPoints();
 

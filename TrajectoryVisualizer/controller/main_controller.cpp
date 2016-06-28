@@ -24,11 +24,14 @@
 using namespace std;
 using namespace modelpkg;
 using namespace controllerpkg;
+using namespace algorithmspkg;
 
 MainController::MainController()
 {
     initDetectors();
     initDescriptors();
+    trj_recovers.assign(2, TrajectoryRecover(detectors[0],
+                                             descriptors[0]));
 
     trajectories_selected_frames.assign(2, vector<int>());
     accumulative_trj_cuts.assign(2, vector<int>());
@@ -41,7 +44,26 @@ void MainController::loadOrCalculateModel(int detector_idx, int descriptor_idx)
 
     for (size_t trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
     {
-        this->showKeyPoints(trj_num);
+        auto &trj = model->getTrajectory(trj_num);
+        TrajectoryRecover &recover = trj_recovers[trj_num];
+        recover.setDetector(detectors[detector_idx]);
+        recover.setDescriptor(descriptors[descriptor_idx]);
+
+        recover.clear();
+        for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
+        {
+            recover.addFrame(trj.getFrame(frame_num).image,
+                             trj.getFrameAllKeyPoints(frame_num),
+                             trj.getFrameDescription(frame_num),
+                             trj.getFrame(frame_num).pos_m,
+                             -trj.getFrame(frame_num).angle,
+                             trj.getFrame(frame_num).m_per_px);
+        }
+    }
+
+    for (size_t trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
+    {
+        this->showKeyPointsNew(trj_num);
     }
 }
 
@@ -329,6 +351,23 @@ void MainController::showKeyPoints(int trj_num)
     {
         view->setSecondKeyPoints(frames_num, center_coords_px, angles, radius, colors);
     }
+}
+
+void MainController::showKeyPointsNew(int trj_num)
+{
+    const Trajectory &trj = model->getTrajectory(trj_num);
+    TrajectoryRecover &recover = trj_recovers[trj_num];
+
+    for (const cv::KeyPoint &kp: recover.getKeyPointsCloud())
+    {
+      view->getTrajectoryItem(trj_num).addKeyPointNew(
+            utils::cv::toQPointF(kp.pt),
+            kp.angle,
+            kp.size/2.,
+            1,
+            QColor(255, 0, 0));
+    }
+
 }
 
 void MainController::showMatches()

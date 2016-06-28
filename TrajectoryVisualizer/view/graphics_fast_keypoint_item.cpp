@@ -33,7 +33,7 @@ QRectF GraphicsFastKeyPointItem::boundingRect() const
 
 void GraphicsFastKeyPointItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    painter->setPen(QPen(QBrush(color), 2, Qt::SolidLine));
+    painter->setPen(QPen(QBrush(color), 0.5, Qt::SolidLine));
 
     painter->drawEllipse(center.x() - radius, center.y() - radius, 2*radius, 2*radius);
 

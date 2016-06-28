@@ -61,6 +61,12 @@ namespace viewpkg
 
         void showException(QString what);
 
+        GraphicsTrajectoryItem& getTrajectoryItem(int trj_num)
+        {
+            return trj_num == 0? scene.getFirstTrajectory():
+                                 scene.getSecondTrajectory();
+        }
+
     private slots:
         /* buttons */
         void on_load_ini_btn_clicked();

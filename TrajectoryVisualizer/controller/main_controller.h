@@ -12,6 +12,7 @@
 
 #include "view/main_view.h"
 #include "model/main_model.h"
+#include "algorithms/trajectory_recover.h"
 
 namespace controllerpkg
 {
@@ -31,6 +32,7 @@ namespace controllerpkg
         void showTrajectory(int trj_num);
         void showMainMap();
         void showKeyPoints(int trj_num);
+        void showKeyPointsNew(int trj_num);
         void showMatches();
 
         void setView(std::shared_ptr<viewpkg::MainView> view)       { this->view = view; }
@@ -101,6 +103,8 @@ namespace controllerpkg
         bool isFirstMatchingOnSecond;
         std::vector<cv::DMatch> matches;
         std::vector<std::vector<int>> accumulative_trj_cuts;
+
+        std::vector<algorithmspkg::TrajectoryRecover> trj_recovers;
     };
 
 }
