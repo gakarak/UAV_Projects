@@ -35,7 +35,7 @@ void TrajectoryRecover::addFrame(const Mat &frame,
 
 void TrajectoryRecover::addFrame(const Mat &frame,
                                  const vector<KeyPoint> &key_points,
-                                 const Mat &descriptors,
+                                 Mat   descriptors,
                                  const Point2f &frame_pos_m,
                                  double angle, double meters_per_pixel)
 {
@@ -56,14 +56,29 @@ void TrajectoryRecover::addFrame(const Mat &frame,
                                   Transformator::getScale(meters_per_pixel),
                                   Transformator::getTranslate(frame_pos_m)
                                });
+  /*transformed = to_transform;
+  transformed = Transformator::transform(transformed, Transformator::getTranslate(-center_shift));
+  transformed = Transformator::transform(transformed, Transformator::getRotate(angle));
+  transformed = Transformator::transform(transformed, Transformator::getScale(meters_per_pixel));
+  transformed = Transformator::transform(transformed, Transformator::getTranslate(frame_pos_m));*/
 
   for (size_t i = 0; i < transformed.size(); i++)
   {
     KeyPoint kp = key_points[i];
     kp.pt = transformed[i];
+    kp.angle += angle;  //add frame angle
+    kp.size *= meters_per_pixel;
     key_points_cloud.push_back(kp);
   }
-  vconcat(descriptors_cloud, descriptors);
+
+  if (descriptors_cloud.empty())
+  {
+    descriptors_cloud = descriptors;
+  }
+  else
+  {
+    vconcat(descriptors_cloud, descriptors);
+  }
   matcher.add(descriptors);
 }
 

@@ -21,7 +21,7 @@ class TrajectoryRecover
 
   void addFrame(const cv::Mat                   &frame,
                 const std::vector<cv::KeyPoint> &key_points,
-                const cv::Mat                   &descriptors,
+                      cv::Mat                    descriptors,
                 const cv::Point2f               &frame_pos_m,
                 double angle, double meters_per_pixel);
 
