@@ -71,9 +71,10 @@ Mat Transformator::getTranslate(Point2f shift)
 
 Mat Transformator::getRotate(double angle)
 {
-    return Mat_<double>(3, 3) << cos(angle), sin(angle), 0,
-                                -sin(angle), cos(angle), 0,
-                                    0,            0,     1;
+    double radians = angle/180*M_PI;
+    return Mat_<double>(3, 3) << cos(radians), sin(radians), 0,
+                                -sin(radians), cos(radians), 0,
+                                      0,            0,       1;
 }
 
 Mat Transformator::getScale(double scale)
