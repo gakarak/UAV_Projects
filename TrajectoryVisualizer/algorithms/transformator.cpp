@@ -6,6 +6,8 @@ using namespace algorithmspkg;
 using namespace std;
 using namespace cv;
 
+#include <iostream>
+
 Transformator::Transformator()
 {
 
@@ -46,7 +48,7 @@ vector<Point2f> Transformator::transform(const vector<Point2f> &pts,
     Mat final_transform = *transformations.begin();
     for (auto it = transformations.begin()+1; it != transformations.end(); it++)
     {
-      final_transform = it->mul(final_transform);
+      final_transform = (*it)*final_transform;
     }
 
     return Transformator::transform(pts, final_transform);
