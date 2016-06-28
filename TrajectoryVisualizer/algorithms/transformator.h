@@ -2,6 +2,7 @@
 #define TRANSFORMATOR_H
 
 #include <vector>
+#include <initializer_list>
 
 #include <opencv2/core.hpp>
 
@@ -12,12 +13,15 @@ class Transformator
  public:
   Transformator();
 
-  static std::vector<cv::Point2f> transform(const std::vector<cv::Point2f> &pts,
+/*static std::vector<cv::Point2f> transform(const std::vector<cv::Point2f> &pts,
                                             const cv::Point2f &center_shift,
                                             double angle, double scale,
-                                            const cv::Point2f &scaled_shift);
+                                            const cv::Point2f &scaled_shift);*/
+  static std::vector<cv::Point2f> transform(const std::vector<cv::Point2f> &pts,
+                                std::initializer_list<cv::Mat> transformations);
   static std::vector<cv::Point2f> transform(const std::vector<cv::Point2f> &pts,
                                             const cv::Mat &transformation);
+
 
 
 

@@ -53,7 +53,9 @@ HEADERS  += \
     view/graphics_frame_item.h \
     view/graphics_matches_item.h \
     algorithms/trajectory_recover.h \
-    algorithms/transformator.h
+    algorithms/transformator.h \
+    algorithms/image_info_estimator.h \
+    algorithms/image_info_gradient_estimator.h
 
 INCLUDEPATH += /home/ar/dev/opencv-3.1/include #/home/pisarik/Libs/opencv-3.1.0-build-debug/include
 LIBS += -L/home/ar/dev/opencv-3.1/lib \ #/home/pisarik/Libs/opencv-3.1.0-build-debug/lib \

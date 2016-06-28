@@ -50,9 +50,13 @@ void TrajectoryRecover::addFrame(const Mat &frame,
     }
 
     //from local to trajectory coords
-    transformed = Transformator::transform(to_transform,
-                                          Point2f(frame.cols/2., frame.rows/2.),
-                                          angle, meters_per_pixel, frame_pos_m);
+    Point2f center_shift = Point2f(frame.cols/2., frame.rows/2.);
+    transformed = Transformator::transform(to_transform, {//transformations
+                                    Transformator::getTranslate(-center_shift),
+                                    Transformator::getRotate(angle),
+                                    Transformator::getScale(meters_per_pixel),
+                                    Transformator::getTranslate(frame_pos_m)
+                                 });
 
     for (size_t i = 0; i < transformed.size(); i++)
     {
