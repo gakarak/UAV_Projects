@@ -36,9 +36,10 @@ class TrajectoryRecover
                          cv::Mat &homography,
                          std::vector<cv::DMatch> &matches);
 
+  void clear();
+
   void setDetector(cv::Ptr<cv::Feature2D> detector);
   void setDescriptor(cv::Ptr<cv::Feature2D> descriptor);
-  void setQualityValidator();
 
   const std::vector<cv::KeyPoint>& getKeyPointsCloud() const;
   const cv::Mat&                   getDescriptorsCloud() const;

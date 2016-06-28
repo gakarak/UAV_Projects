@@ -22,15 +22,15 @@ void TrajectoryRecover::addFrame(const Mat &frame,
                                  const Point2f &frame_pos_m,
                                  double angle, double meters_per_pixel)
 {
-    matcher_trained = false;
+  matcher_trained = false;
 
-    vector<KeyPoint> kps;
-    detector->detect(frame, kps);
+  vector<KeyPoint> kps;
+  detector->detect(frame, kps);
 
-    cv::Mat descrs;
-    descriptor->compute(frame, kps, descrs);
+  cv::Mat descrs;
+  descriptor->compute(frame, kps, descrs);
 
-    this->addFrame(frame, kps, descrs, frame_pos_m, angle, meters_per_pixel);
+  this->addFrame(frame, kps, descrs, frame_pos_m, angle, meters_per_pixel);
 }
 
 void TrajectoryRecover::addFrame(const Mat &frame,
@@ -39,33 +39,32 @@ void TrajectoryRecover::addFrame(const Mat &frame,
                                  const Point2f &frame_pos_m,
                                  double angle, double meters_per_pixel)
 {
-    matcher_trained = false;
+  matcher_trained = false;
 
-    vector<Point2f> to_transform;
-    vector<Point2f> transformed;
-    for (const auto &kp : key_points)
-    {
-        to_transform.push_back(kp.pt);
+  vector<Point2f> to_transform;
+  vector<Point2f> transformed;
+  for (const auto &kp : key_points)
+  {
+    to_transform.push_back(kp.pt);
+  }
 
-    }
+  //from local to trajectory coords
+  Point2f center_shift = Point2f(frame.cols/2., frame.rows/2.);
+  transformed = Transformator::transform(to_transform, {//transformations
+                                  Transformator::getTranslate(-center_shift),
+                                  Transformator::getRotate(angle),
+                                  Transformator::getScale(meters_per_pixel),
+                                  Transformator::getTranslate(frame_pos_m)
+                               });
 
-    //from local to trajectory coords
-    Point2f center_shift = Point2f(frame.cols/2., frame.rows/2.);
-    transformed = Transformator::transform(to_transform, {//transformations
-                                    Transformator::getTranslate(-center_shift),
-                                    Transformator::getRotate(angle),
-                                    Transformator::getScale(meters_per_pixel),
-                                    Transformator::getTranslate(frame_pos_m)
-                                 });
-
-    for (size_t i = 0; i < transformed.size(); i++)
-    {
-        KeyPoint kp = key_points[i];
-        kp.pt = transformed[i];
-        key_points_cloud.push_back(kp);
-    }
-    vconcat(descriptors_cloud, descriptors);
-    matcher.add(descriptors);
+  for (size_t i = 0; i < transformed.size(); i++)
+  {
+    KeyPoint kp = key_points[i];
+    kp.pt = transformed[i];
+    key_points_cloud.push_back(kp);
+  }
+  vconcat(descriptors_cloud, descriptors);
+  matcher.add(descriptors);
 }
 
 void TrajectoryRecover::recoverTrajectory(const Mat &que_frame,
@@ -73,14 +72,14 @@ void TrajectoryRecover::recoverTrajectory(const Mat &que_frame,
                                           Mat &descriptors, Mat &homography,
                                           vector<DMatch> &matches)
 {
-    //there is unnecessary to train matcher, because recoverTrajectory
-    //overload below will be called
+  //there is unnecessary to train matcher, because recoverTrajectory
+  //overload below will be called
 
-    key_points.clear();
-    detector->detect(que_frame, key_points);
-    descriptor->compute(que_frame, key_points, descriptors);
+  key_points.clear();
+  detector->detect(que_frame, key_points);
+  descriptor->compute(que_frame, key_points, descriptors);
 
-    this->recoverTrajectory(key_points, descriptors, homography, matches);
+  this->recoverTrajectory(key_points, descriptors, homography, matches);
 }
 
 void TrajectoryRecover::recoverTrajectory(const vector<KeyPoint> &que_key_points,
@@ -88,73 +87,81 @@ void TrajectoryRecover::recoverTrajectory(const vector<KeyPoint> &que_key_points
                                           Mat &homography,
                                           vector<DMatch> &matches)
 {
-    if (!matcher_trained)
+  if (!matcher_trained)
+  {
+    matcher.train();
+    matcher_trained = true;
+  }
+
+  vector<cv::DMatch> rough_matches;
+  auto start_match_time = high_resolution_clock::now();
+
+  matcher.match(que_descriptors,
+                rough_matches);
+
+  auto finish_match_time = high_resolution_clock::now();
+  clog << "Match time: " <<
+          duration_cast<milliseconds>(finish_match_time -
+                                      start_match_time).count() << "ms\n";
+
+  //prepare points for findHomography | using trajectories_kp_cloud
+  //we need to transform to_trj_pts to points on map
+  vector<Point2f> que_trj_pts;
+  vector<Point2f> train_trj_pts;
+
+  for (const DMatch &match: rough_matches)
+  {
+    train_trj_pts.push_back(key_points_cloud[match.trainIdx].pt);
+    que_trj_pts.push_back(que_key_points[match.queryIdx].pt);
+  }
+
+  auto start_homo_time = high_resolution_clock::now();
+
+  vector<char> mask;
+  homography = findHomography(que_trj_pts, train_trj_pts, RANSAC, 3, mask);
+
+  auto finish_homo_time = chrono::high_resolution_clock::now();
+  clog << "Finding homography time: " <<
+          duration_cast<milliseconds>(finish_homo_time -
+                                      start_homo_time).count() << "ms\n";
+
+  matches.clear();
+  for (size_t i = 0; i < mask.size(); i++)
+  {
+    if (mask[i])
     {
-        matcher.train();
-        matcher_trained = true;
+      matches.push_back(rough_matches[i]);
     }
+  }
 
-    vector<cv::DMatch> rough_matches;
-    auto start_match_time = high_resolution_clock::now();
+}
 
-    matcher.match(que_descriptors,
-                  rough_matches);
-
-    auto finish_match_time = high_resolution_clock::now();
-    clog << "Match time: " <<
-            duration_cast<milliseconds>(finish_match_time -
-                                        start_match_time).count() << "ms\n";
-
-    //prepare points for findHomography | using trajectories_kp_cloud
-    //we need to transform to_trj_pts to points on map
-    vector<Point2f> que_trj_pts;
-    vector<Point2f> train_trj_pts;
-
-    for (const DMatch &match: rough_matches)
-    {
-        train_trj_pts.push_back(key_points_cloud[match.trainIdx].pt);
-        que_trj_pts.push_back(que_key_points[match.queryIdx].pt);
-    }
-
-    auto start_homo_time = high_resolution_clock::now();
-
-    vector<char> mask;
-    homography = findHomography(que_trj_pts, train_trj_pts, RANSAC, 3, mask);
-
-    auto finish_homo_time = chrono::high_resolution_clock::now();
-    clog << "Finding homography time: " <<
-            duration_cast<milliseconds>(finish_homo_time -
-                                        start_homo_time).count() << "ms\n";
-
-    matches.clear();
-    for (size_t i = 0; i < mask.size(); i++)
-    {
-        if (mask[i])
-        {
-            matches.push_back(rough_matches[i]);
-        }
-    }
-
+void TrajectoryRecover::clear()
+{
+  matcher_trained = false;
+  matcher.clear();
+  key_points_cloud.clear();
+  descriptors_cloud = cv::Mat();
 }
 
 void TrajectoryRecover::setDetector(cv::Ptr<cv::Feature2D> detector)
 {
-    this->detector = detector;
+  this->detector = detector;
 }
 
 void TrajectoryRecover::setDescriptor(cv::Ptr<cv::Feature2D> descriptor)
 {
-    this->descriptor = descriptor;
+  this->descriptor = descriptor;
 }
 
 const std::vector<cv::KeyPoint> &TrajectoryRecover::getKeyPointsCloud() const
 {
-    return key_points_cloud;
+  return key_points_cloud;
 }
 
 const cv::Mat &TrajectoryRecover::getDescriptorsCloud() const
 {
-    return descriptors_cloud;
+  return descriptors_cloud;
 }
 
 
