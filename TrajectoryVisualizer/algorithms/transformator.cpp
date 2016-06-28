@@ -2,7 +2,7 @@
 
 #include <opencv2/calib3d.hpp>
 
-using namespace algorithms;
+using namespace algorithmspkg;
 using namespace std;
 using namespace cv;
 

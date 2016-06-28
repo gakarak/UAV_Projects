@@ -5,7 +5,7 @@
 
 #include "utils/gradient_density.h"
 
-namespace algorithms
+namespace algorithmspkg
 {
 
 class ImageInfoGradientEstimator: public ImageInfoEstimator<double>

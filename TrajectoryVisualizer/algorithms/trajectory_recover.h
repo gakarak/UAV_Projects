@@ -6,7 +6,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/xfeatures2d.hpp>
 
-namespace algorithms{
+namespace algorithmspkg{
 
 class TrajectoryRecover
 {

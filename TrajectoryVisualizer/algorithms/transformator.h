@@ -6,7 +6,7 @@
 
 #include <opencv2/core.hpp>
 
-namespace algorithms{
+namespace algorithmspkg{
 
 class Transformator
 {

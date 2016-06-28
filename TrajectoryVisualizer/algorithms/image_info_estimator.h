@@ -3,7 +3,7 @@
 
 #include <opencv2/core.hpp>
 
-namespace algorithms
+namespace algorithmspkg
 {
 
 template<typename InfoType>
