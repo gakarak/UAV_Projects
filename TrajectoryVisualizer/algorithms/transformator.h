@@ -17,6 +17,10 @@ class Transformator
                                             const cv::Point2f &center_shift,
                                             double angle, double scale,
                                             const cv::Point2f &scaled_shift);*/
+  static cv::Point2f transform(const cv::Point2f &pt,
+                               std::initializer_list<cv::Mat> transformations);
+  static cv::Point2f transform(const cv::Point2f &pt,
+                               const cv::Mat &transformation);
   static std::vector<cv::Point2f> transform(const std::vector<cv::Point2f> &pts,
                                 std::initializer_list<cv::Mat> transformations);
   static std::vector<cv::Point2f> transform(const std::vector<cv::Point2f> &pts,

@@ -13,7 +13,6 @@ Transformator::Transformator()
 
 }
 
-
 /**
  * @brief Transformator::transform
  * translate -center_shift, then rotate, then scale, then shift in scaled units
@@ -35,6 +34,19 @@ vector<Point2f> Transformator::transform(const vector<Point2f> &pts,
 
     return Transformator::transform(pts, transformation);
 }*/
+
+Point2f Transformator::transform(const cv::Point2f &pt,
+                                 initializer_list<Mat> transformations)
+{
+    std::vector<cv::Point2f> wrap(1, pt);
+    return Transformator::transform(wrap, transformations).front();
+}
+
+Point2f Transformator::transform(const Point2f &pt, const Mat &transformation)
+{
+    std::vector<cv::Point2f> wrap(1, pt);
+    return Transformator::transform(wrap, transformation).front();
+}
 
 /**
  * @brief Transformator::transform
