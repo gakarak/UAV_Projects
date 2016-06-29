@@ -6,7 +6,7 @@
 
 #include "model/entities/trajectory.h"
 
-namespace algorithms
+namespace algorithmspkg
 {
 
 class TrajectoryLoader
