@@ -77,9 +77,9 @@ void TrajectoryRecover::addFrame(const Mat &frame,
   }
   else
   {
-    vconcat(descriptors_cloud, descriptors);
+    descriptors_cloud.push_back(descriptors);
   }
-  matcher.add(descriptors);
+  //matcher.add(descriptors);
 }
 
 void TrajectoryRecover::recoverTrajectory(const Mat &que_frame,
