@@ -104,6 +104,8 @@ void TrajectoryRecover::recoverTrajectory(const vector<KeyPoint> &que_key_points
 {
   if (!matcher_trained)
   {
+    matcher.clear();
+    matcher.add(descriptors_cloud);
     matcher.train();
     matcher_trained = true;
   }
