@@ -42,6 +42,12 @@ namespace controllerpkg
         void showException(std::string what);
         void showView();
 
+        const std::vector<QString>& getDetectorsNames() const { return detectors_names; }
+        const std::vector<QString>& getDescriptorsNames() const { return descriptors_names; }
+
+        cv::Ptr<cv::Feature2D> getDetector(int i) { return detectors[i]; }
+        cv::Ptr<cv::Feature2D> getDescriptor(int i) { return descriptors[i]; }
+
         //exceptions
         class Exception: public std::runtime_error
         {
