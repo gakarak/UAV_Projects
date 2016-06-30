@@ -64,7 +64,7 @@ void TrajectoryLoader::loadKeyPoints(Trajectory &trj, string filename)
   ifstream in(filename, ios::binary);
   if (!in)
   {
-    return TrajectoryLoader::NoFileExist(filename);
+    throw TrajectoryLoader::NoFileExist(filename);
   }
 
   //maybe format checking
