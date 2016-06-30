@@ -3,7 +3,7 @@
 
 #include "image_info_estimator.h"
 
-#include "utils/gradient_density.h"
+#include <opencv2/imgproc.hpp>
 
 namespace algorithmspkg
 {
@@ -32,9 +32,8 @@ class ImageInfoGradientEstimator: public ImageInfoEstimator<double>
  *
  * @param scale
  */
-ImageInfoGradientEstimator::ImageInfoGradientEstimator(double scale,
-                                                       double threshold)
-    : ImageInfoEstimator<double>(), scale(scale), threshold(threshold)
+ImageInfoGradientEstimator::ImageInfoGradientEstimator(double scale)
+    : ImageInfoEstimator<double>(), scale(scale)
 {
   max_value = (4*255 + /*max gradient on X with Sobel operator*/
                4*255 /*max gradient on Y with Sobel operator*/
