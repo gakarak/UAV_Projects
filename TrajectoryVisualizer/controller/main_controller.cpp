@@ -16,7 +16,10 @@
 #include "utils/acmopencv.h"
 #include "utils/csv.h"
 #include "utils/gradient_density.h"
+#include "utils/geom_utils.h"
+
 #include "config_singleton.h"
+#include "algorithms/transformator.h"
 
 using namespace std;
 using namespace modelpkg;
@@ -167,15 +170,23 @@ void MainController::calculateMatches(int descriptor_idx)
 
     //setting ghost recover
     const Map &frame = model->getTrajectory(from_trj_num).getFrame(trajectories_selected_frames[from_trj_num].front());
-    cv::Point2f cv_center(frame.image.cols/2., frame.image.rows/2.);
+    /*cv::Point2f cv_center(frame.image.cols/2., frame.image.rows/2.);
     vector<cv::Point2f> tmp_in(1, cv_center);
     vector<cv::Point2f> tmp_out;
     cv::perspectiveTransform(tmp_in, tmp_out, homography);
-    cv::Point2f cv_center_transformed = tmp_out[0];
+    cv::Point2f cv_center_transformed = tmp_out[0];*/
 
     QSize size(frame.image.cols, frame.image.rows);
-    QPointF center_px(cv_center_transformed.x, cv_center_transformed.y);
-    double angle = atan(homography.at<double>(1, 0) / homography.at<double>(0, 0))*180/M_PI;
+    cv::Point2f center(frame.image.cols/2., frame.image.rows/2.);
+    cv::Point2f rotate_pt(center.x+10, center.y);
+
+    cv::Point2f bounded_center = algorithmspkg::Transformator::transform(center, homography);
+    cv::Point2f bounded_rotate_pt = algorithmspkg::Transformator::transform(rotate_pt, homography);
+
+
+    QPointF center_px(bounded_center.x, bounded_center.y);
+    double angle = utils::cv::angleBetween(rotate_pt-center, bounded_rotate_pt - bounded_center);
+    //double angle = atan(homography.at<double>(1, 0) / homography.at<double>(0, 0))*180/M_PI;
     double m_per_px = frame.m_per_px;
     double coords_m_per_px = model->getTrajectory(to_trj_num).getFrame(0).m_per_px;
 

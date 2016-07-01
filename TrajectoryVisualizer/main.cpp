@@ -13,6 +13,7 @@
 #include "algorithms/trajectory_loader.h"
 #include "algorithms/trajectory_recover.h"
 #include "algorithms/image_info_gradient_estimator.h"
+#include "utils/geom_utils.h"
 
 using namespace std;
 using namespace algorithmspkg;
@@ -158,14 +159,19 @@ int main(int argc, char *argv[])
             double quality = ImageInfoGradientEstimator(frame.m_per_px / 4.).estimate(frame.image);
 
             cv::Point2f center(frame.image.cols/2., frame.image.rows/2.);
-            cv::Point2f boundedPos = Transformator::transform(center, homography);
+            cv::Point2f rotate_pt(center.x+10, center.y);
+            cv::Point2f bounded_center = Transformator::transform(center, homography);
+            cv::Point2f bounded_rotate_pt = Transformator::transform(rotate_pt, homography);
+
+
             cout << homography << endl;
-            double angle = atan(homography.at<double>(1, 0) /
-                                homography.at<double>(0, 0))*180/M_PI;
+            //double angle = atan(homography.at<double>(1, 0) /
+            //                    homography.at<double>(0, 0))*180/M_PI;
+            double angle = utils::cv::angleBetween(rotate_pt-center, bounded_rotate_pt - bounded_center);
 
 
             out << quality << ',' <<
-                   cv::norm(boundedPos - frame.pos_m) << ',' <<
+                   cv::norm(bounded_center - frame.pos_m) << ',' <<
                    fabs(angle - frame.angle) << endl;
 
         }

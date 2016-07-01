@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     view/graphics_matches_item.cpp \
     algorithms/trajectory_recover.cpp \
     algorithms/transformator.cpp \
-    algorithms/trajectory_loader.cpp
+    algorithms/trajectory_loader.cpp \
+    utils/geom_utils.cpp
 
 HEADERS  += \
     utils/csv.h \
@@ -57,7 +58,8 @@ HEADERS  += \
     algorithms/transformator.h \
     algorithms/image_info_estimator.h \
     algorithms/image_info_gradient_estimator.h \
-    algorithms/trajectory_loader.h
+    algorithms/trajectory_loader.h \
+    utils/geom_utils.h
 
 INCLUDEPATH += /home/ar/dev/opencv-3.1/include #/home/pisarik/Libs/opencv-3.1.0-build-debug/include
 LIBS += -L/home/ar/dev/opencv-3.1/lib \ #/home/pisarik/Libs/opencv-3.1.0-build-debug/lib \
