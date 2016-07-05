@@ -20,12 +20,12 @@ void GraphicsMapView::wheelEvent(QWheelEvent *event)
         if (event->delta() > 0)
         {
             //zoom++
-            addZoom(0.2);
+            addZoom(zoom*0.2);
         }
         else
         {
             //zoom--
-            addZoom(-0.2);
+            addZoom(-zoom*0.2);
         }
         event->accept();
     }
