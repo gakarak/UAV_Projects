@@ -105,15 +105,25 @@ void TrajectoryRecover::recoverTrajectory(const vector<KeyPoint> &que_key_points
   if (!matcher_trained)
   {
     matcher.clear();
+    if(descriptors_cloud.type() != CV_32F)
+    {
+      descriptors_cloud.convertTo(descriptors_cloud, CV_32F);
+    }
     matcher.add(descriptors_cloud);
     matcher.train();
     matcher_trained = true;
   }
 
+  Mat descriptions32f = que_descriptors;
+  if (descriptions32f.type() != CV_32F)
+  {
+    descriptions32f.convertTo(descriptions32f, CV_32F);
+  }
+
   vector<cv::DMatch> rough_matches;
   auto start_match_time = high_resolution_clock::now();
 
-  matcher.match(que_descriptors,
+  matcher.match(descriptions32f,
                 rough_matches);
 
   auto finish_match_time = high_resolution_clock::now();
