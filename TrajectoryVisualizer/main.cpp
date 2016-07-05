@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
             cv::Point2f bounded_rotate_pt = Transformator::transform(rotate_pt, homography);
 
 
-            cout << homography << endl;
+                //cout << homography << endl;
             //double angle = atan(homography.at<double>(1, 0) /
             //                    homography.at<double>(0, 0))*180/M_PI;
             double angle = utils::cv::angleBetween(rotate_pt-center, bounded_rotate_pt - bounded_center);
