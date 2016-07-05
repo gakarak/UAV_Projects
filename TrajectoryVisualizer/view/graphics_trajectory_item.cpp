@@ -29,7 +29,6 @@ GraphicsTrajectoryItem::GraphicsTrajectoryItem()
 
 void GraphicsTrajectoryItem::pushBackFrame(QPixmap img, QPointF center_coords_px, double angle, double meters_per_pixel, double quality)
 {
-    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
     //setup map item
     shared_ptr<GraphicsFrameItem> frame_item = make_shared<GraphicsFrameItem>(img, frames.size());//, &trajectory_layer); //the frame_number is size
 
@@ -55,7 +54,7 @@ void GraphicsTrajectoryItem::pushBackFrame(QPixmap img, QPointF center_coords_px
     double green_mul = quality < 0.5? 2*quality: 1.;
     QColor way_point_color(int(255*red_mul), int(255*green_mul), 0);
 
-    direction_layer.pushBackWayPoint((center_coords_px) / (m_per_px / meters_per_pixel), way_point_color);
+    direction_layer.pushBackWayPoint((center_coords_px) * meters_per_pixel, way_point_color);
 }
 
 void GraphicsTrajectoryItem::addKeyPoint(int frame_num, QPointF center_px, double angle, double radius, QColor color)
@@ -98,8 +97,7 @@ void GraphicsTrajectoryItem::addKeyPointNew(QPointF pos, double angle, double ra
 
 void GraphicsTrajectoryItem::makeTransforms(shared_ptr<QGraphicsItem> item, QPointF item_center_px, QPointF scene_center_pos_px, double angle, double meters_per_pixel)
 {
-    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
-    double scale = meters_per_pixel / m_per_px;
+    double scale = meters_per_pixel;
     //old transformations set
     //because of translate from qt4.6 is obsolete
     //item->setTransform(QTransform::fromTranslate(-item_center_px.x()*scale, -item_center_px.y()*scale), true);

@@ -33,11 +33,9 @@ GraphicsMapScene::GraphicsMapScene()
 
 void GraphicsMapScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
-
     if (main_view)
     {
-        main_view->setMouseScenePosition(event->scenePos() * m_per_px);
+        main_view->setMouseScenePosition(event->scenePos());
     }
     QGraphicsScene::mouseMoveEvent(event);
 }

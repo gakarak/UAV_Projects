@@ -41,7 +41,6 @@ public:
     std::string getPathToFirstTrajectoryCsv()   { return path_to_trj1_csv; }
     std::string getPathToSecondTrajectoryCsv()  { return path_to_trj2_csv; }
 
-    double      getCommonMetersPerPixel()       { return common_m_per_px; }
     double      getGradientMetersPerPixel()     { return gradient_m_per_px; }
 
     double      getQualityThreshold()           { return quality_threshold; }
@@ -63,7 +62,6 @@ private:
     std::string path_to_trj1_csv;
     std::string path_to_trj2_csv;
 
-    double      common_m_per_px;
     double      gradient_m_per_px;
     double      quality_threshold;
 };

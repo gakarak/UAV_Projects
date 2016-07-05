@@ -128,9 +128,8 @@ void MainView::setMatches(const std::vector<std::vector<QPointF>> &trajectory_pt
 
 void MainView::setGhostRecovery(QPointF center_px, QSize size, double angle, double meters_per_pixel, double coords_m_per_px)
 {
-    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
-    double scale = meters_per_pixel / m_per_px;
-    double coords_scale = coords_m_per_px / m_per_px;
+    double scale = meters_per_pixel;
+    double coords_scale = coords_m_per_px;
 
     scene.getGhostRecovery().setRect(0, 0, size.width(), size.height());
     scene.getGhostRecovery().setTransformOriginPoint(QPointF(size.width(), size.height())/2.);
@@ -147,10 +146,8 @@ void MainView::setGhostRecovery(QPointF center_px, QSize size, double angle, dou
 
 void MainView::setMainMap(QPixmap map, double meter_per_pixel)
 {
-    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
-
     scene.getMainMap().setMapItem(map);
-    scene.getMainMap().setScale(  meter_per_pixel / m_per_px );
+    scene.getMainMap().setScale(meter_per_pixel);
 }
 
 void MainView::setDetectors(const vector<QString> &detectors_names)
@@ -350,10 +347,8 @@ void MainView::setZoom(double zoom)
 
 void MainView::updateStatusBar()
 {
-    double m_per_px = ConfigSingleton::getInstance().getCommonMetersPerPixel();
-
     QString position_str = QString("Position: (%1, %2) meters").arg(QString::number(mouse_scene_pos_m.x(), 'f', 3), QString::number(mouse_scene_pos_m.y(), 'f', 3));
     QString zoom_str = QString("Zoom: %1%").arg(QString::number(zoom*100));
-    QString meters_str = QString("Meters per pixel: %1").arg(QString::number(m_per_px / zoom));
+    QString meters_str = QString("Meters per pixel: %1").arg(QString::number(1. / zoom));
     ui->statusBar->showMessage( QString("%3 | %2 | %1").arg(position_str, meters_str, zoom_str) );
 }

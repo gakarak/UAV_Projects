@@ -56,18 +56,6 @@ void ConfigSingleton::loadIni(string path_to_ini)
 
     quality_threshold = ini.value("Common/quality_threshold").toDouble();
 
-    if (ini.contains("Common/meters_per_pixel"))
-    {
-        common_m_per_px = ini.value("Common/meters_per_pixel").toDouble();
-    }
-    else
-    {
-        common_m_per_px = 2;
-        clog << "Common meters per pixel missed in '" + path_to_ini + "'" << endl;
-        clog << "Common meters per pixel default value " << common_m_per_px << endl;
-        //throw Exception("ini file doesn't contain the key: Common/meters_per_pixel");
-    }
-
     if (ini.contains("Common/gradient_meters_per_pixel"))
     {
         gradient_m_per_px = ini.value("Common/gradient_meters_per_pixel").toDouble();

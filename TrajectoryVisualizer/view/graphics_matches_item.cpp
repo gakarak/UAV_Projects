@@ -21,7 +21,7 @@ void GraphicsMatchesItem::addLine(vector<QPointF> trajectories_pt, vector<QPoint
 {
     for (int i = 0; i < 2; i++)
     {
-        double scale = meters_per_pixels[i] / ConfigSingleton::getInstance().getCommonMetersPerPixel();
+        double scale = meters_per_pixels[i];
 
         trajectories_pt[i] *= scale;
 
