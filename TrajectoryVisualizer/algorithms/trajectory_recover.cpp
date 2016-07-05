@@ -39,6 +39,10 @@ void TrajectoryRecover::addFrame(const Mat &frame,
                                  const Point2f &frame_pos_m,
                                  double angle, double meters_per_pixel)
 {
+  if (key_points.empty())
+  {
+    return;
+  }
   matcher_trained = false;
 
   vector<Point2f> to_transform;
@@ -102,6 +106,12 @@ void TrajectoryRecover::recoverTrajectory(const vector<KeyPoint> &que_key_points
                                           Mat &homography,
                                           vector<DMatch> &matches)
 {
+  if (que_key_points.empty())
+  {
+    homography = Mat();
+    matches.clear();
+    return;
+  }
   if (!matcher_trained)
   {
     matcher.clear();

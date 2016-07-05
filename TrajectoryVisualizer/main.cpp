@@ -147,6 +147,7 @@ int main(int argc, char *argv[])
         }
 
         //start evaluating
+        size_t skipped = 0;
         auto &que_trj = main_model->getTrajectory(1);
         for (size_t frame_num = 0; frame_num < que_trj.getFramesCount(); frame_num++)
         {
@@ -162,24 +163,28 @@ int main(int argc, char *argv[])
                                       homography, matches);
 
             double quality = ImageInfoGradientEstimator(frame.m_per_px / 4.).estimate(frame.image);
-
-            cv::Point2f center(frame.image.cols/2., frame.image.rows/2.);
-            cv::Point2f rotate_pt(center.x+10, center.y);
-            cv::Point2f bounded_center = Transformator::transform(center, homography);
-            cv::Point2f bounded_rotate_pt = Transformator::transform(rotate_pt, homography);
+            if (!homography.empty())
+            {
+                cv::Point2f center(frame.image.cols/2., frame.image.rows/2.);
+                cv::Point2f rotate_pt(center.x+10, center.y);
+                cv::Point2f bounded_center = Transformator::transform(center, homography);
+                cv::Point2f bounded_rotate_pt = Transformator::transform(rotate_pt, homography);
 
 
                 //cout << homography << endl;
-            //double angle = atan(homography.at<double>(1, 0) /
-            //                    homography.at<double>(0, 0))*180/M_PI;
-            double angle = utils::cv::angleBetween(rotate_pt-center, bounded_rotate_pt - bounded_center);
+                double angle = utils::cv::angleBetween(rotate_pt-center, bounded_rotate_pt - bounded_center);
 
 
-            out << quality << ',' <<
-                   cv::norm(bounded_center - frame.pos_m) << ',' <<
-                   fabs(angle - frame.angle) << endl;
-
+                out << quality << ',' <<
+                       cv::norm(bounded_center - frame.pos_m) << ',' <<
+                       fabs(angle - frame.angle) << endl;
+            }
+            else
+            {
+                skipped++;
+            }
         }
+        cout << "Skipped: " << skipped << endl;
 
         return 0;
     }

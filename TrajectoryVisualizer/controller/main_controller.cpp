@@ -78,7 +78,10 @@ void MainController::calculateMatches(int descriptor_idx)
             }
             for (const auto &description: trj.getAllDescriptions())
             {
-                descriptions_cloud.push_back(description);
+                if (!description.empty())
+                {
+                    descriptions_cloud.push_back(description);
+                }
             }
         }
         else
