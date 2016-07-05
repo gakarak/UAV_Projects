@@ -136,9 +136,14 @@ int main(int argc, char *argv[])
             out.open(argv[5]);
             out << "Quality,euclid_distance_btw_centers,angle_difference_degree\n";
         }
-        else if (argv[7] == "a") //apend
+        else if (string(argv[6]) == "a") //apend
         {
             out.open(argv[5], std::fstream::app);
+        }
+        else
+        {
+            out.open(argv[5]);
+            out << "Quality,euclid_distance_btw_centers,angle_difference_degree\n";
         }
 
         //start evaluating
