@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
             if (!homography.empty())
             {
                 cv::Point2f center(frame.image.cols/2., frame.image.rows/2.);
-                cv::Point2f rotate_pt(center.x+10, center.y);
+                cv::Point2f rotate_pt(center.x, center.y - 10);
                 cv::Point2f bounded_center = Transformator::transform(center, homography);
                 cv::Point2f bounded_rotate_pt = Transformator::transform(rotate_pt, homography);
 
