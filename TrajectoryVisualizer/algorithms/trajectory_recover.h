@@ -49,7 +49,7 @@ class TrajectoryRecover
   cv::Ptr<cv::Feature2D> detector;
   cv::Ptr<cv::Feature2D> descriptor;
 
-  cv::FlannBasedMatcher matcher;
+  cv::Ptr<cv::DescriptorMatcher> matcher;
   bool                  matcher_trained;
 
   //each point in meters

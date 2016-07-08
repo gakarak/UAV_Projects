@@ -114,27 +114,16 @@ void TrajectoryRecover::recoverTrajectory(const vector<KeyPoint> &que_key_points
   }
   if (!matcher_trained)
   {
-    matcher.clear();
-    if(descriptors_cloud.type() != CV_32F)
-    {
-      descriptors_cloud.convertTo(descriptors_cloud, CV_32F);
-    }
-    matcher.add(descriptors_cloud);
-    matcher.train();
+    matcher->clear();
+    matcher->add(descriptors_cloud);
+    matcher->train();
     matcher_trained = true;
-  }
-
-  Mat descriptions32f = que_descriptors;
-  if (descriptions32f.type() != CV_32F)
-  {
-    descriptions32f.convertTo(descriptions32f, CV_32F);
   }
 
   vector<cv::DMatch> rough_matches;
   auto start_match_time = high_resolution_clock::now();
 
-  matcher.match(descriptions32f,
-                rough_matches);
+  matcher->match(que_descriptors, rough_matches);
 
   auto finish_match_time = high_resolution_clock::now();
   clog << "Match time: " <<
@@ -176,7 +165,7 @@ void TrajectoryRecover::recoverTrajectory(const vector<KeyPoint> &que_key_points
 void TrajectoryRecover::clear()
 {
   matcher_trained = false;
-  matcher.clear();
+  matcher->clear();
   key_points_cloud.clear();
   descriptors_cloud = cv::Mat();
 }
@@ -189,6 +178,16 @@ void TrajectoryRecover::setDetector(cv::Ptr<cv::Feature2D> detector)
 void TrajectoryRecover::setDescriptor(cv::Ptr<cv::Feature2D> descriptor)
 {
   this->descriptor = descriptor;
+  if (descriptor->defaultNorm() == NORM_HAMMING ||
+      descriptor->defaultNorm() == NORM_HAMMING2)
+  {
+    //matcher = makePtr<BFMatcher>(descriptor->defaultNorm());
+    matcher = makePtr<FlannBasedMatcher>(new flann::LshIndexParams(20, 10, 2));
+  }
+  else
+  {
+    matcher = makePtr<FlannBasedMatcher>();
+  }
 }
 
 const std::vector<cv::KeyPoint> &TrajectoryRecover::getKeyPointsCloud() const
