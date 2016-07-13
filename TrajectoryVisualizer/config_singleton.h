@@ -25,12 +25,17 @@ public:
 
     std::string getPathToKeyPoints(int trj_num, std::string detector_name);
     std::string getPathToDescriptors(int trj_num, std::string detector_name, std::string descriptor_name);
+    std::string getPathToKDTree(int trj_num, std::string detector_name,
+                                std::string descriptor_name);
 
     static std::string getPathToKeyPoints(std::string path_to_trj_csv,
                                           std::string detector_name);
     static std::string getPathToDescriptors(std::string path_to_trj_csv,
                                             std::string detector_name,
                                             std::string descriptor_name);
+    /*static std::string getPathToKDTree(std::string path_to_trj_csv,
+                                       std::string detector_name,
+                                       std::string descriptor_name);*/
 
     //getters
     std::string getPathToIni()                  { return path_to_ini; }
