@@ -1,17 +1,24 @@
 #ifndef SAVEABLEFLANNMATCHER_H
 #define SAVEABLEFLANNMATCHER_H
 
-#include <vector>
 #include <string>
 
 #include <opencv2/xfeatures2d.hpp>
 
-using namespace std;
-
+/**
+ * @brief The SaveableFlannMatcher class
+ * This class acesses to protected fields of flannBasedMatcher
+ * indexParams and flannIndex
+ */
 class SaveableFlannMatcher : public cv::FlannBasedMatcher
 {
  public:
-  SaveableFlannMatcher()
+  SaveableFlannMatcher(
+      const cv::Ptr<cv::flann::IndexParams>& indexParams =
+                                    cv::makePtr<cv::flann::KDTreeIndexParams>(),
+      const cv::Ptr<cv::flann::SearchParams>& searchParams =
+                                    cv::makePtr<cv::flann::SearchParams>())
+    : cv::FlannBasedMatcher(indexParams, searchParams)
   {
   }
 
@@ -19,55 +26,18 @@ class SaveableFlannMatcher : public cv::FlannBasedMatcher
   {
   }
 
-  void printParams()
+  void readIndex(std::string filename)
   {
-      printf("SaveableMatcher::printParams: \n\t"
-          "addedDescCount=%d\n\t"
-          "flan distance_t=%d\n\t"
-          "flan algorithm_t=%d\n",
-          addedDescCount,
-          flannIndex->getDistance(),
-          flannIndex->getAlgorithm());
+    indexParams->setAlgorithm(cvflann::FLANN_INDEX_SAVED);
+    indexParams->setString("filename", filename);
 
-      /*vector<std::string> names;
-      vector<int> types;
-      vector<std::string> strValues;
-      vector<double> numValues;
-
-      indexParams->getAll(names, types, strValues, numValues);
-
-      for (size_t i = 0; i < names.size(); i++)
-          printf("\tindex param: %s:\t type=%d val=%s %.2f\n",
-                  names[i].c_str(), types[i],
-                  strValues[i].c_str(), numValues[i]);
-
-      names.clear();
-      types.clear();
-      strValues.clear();
-      numValues.clear();
-      searchParams->getAll(names, types, strValues, numValues);
-
-      for (size_t i = 0; i < names.size(); i++)
-          printf("\tsearch param: %s:\t type=%d val=%s %.2f\n",
-                  names[i].c_str(), types[i],
-                  strValues[i].c_str(), numValues[i]);*/
+    // construct flannIndex now, so printParams works
+    train();
   }
 
-  void readIndex(const char* filename)
+  void writeIndex(std::string filename)
   {
-      indexParams->setAlgorithm(cvflann::FLANN_INDEX_SAVED);
-      indexParams->setString("filename", filename);
-
-      // construct flannIndex now, so printParams works
-      train();
-
-      printParams();
-  }
-
-  void writeIndex(const char* filename)
-  {
-      printParams();
-      flannIndex->save(filename);
+    flannIndex->save(filename);
   }
 };
 
