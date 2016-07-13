@@ -23,6 +23,7 @@ namespace modelpkg
 
         std::vector<cv::KeyPoint>&  getFrameAllKeyPoints(int frame_num) { return key_points[frame_num]; }
 
+              Map&                          getFrame(int frame_num)                           { return frames[frame_num]; }
         const Map&                          getFrame(int frame_num)                     const { return frames[frame_num]; }
         const std::vector<cv::KeyPoint>&    getFrameAllKeyPoints(int frame_num)         const { return key_points[frame_num]; }
         const cv::KeyPoint&                 getFrameKeyPoint(int frame_num, int kp_num) const { return key_points[frame_num][kp_num]; }
@@ -31,6 +32,7 @@ namespace modelpkg
 
 
 
+              std::vector<Map>&                         getAllFrames()                { return frames; }
         const std::vector<Map>&                         getAllFrames()          const { return frames; }
         const std::vector<std::vector<cv::KeyPoint>>&   getAllKeyPoints()       const { return key_points; }
         const std::vector<cv::Mat>&                     getAllDescriptions()    const { return descriptions; }
