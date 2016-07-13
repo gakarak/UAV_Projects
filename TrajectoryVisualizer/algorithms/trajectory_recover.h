@@ -2,6 +2,7 @@
 #define TRAJECTORY_RECOVER_H
 
 #include <vector>
+#include <string>
 
 #include <opencv2/core.hpp>
 #include <opencv2/xfeatures2d.hpp>
@@ -25,16 +26,20 @@ class TrajectoryRecover
                 const cv::Point2f               &frame_pos_m,
                 double angle, double meters_per_pixel);
 
+  void trainMatcher();
+  void saveMatcher(std::string filename);
+  void loadMatcher(std::string filename);
+
   //void addBoundedKeyPoints(const std::vector<cv::KeyPoint> &key_points);
 
   void recoverTrajectory(const cv::Mat &que_frame,
                          std::vector<cv::KeyPoint> &key_points,
                          cv::Mat &descriptors, cv::Mat &homography,
                          std::vector<cv::DMatch> &matches);
-  void recoverTrajectory(const std::vector<cv::KeyPoint> &que_key_points,
-                         const cv::Mat &que_descriptors,
-                         cv::Mat &homography,
-                         std::vector<cv::DMatch> &matches);
+  double recoverTrajectory(const std::vector<cv::KeyPoint> &que_key_points,
+                           const cv::Mat &que_descriptors,
+                           cv::Mat &homography,
+                           std::vector<cv::DMatch> &matches);
 
   void clear();
 

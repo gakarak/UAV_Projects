@@ -1,6 +1,7 @@
 #include "trajectory_recover.h"
 
 #include "transformator.h"
+#include "saveableflannmatcher.h"
 
 #include <chrono>
 #include <iostream>
@@ -86,6 +87,30 @@ void TrajectoryRecover::addFrame(const Mat &frame,
   //matcher.add(descriptors);
 }
 
+void TrajectoryRecover::trainMatcher()
+{
+  matcher->clear();
+  matcher->add(descriptors_cloud);
+  matcher->train();
+  matcher_trained = true;
+}
+
+void TrajectoryRecover::saveMatcher(string filename)
+{
+  dynamic_cast<SaveableFlannMatcher*>(matcher.get())->writeIndex(filename.c_str());
+  //cv::FileStorage fs(filename, cv::FileStorage::WRITE);
+  //fs << "matcher" << matcher->;
+  //fs.release();
+}
+
+void TrajectoryRecover::loadMatcher(string filename)
+{
+  dynamic_cast<SaveableFlannMatcher*>(matcher.get())->readIndex(filename.c_str());
+  //cv::FileStorage fs(filename, cv::FileStorage::READ);
+  //fs["matcher"] >> *matcher;
+  //fs.release();
+}
+
 void TrajectoryRecover::recoverTrajectory(const Mat &que_frame,
                                           vector<KeyPoint> &key_points,
                                           Mat &descriptors, Mat &homography,
@@ -101,23 +126,20 @@ void TrajectoryRecover::recoverTrajectory(const Mat &que_frame,
   this->recoverTrajectory(key_points, descriptors, homography, matches);
 }
 
-void TrajectoryRecover::recoverTrajectory(const vector<KeyPoint> &que_key_points,
-                                          const Mat &que_descriptors,
-                                          Mat &homography,
-                                          vector<DMatch> &matches)
+double TrajectoryRecover::recoverTrajectory(const vector<KeyPoint> &que_key_points,
+                                            const Mat &que_descriptors,
+                                            Mat &homography,
+                                            vector<DMatch> &matches)
 {
   if (que_key_points.empty())
   {
     homography = Mat();
     matches.clear();
-    return;
+    return 0;
   }
   if (!matcher_trained)
   {
-    matcher->clear();
-    matcher->add(descriptors_cloud);
-    matcher->train();
-    matcher_trained = true;
+    trainMatcher();
   }
 
   vector<cv::DMatch> rough_matches;
@@ -152,14 +174,18 @@ void TrajectoryRecover::recoverTrajectory(const vector<KeyPoint> &que_key_points
                                       start_homo_time).count() << "ms\n";
 
   matches.clear();
+  int count = 0;
   for (size_t i = 0; i < mask.size(); i++)
   {
     if (mask[i])
     {
+      count++;
       matches.push_back(rough_matches[i]);
     }
   }
+  double score = count / double(mask.size());
 
+  return score;
 }
 
 void TrajectoryRecover::clear()
@@ -182,11 +208,11 @@ void TrajectoryRecover::setDescriptor(cv::Ptr<cv::Feature2D> descriptor)
       descriptor->defaultNorm() == NORM_HAMMING2)
   {
     //matcher = makePtr<BFMatcher>(descriptor->defaultNorm());
-    matcher = makePtr<FlannBasedMatcher>(new flann::LshIndexParams(20, 10, 2));
+    matcher = makePtr<SaveableFlannMatcher>(new flann::LshIndexParams(20, 10, 2));
   }
   else
   {
-    matcher = makePtr<FlannBasedMatcher>();
+    matcher = makePtr<SaveableFlannMatcher>();
   }
 }
 
