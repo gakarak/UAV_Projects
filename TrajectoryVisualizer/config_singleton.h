@@ -37,14 +37,16 @@ public:
                                        std::string detector_name,
                                        std::string descriptor_name);*/
 
+    //setters
+    void        setPathToTrajectoryCsv(int trj_num, std::string path);
+
     //getters
     std::string getPathToIni()                  { return path_to_ini; }
 
     std::string getPathToMapCsv()               { return path_to_map_csv; }
     double      getMapMetersPerPixel()          { return map_m_per_px; }
 
-    std::string getPathToFirstTrajectoryCsv()   { return path_to_trj1_csv; }
-    std::string getPathToSecondTrajectoryCsv()  { return path_to_trj2_csv; }
+    std::string getPathToTrajectoryCsv(int trj_num);
 
     double      getGradientMetersPerPixel()     { return gradient_m_per_px; }
 

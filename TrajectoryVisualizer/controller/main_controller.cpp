@@ -289,16 +289,16 @@ void MainController::loadIni(string ini_filename)
     try
     {
         cfg.loadIni(ini_filename);
-        loadTrajectories(cfg.getPathToFirstTrajectoryCsv(),
-                         cfg.getPathToSecondTrajectoryCsv());
+        loadTrajectories(cfg.getPathToTrajectoryCsv(0),
+                         cfg.getPathToTrajectoryCsv(1));
 
         loadMainMap(cfg.getPathToMapCsv(),
                     cfg.getMapMetersPerPixel());
 
         view->setTrajectoryPath(0, QString::fromStdString(
-                                  cfg.getPathToFirstTrajectoryCsv()));
+                                  cfg.getPathToTrajectoryCsv(0)));
         view->setTrajectoryPath(1, QString::fromStdString(
-                                  cfg.getPathToSecondTrajectoryCsv()));
+                                  cfg.getPathToTrajectoryCsv(1)));
     }
     catch (ConfigSingleton::Exception &e)
     {

@@ -9,7 +9,8 @@
 using namespace std;
 
 ConfigSingleton::ConfigSingleton()
-  : gradient_m_per_px(4), quality_threshold(60)
+  : gradient_m_per_px(4), quality_threshold(60),
+    path_to_map_csv(""), path_to_trj1_csv(""), path_to_trj2_csv("")
 {
 }
 
@@ -24,36 +25,39 @@ void ConfigSingleton::loadIni(string path_to_ini)
 
     QSettings ini(QString::fromStdString(path_to_ini), QSettings::IniFormat);
 
-    if (!ini.contains("Map/path_to_img"))
+    if (ini.contains("Map/path_to_img"))
     {
-        throw Exception("ini file doesn't contain the key: Map/path_to_img");
+        path_to_map_csv = ini.value("Map/path_to_img").toString().toStdString();
+        if (ini.contains("Map/meters_per_pixel"))
+        {
+          map_m_per_px = ini.value("Map/meters_per_pixel").toDouble();
+        }
+        else
+        {
+          throw Exception("ini file doesn't contain the key: Map/meters_per_pixel");
+        }
     }
 
-    if (!ini.contains("Map/meters_per_pixel"))
+    if (ini.contains("Trajectory1/path_to_csv"))
     {
-        throw Exception("ini file doesn't contain the key: Map/meters_per_pixel");
+        path_to_trj1_csv = ini.value("Trajectory1/path_to_csv").toString().toStdString();
     }
 
-    if (!ini.contains("Trajectory1/path_to_csv"))
+    if (ini.contains("Trajectory2/path_to_csv"))
     {
-        throw Exception("ini file doesn't contain the key: Trajectory1/path_to_csv");
+        path_to_trj2_csv = ini.value("Trajectory2/path_to_csv").toString().toStdString();
     }
 
-    if (!ini.contains("Trajectory2/path_to_csv"))
+    if (ini.contains("Common/quality_threshold"))
     {
-        throw Exception("ini file doesn't contain the key: Trajectory2/path_to_csv");
+        quality_threshold = ini.value("Common/quality_threshold").toDouble();
     }
-
-    if (!ini.contains("Common/quality_threshold"))
+    else
     {
-        throw Exception("ini file doesn't contain the key: Common/quality_threshold");
+      quality_threshold = 60;
+      clog << "Quality threshold missed in '" + path_to_ini + "'" << endl;
+      clog << "Quality threshold default value " << quality_threshold << endl;
     }
-
-    path_to_map_csv = ini.value("Map/path_to_img").toString().toStdString();
-    map_m_per_px = ini.value("Map/meters_per_pixel").toDouble();
-
-    path_to_trj1_csv = ini.value("Trajectory1/path_to_csv").toString().toStdString();
-    path_to_trj2_csv = ini.value("Trajectory2/path_to_csv").toString().toStdString();
 
     quality_threshold = ini.value("Common/quality_threshold").toDouble();
 
@@ -100,4 +104,32 @@ string ConfigSingleton::getPathToDescriptors(string path_to_trj_csv,
                                              string descriptor_name)
 {
   return path_to_trj_csv + "_" + detector_name + "_" + descriptor_name + "_descriptors.xml";
+}
+
+void ConfigSingleton::setPathToTrajectoryCsv(int trj_num, string path)
+{
+  if (trj_num == 0)
+  {
+    path_to_trj1_csv = path;
+  }
+  else if (trj_num == 1)
+  {
+    path_to_trj2_csv = path;
+  }
+}
+
+string ConfigSingleton::getPathToTrajectoryCsv(int trj_num)
+{
+  if (trj_num == 0)
+  {
+    return path_to_trj1_csv;
+  }
+  else if (trj_num == 1)
+  {
+    return path_to_trj2_csv;
+  }
+  else
+  {
+    return "";
+  }
 }
