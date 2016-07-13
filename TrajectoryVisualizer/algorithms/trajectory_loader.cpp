@@ -98,6 +98,11 @@ void TrajectoryLoader::calculateKeyPoints(Trajectory &trj,
   }
 }
 
+/**
+ * @brief TrajectoryLoader::sortKeyPointsByResponse
+ * This method isn't sort descriptions
+ * @param trj
+ */
 void TrajectoryLoader::sortKeyPointsByResponse(Trajectory &trj)
 {
   for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
@@ -136,23 +141,34 @@ void TrajectoryLoader::saveKeyPoints(const Trajectory &trj, string filename)
 
 void TrajectoryLoader::loadDescriptions(Trajectory &trj, string filename)
 {
-  cv::FileStorage file(filename, cv::FileStorage::READ);
-
-  if (!file.isOpened())
+  ifstream in(filename, ios::binary);
+  if (!in)
   {
-    throw TrajectoryLoader::NoFileExist(filename);
+      throw TrajectoryLoader::NoFileExist(filename);
   }
 
-  int framesCount = 0;
-  file["count"] >> framesCount;
-  for (int frame_num = 0; frame_num < framesCount; frame_num++)
+  //maybe format checking
+  size_t framesCount = 0;
+  in.read(reinterpret_cast<char*>(&framesCount), sizeof(framesCount));
+  for (size_t frame_num = 0; frame_num < framesCount; frame_num++)
   {
-    cv::Mat descr;
-    file["img"+to_string(frame_num)] >> descr;
+    int rows = 0;
+    in.read(reinterpret_cast<char*>(&rows),
+              sizeof(rows));
+    int cols = 0;
+    in.read(reinterpret_cast<char*>(&cols),
+              sizeof(cols));
+    int type = 0;
+    in.read(reinterpret_cast<char*>(&type),
+              sizeof(type));
 
-    trj.setFrameDescription(frame_num, descr);
+    cv::Mat descriptions(rows, cols, type);
+
+    in.read(reinterpret_cast<char*>(descriptions.data),
+            rows*cols*descriptions.elemSize());
+
+    trj.setFrameDescription(frame_num, descriptions);
   }
-  file.release();
 }
 
 void TrajectoryLoader::calculateDescriptions(Trajectory &trj,
@@ -170,13 +186,25 @@ void TrajectoryLoader::calculateDescriptions(Trajectory &trj,
 
 void TrajectoryLoader::saveDescriptions(const Trajectory &trj, string filename)
 {
-  cv::FileStorage file(filename, cv::FileStorage::WRITE);
+  ofstream out(filename, ios::binary);
 
-  int framesCount = trj.getFramesCount();
-  file << "count" << framesCount;
-  for (int frame_num = 0; frame_num < framesCount; frame_num++)
+  size_t framesCount = trj.getFramesCount();
+  out.write(reinterpret_cast<char*>(&framesCount), sizeof(framesCount));
+  for (size_t frame_num = 0; frame_num < framesCount; frame_num++)
   {
-      file << "img"+to_string(frame_num) << trj.getFrameDescription(frame_num);
+    const auto &frame_description = trj.getFrameDescription(frame_num);
+
+    int rows = frame_description.rows;
+    out.write(reinterpret_cast<char*>(&rows),
+              sizeof(rows));
+    int cols = frame_description.cols;
+    out.write(reinterpret_cast<char*>(&cols),
+              sizeof(cols));
+    int type = frame_description.type();
+    out.write(reinterpret_cast<char*>(&type),
+              sizeof(type));
+
+    out.write(reinterpret_cast<char*>(frame_description.data),
+              rows*cols*frame_description.elemSize());
   }
-  file.release();
 }
