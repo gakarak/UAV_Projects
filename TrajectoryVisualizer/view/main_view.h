@@ -61,6 +61,8 @@ namespace viewpkg
 
         void showException(QString what);
 
+        void setTrajectoryPath(int trj_num, QString path);
+
         GraphicsTrajectoryItem& getTrajectoryItem(int trj_num)
         {
             return trj_num == 0? scene.getFirstTrajectory():
@@ -73,8 +75,10 @@ namespace viewpkg
         void on_clear_btn_clicked();
         void on_calculate_btn_clicked();
         void on_match_btn_clicked();
-        //obsolete
-        void on_load_btn_clicked();
+        void on_recover_trajectory_btn_clicked();
+
+        void on_load_first_trj_btn_clicked();
+        void on_load_sec_trj_btn_clicked();
 
         /* checkboxes */
         void on_is_trajectory_show_chk_toggled(bool checked);
@@ -84,6 +88,7 @@ namespace viewpkg
         void on_is_matches_show_check_toggled(bool checked);
         void on_is_map_show_check_toggled(bool checked);
         void on_is_recovery_show_check_toggled(bool checked);
+        void on_filter_recovered_by_score_check_toggled(bool checked);
 
         /* frame selection */
         void onFirstTrajectoryDoubleClicked(int frame_num, bool isSelected);

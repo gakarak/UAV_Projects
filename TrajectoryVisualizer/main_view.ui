@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>932</width>
-    <height>687</height>
+    <height>735</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -47,11 +47,11 @@
         <item>
          <widget class="QLineEdit" name="first_traj_edit">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
+            <horstretch>1</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
@@ -68,11 +68,33 @@
            <string/>
           </property>
           <property name="text">
-           <string>/home/pisarik/Projects/UAV/DroneEmulation/build-DroneEmulation-Desktop_Qt_5_5_1_GCC_64bit-Release/trajectory1.csv
- </string>
+           <string/>
           </property>
           <property name="placeholderText">
            <string>Trajectory #1 path to csv</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="load_first_trj_btn">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="calc_first_trj_btn">
+          <property name="text">
+           <string>Calculate</string>
           </property>
          </widget>
         </item>
@@ -90,13 +112,39 @@
         <item>
          <widget class="QLineEdit" name="second_traj_edit">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="text">
-           <string>/home/pisarik/Projects/UAV/DroneEmulation/build-DroneEmulation-Desktop_Qt_5_5_1_GCC_64bit-Release/trajectory2.csv  </string>
+           <string/>
           </property>
           <property name="placeholderText">
            <string>Trajectory #2 path to csv</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="load_sec_trj_btn">
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="calc_sec_trj_btn">
+          <property name="text">
+           <string>Calculate</string>
           </property>
          </widget>
         </item>
@@ -117,16 +165,6 @@
        <widget class="QPushButton" name="load_ini_btn">
         <property name="text">
          <string>Load Ini</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="load_btn">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Load</string>
         </property>
        </widget>
       </item>
@@ -202,6 +240,13 @@ QGroupBox::title {
           <widget class="QPushButton" name="match_btn">
            <property name="text">
             <string>Match</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="recover_trajectory_btn">
+           <property name="text">
+            <string>Recover Trajectory</string>
            </property>
           </widget>
          </item>
@@ -329,16 +374,16 @@ QGroupBox::title {
                 <string/>
                </property>
                <property name="minimum">
-                <number>-1000</number>
+                <number>-10000</number>
                </property>
                <property name="maximum">
-                <number>1000</number>
+                <number>10000</number>
                </property>
                <property name="singleStep">
                 <number>5</number>
                </property>
                <property name="value">
-                <number>100</number>
+                <number>4000</number>
                </property>
               </widget>
              </item>
@@ -368,16 +413,16 @@ QGroupBox::title {
                 <string/>
                </property>
                <property name="minimum">
-                <number>-1000</number>
+                <number>-10000</number>
                </property>
                <property name="maximum">
-                <number>1000</number>
+                <number>10000</number>
                </property>
                <property name="singleStep">
                 <number>5</number>
                </property>
                <property name="value">
-                <number>100</number>
+                <number>5000</number>
                </property>
               </widget>
              </item>
@@ -386,6 +431,26 @@ QGroupBox::title {
           </layout>
          </item>
         </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="score_thres_spinbox">
+        <property name="decimals">
+         <number>5</number>
+        </property>
+        <property name="singleStep">
+         <double>0.001000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="filter_recovered_by_score_check">
+        <property name="text">
+         <string>filter by scores</string>
+        </property>
        </widget>
       </item>
       <item>
@@ -411,7 +476,7 @@ QGroupBox::title {
      <x>0</x>
      <y>0</y>
      <width>932</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

@@ -173,6 +173,18 @@ void MainView::showException(QString what)
     QMessageBox::critical(this, "Error", what, QMessageBox::Ok, QMessageBox::Default);
 }
 
+void MainView::setTrajectoryPath(int trj_num, QString path)
+{
+  if (trj_num == 0)
+  {
+    ui->first_traj_edit->setText(path);
+  }
+  else if (trj_num == 1)
+  {
+    ui->second_traj_edit->setText(path);
+  }
+}
+
 /*
  * private slots
  * buttons
@@ -210,16 +222,19 @@ void viewpkg::MainView::on_match_btn_clicked()
     controller->calculateMatches(descriptor_idx);
 }
 
-//obsolete
-void MainView::on_load_btn_clicked()
+void viewpkg::MainView::on_recover_trajectory_btn_clicked()
 {
-    string trj1_filename = ui->first_traj_edit->text().trimmed().toStdString();
-    string trj2_filename = ui->second_traj_edit->text().trimmed().toStdString();
+    controller->recoverTrajectory(ui->score_thres_spinbox->value());
+}
 
-    controller->loadMainMap("/home/pisarik/datasets/maps/my_set/yandex_roi_z16.png", 2.7958833);
-    controller->loadTrajectories(trj1_filename, trj2_filename);
+void viewpkg::MainView::on_load_first_trj_btn_clicked()
+{
+    controller->loadTrajectory(0, ui->first_traj_edit->text().toStdString());
+}
 
-    ui->model_settings_group->setEnabled(true);
+void viewpkg::MainView::on_load_sec_trj_btn_clicked()
+{
+    controller->loadTrajectory(1, ui->second_traj_edit->text().toStdString());
 }
 
 /*
@@ -263,6 +278,11 @@ void viewpkg::MainView::on_is_map_show_check_toggled(bool checked)
 void viewpkg::MainView::on_is_recovery_show_check_toggled(bool checked)
 {
     scene.getGhostRecovery().setVisible(checked);
+}
+
+void viewpkg::MainView::on_filter_recovered_by_score_check_toggled(bool checked)
+{
+    controller->filterByScore(checked);
 }
 
 /*
