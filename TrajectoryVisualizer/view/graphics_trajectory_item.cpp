@@ -95,6 +95,16 @@ void GraphicsTrajectoryItem::addKeyPointNew(QPointF pos, double angle, double ra
     //frames_num.push_back(frame_num);
 }
 
+void GraphicsTrajectoryItem::showFrame(int frame_num)
+{
+    frames[frame_num]->setVisible(true);
+}
+
+void GraphicsTrajectoryItem::hideFrame(int frame_num)
+{
+    frames[frame_num]->setVisible(false);
+}
+
 void GraphicsTrajectoryItem::makeTransforms(shared_ptr<QGraphicsItem> item, QPointF item_center_px, QPointF scene_center_pos_px, double angle, double meters_per_pixel)
 {
     double scale = meters_per_pixel;

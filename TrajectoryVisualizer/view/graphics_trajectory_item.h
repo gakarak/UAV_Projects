@@ -28,6 +28,9 @@ namespace viewpkg
         void addKeyPoint(int frame_num, QPointF center_px, double angle, double radius, QColor color);
         void addKeyPointNew(QPointF pos, double angle, double radius, double scale, QColor color);
 
+        void showFrame(int frame_num);
+        void hideFrame(int frame_num);
+
         void clear();
         void clearKeyPoints();
 
