@@ -19,6 +19,7 @@
 #include "utils/geom_utils.h"
 
 #include "config_singleton.h"
+#include "algorithms/trajectory_loader.h"
 #include "algorithms/transformator.h"
 
 using namespace std;
@@ -63,7 +64,7 @@ void MainController::loadOrCalculateModel(int detector_idx, int descriptor_idx)
 
     for (size_t trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
     {
-        this->showKeyPointsNew(trj_num);
+        this->showKeyPoints(trj_num);
     }
 }
 
@@ -177,7 +178,7 @@ void MainController::calculateMatches(int descriptor_idx)
         QPointF kp_translated_to_center(kp.pt.x - frame.image.cols/2., kp.pt.y - frame.image.rows/2.);
         QPointF rotated_kp = QTransform().rotate(frame.angle).map(kp_translated_to_center);
 
-        QPointF pt_on_map( rotated_kp + utils::cv::toQPointF(frame.pos_m) / frame.m_per_px);
+        QPointF pt_on_map( rotated_kp*frame.m_per_px + utils::cv::toQPointF(frame.pos_m) /* frame.m_per_px*/);
 
         to_trj_pts.push_back(cv::Point2f(pt_on_map.x(), pt_on_map.y()));
         //to_trj_pts.push_back(trajectories_kp_cloud[to_trj_num][match.trainIdx].pt);
@@ -192,6 +193,7 @@ void MainController::calculateMatches(int descriptor_idx)
     clog << "Finding homography time: " <<
             chrono::duration_cast<chrono::milliseconds>(finish_homo_time - start_homo_time).count() <<
             "ms" << endl;
+
 
     //setting ghost recover
     const Map &frame = model->getTrajectory(from_trj_num).getFrame(trajectories_selected_frames[from_trj_num].front());
@@ -212,24 +214,71 @@ void MainController::calculateMatches(int descriptor_idx)
     QPointF center_px(bounded_center.x, bounded_center.y);
     double angle = utils::cv::angleBetween(rotate_pt-center, bounded_rotate_pt - bounded_center);
     //double angle = atan(homography.at<double>(1, 0) / homography.at<double>(0, 0))*180/M_PI;
-    double m_per_px = frame.m_per_px;
-    double coords_m_per_px = model->getTrajectory(to_trj_num).getFrame(0).m_per_px;
+    double coords_m_per_px = 1;//model->getTrajectory(to_trj_num).getFrame(0).m_per_px;
+    double m_per_px = cv::norm(bounded_rotate_pt - bounded_center) / cv::norm(rotate_pt - center);
+    cout << "length to " << cv::norm(bounded_rotate_pt - bounded_center) << endl;
+    cout << "length from " << cv::norm(rotate_pt - center) << endl;
+    cout << "scale " << m_per_px << endl;
+    //double m_per_px = frame.m_per_px;
 
     view->setGhostRecovery(center_px, size, angle,
                            m_per_px, coords_m_per_px);
 
     //setting matches
     matches.clear();
+    int mask_true_count = 0;
     for (int i = 0; i < mask.size(); i++)
     {
         if (mask[i])
         {
             matches.push_back(rough_matches[i]);
+            mask_true_count++;
         }
     }
+    cout << "Score: " << mask_true_count / double(mask.size()) << endl;
     //matches.assign(rough_matches.begin(), rough_matches.end());
 
     this->showMatches();
+}
+
+void MainController::recoverTrajectory(double score_thres)
+{
+    TrajectoryRecover &recover = this->trj_recovers[0];
+    Trajectory &trj = model->getTrajectory(1);
+
+    frames_to_hide_by_score.clear();
+    for (int frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
+    {
+        Map &frame = trj.getFrame(frame_num);
+
+        cv::Mat homography;
+        std::vector<cv::DMatch> matches;
+        double score = recover.recoverTrajectory(trj.getFrameAllKeyPoints(frame_num),
+                                  trj.getFrameDescription(frame_num),
+                                  homography, matches);
+        cout << "Score: " << score << endl;
+
+        if (score > score_thres)
+        {
+          cv::Point2f center(frame.image.cols/2., frame.image.rows/2.);
+          cv::Point2f rotate_pt(center.x+10, center.y);
+
+          cv::Point2f bounded_center = Transformator::transform(center, homography);
+          cv::Point2f bounded_rotate_pt = Transformator::transform(rotate_pt, homography);
+
+          frame.pos_m = bounded_center;
+          frame.angle = utils::cv::angleBetween(rotate_pt-center,
+                                                bounded_rotate_pt - bounded_center);
+          frame.m_per_px = cv::norm(bounded_rotate_pt - bounded_center) / cv::norm(rotate_pt - center);
+        }
+        else
+        {
+          frames_to_hide_by_score.push_back(frame_num);
+        }
+    }
+
+
+    showTrajectory(1);
 }
 
 void MainController::loadIni(string ini_filename)
@@ -245,6 +294,11 @@ void MainController::loadIni(string ini_filename)
 
         loadMainMap(cfg.getPathToMapCsv(),
                     cfg.getMapMetersPerPixel());
+
+        view->setTrajectoryPath(0, QString::fromStdString(
+                                  cfg.getPathToFirstTrajectoryCsv()));
+        view->setTrajectoryPath(1, QString::fromStdString(
+                                  cfg.getPathToSecondTrajectoryCsv()));
     }
     catch (ConfigSingleton::Exception &e)
     {
@@ -263,6 +317,13 @@ void MainController::loadTrajectories(string trj1_filename, string trj2_filename
     {
         this->showTrajectory(trj_num);
     }
+}
+
+void MainController::loadTrajectory(int trj_num, string trj_filename)
+{
+  model->setTrajectory(trj_num, loadTrjFromCsv(trj_filename));
+  this->calculateFramesQuality(trj_num);
+  this->showTrajectory(trj_num);
 }
 
 void MainController::loadMainMap(string filename, double meters_per_pixel)
@@ -357,15 +418,21 @@ void MainController::showKeyPointsNew(int trj_num)
 {
     const Trajectory &trj = model->getTrajectory(trj_num);
     TrajectoryRecover &recover = trj_recovers[trj_num];
+    const auto &kps_cloud = recover.getKeyPointsCloud();
 
-    for (const cv::KeyPoint &kp: recover.getKeyPointsCloud())
+    int i = 0;
+    for (const cv::KeyPoint &kp: kps_cloud)
     {
-      view->getTrajectoryItem(trj_num).addKeyPointNew(
-            utils::cv::toQPointF(kp.pt),
-            kp.angle,
-            kp.size/2.,
-            1,
-            QColor(255, 0, 0));
+      if (kp.response > 50)
+      {
+        view->getTrajectoryItem(trj_num).addKeyPointNew(
+              utils::cv::toQPointF(kp.pt),
+              kp.angle,
+              kp.size/2.,
+              1,
+              QColor(255, 0, 0));
+      }
+      i++;
     }
 
 }
@@ -421,6 +488,24 @@ void MainController::showMatches()
         }
     }
     view->setMatches(trajectories_kp, frames_center_on_map, angles, meters_per_pixels);
+}
+
+void MainController::filterByScore(bool isFilter)
+{
+    if (isFilter)
+    {
+      for (int frame_num: frames_to_hide_by_score)
+      {
+        view->getTrajectoryItem(1).hideFrame(frame_num);
+      }
+    }
+    else
+    {
+      for (int frame_num: frames_to_hide_by_score)
+      {
+        view->getTrajectoryItem(1).showFrame(frame_num);
+      }
+    }
 }
 
 void MainController::selectedFrame(int trj_num, int frame_num)
@@ -479,6 +564,27 @@ void MainController::calculateFramesQuality()
         }
     }
 
+}
+
+void MainController::calculateFramesQuality(int trj_num)
+{
+  double threshold = ConfigSingleton::getInstance().getQualityThreshold();
+  Trajectory &trj = model->getTrajectory(trj_num);
+
+  for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
+  {
+      const auto &frame = trj.getFrame(frame_num);
+
+      double scale = frame.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
+      cv::Size new_size(frame.image.size().width * scale, frame.image.size().height * scale);
+
+      cv::Mat resized;
+      cv::resize(frame.image, resized, new_size);
+
+      double quality = std::min( 1., utils::cv::gradientDensity(resized) / threshold );
+
+      trj.setFrameQuality(frame_num, quality);
+  }
 }
 
 /*
@@ -622,14 +728,38 @@ void MainController::calculateDescriptions(int trj_num, int descriptor_idx)
 
 void MainController::loadDescriptions(int trj_num, string filename)
 {
-    cv::FileStorage file(filename, cv::FileStorage::READ);
+    auto &trj = model->getTrajectory(trj_num);
+
+    ifstream in(filename, ios::binary);
+    if (!in)
+    {
+        throw MainController::NoFileExist(filename);
+    }
+
+    //maybe format checking
+    size_t framesCount = 0;
+    in.read(reinterpret_cast<char*>(&framesCount), sizeof(framesCount));
+    for (size_t frame_num = 0; frame_num < framesCount; frame_num++)
+    {
+        int rows = 0;
+        in.read(reinterpret_cast<char*>(&rows),
+                  sizeof(rows));
+        int cols = 0;
+        in.read(reinterpret_cast<char*>(&cols),
+                  sizeof(cols));
+
+        cv::Mat description(rows, cols, CV_32F);
+
+        in.read(reinterpret_cast<char*>(description.data), rows*cols*sizeof(float));
+
+        trj.setFrameDescription(frame_num, description);
+    }
+    /*cv::FileStorage file(filename, cv::FileStorage::READ);
 
     if (!file.isOpened())
     {
         throw MainController::NoFileExist(filename);
     }
-
-    auto &trj = model->getTrajectory(trj_num);
 
     int framesCount = 0;
     file["count"] >> framesCount;
@@ -640,14 +770,35 @@ void MainController::loadDescriptions(int trj_num, string filename)
 
         trj.setFrameDescription(frame_num, descr);
     }
-    file.release();
+    file.release();*/
 }
 
 void MainController::saveDescriptions(int trj_num, string filename)
 {
     const auto &trj = model->getTrajectory(trj_num);
 
-    cv::FileStorage file(filename, cv::FileStorage::WRITE);
+    ofstream out(filename, ios::binary);
+
+    size_t framesCount = trj.getFramesCount();
+    out.write(reinterpret_cast<char*>(&framesCount), sizeof(framesCount));
+    for (size_t frame_num = 0; frame_num < framesCount; frame_num++)
+    {
+        const auto &frame_description = trj.getFrameDescription(frame_num);
+
+        int rows = frame_description.rows;
+        out.write(reinterpret_cast<char*>(&rows),
+                  sizeof(frame_description.rows));
+        int cols = frame_description.cols;
+        out.write(reinterpret_cast<char*>(&cols),
+                  sizeof(frame_description.cols));
+
+        if (frame_description.type() == CV_32F)
+        {
+          out.write(reinterpret_cast<char*>(frame_description.data), rows*cols*sizeof(float));
+        }
+    }
+
+    /*cv::FileStorage file(filename, cv::FileStorage::WRITE);
 
     int framesCount = trj.getFramesCount();
     file << "count" << framesCount;
@@ -655,7 +806,7 @@ void MainController::saveDescriptions(int trj_num, string filename)
     {
         file << "img"+to_string(frame_num) << trj.getFrameDescription(frame_num);
     }
-    file.release();
+    file.release();*/
 }
 
 void MainController::initDetectors()

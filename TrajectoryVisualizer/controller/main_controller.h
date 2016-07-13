@@ -24,9 +24,11 @@ namespace controllerpkg
 
         void loadOrCalculateModel(int detector_idx, int descriptor_idx);
         void calculateMatches(int descriptor_idx);
+        void recoverTrajectory(double score_thres);
 
         void loadIni(std::string ini_filename);
         void loadTrajectories(std::string trj1_filename, std::string trj2_filename);
+        void loadTrajectory(int trj_num, std::string trj_filename);
         void loadMainMap(std::string filename, double meters_per_pixel);
 
         void showTrajectory(int trj_num);
@@ -34,6 +36,7 @@ namespace controllerpkg
         void showKeyPoints(int trj_num);
         void showKeyPointsNew(int trj_num);
         void showMatches();
+        void filterByScore(bool isFilter);
 
         void setView(std::shared_ptr<viewpkg::MainView> view)       { this->view = view; }
         void setModel(std::shared_ptr<modelpkg::MainModel> model)   { this->model = model; }
@@ -72,6 +75,7 @@ namespace controllerpkg
         void clear();
 
         void calculateFramesQuality();
+        void calculateFramesQuality(int trj_num);
 
         void loadOrCalculateKeyPoints(int detector_idx);
         void       calculateKeyPoints(int trj_num, int detector_idx);
@@ -105,6 +109,7 @@ namespace controllerpkg
         std::vector<std::vector<int>> accumulative_trj_cuts;
 
         std::vector<algorithmspkg::TrajectoryRecover> trj_recovers;
+        std::vector<int> frames_to_hide_by_score;
     };
 
 }
