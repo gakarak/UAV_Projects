@@ -35,7 +35,7 @@ void GraphicsMatchesItem::addLine(vector<QPointF> trajectories_pt, vector<QPoint
 
     shared_ptr<QGraphicsLineItem> line = make_shared<QGraphicsLineItem>(this);
 
-    line->setPen(QPen(QBrush(QColor(51, 102, 153)), 0.5));
+    line->setPen(QPen(QBrush(QColor(51, 102, 153)), 10));
 
     line->setLine(QLineF(trajectories_pt[0], trajectories_pt[1] + shift));
     line->setAcceptedMouseButtons(false);
