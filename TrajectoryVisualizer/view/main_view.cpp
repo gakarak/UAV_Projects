@@ -30,6 +30,8 @@ MainView::MainView(QWidget *parent) :
     ui->graphicsView->setMouseTracking(true);
     zoom = ui->graphicsView->getZoom();
 
+    ui->progressBar->setVisible(false);
+
     QObject::connect(ui->calculate_btn, SIGNAL(clicked(bool)), &scene.getFirstTrajectory(), SLOT(cleanSelection()));
     QObject::connect(ui->calculate_btn, SIGNAL(clicked(bool)), &scene.getSecondTrajectory(), SLOT(cleanSelection()));
 
@@ -185,6 +187,27 @@ void MainView::setTrajectoryPath(int trj_num, QString path)
   }
 }
 
+void MainView::setProgressBarTask(QString name, int maximum, int minimum)
+{
+  ui->progressBar->setFormat(name + " %p%");
+  ui->progressBar->setMinimum(minimum);
+  ui->progressBar->setMaximum(maximum);
+  ui->progressBar->setValue(minimum);
+}
+
+void MainView::setProgressBarValue(int value)
+{
+  ui->progressBar->setValue(value);
+}
+
+void MainView::enableDataManipulating(bool isEnabled)
+{
+  ui->model_settings_group->setEnabled(isEnabled);
+  ui->calculate_btn->setEnabled(isEnabled);
+  ui->calc_first_trj_btn->setEnabled(isEnabled);
+  ui->calc_sec_trj_btn->setEnabled(isEnabled);
+}
+
 /*
  * private slots
  * buttons
@@ -195,7 +218,13 @@ void viewpkg::MainView::on_load_ini_btn_clicked()
     string ini_filename = ui->ini_edit->text().trimmed().toStdString();
     controller->loadIni(ini_filename);
 
+    ConfigSingleton &cfg = ConfigSingleton::getInstance();
+
     ui->model_settings_group->setEnabled(true);
+    ui->first_traj_edit->setText(
+          QString::fromStdString(cfg.getPathToTrajectoryCsv(0)));
+    ui->second_traj_edit->setText(
+          QString::fromStdString(cfg.getPathToTrajectoryCsv(1)));
 }
 
 void viewpkg::MainView::on_clear_btn_clicked()
@@ -371,4 +400,46 @@ void MainView::updateStatusBar()
     QString zoom_str = QString("Zoom: %1%").arg(QString::number(zoom*100));
     QString meters_str = QString("Meters per pixel: %1").arg(QString::number(1. / zoom));
     ui->statusBar->showMessage( QString("%3 | %2 | %1").arg(position_str, meters_str, zoom_str) );
+}
+
+void viewpkg::MainView::on_open_ini_file_btn_clicked()
+{
+  QString path_to_config = QFileDialog::getOpenFileName(this, "Path to config");
+
+  if (path_to_config != "")
+  {
+    ui->ini_edit->setText(path_to_config);
+  }
+}
+
+void viewpkg::MainView::on_open_first_trj_btn_clicked()
+{
+  QString path_to_first_trj = QFileDialog::getOpenFileName(this,
+                                                           "Path to first trj");
+  if (path_to_first_trj != "")
+  {
+    ui->first_traj_edit->setText(path_to_first_trj);
+  }
+}
+
+void viewpkg::MainView::on_open_sec_trj_btn_clicked()
+{
+  QString path_to_second_trj = QFileDialog::getOpenFileName(this,
+                                                          "Path to second trj");
+  if (path_to_second_trj != "")
+  {
+    ui->second_traj_edit->setText(path_to_second_trj);
+  }
+}
+
+void viewpkg::MainView::on_progressBar_valueChanged(int value)
+{
+  if (value == ui->progressBar->minimum())
+  {
+    ui->progressBar->setVisible(true);
+  }
+  else if (value >= ui->progressBar->maximum())
+  {
+    ui->progressBar->setVisible(false);
+  }
 }

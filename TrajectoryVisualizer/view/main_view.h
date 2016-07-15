@@ -69,6 +69,16 @@ namespace viewpkg
                                  scene.getSecondTrajectory();
         }
 
+        void setProgressBarTask(QString name, int maximum = 100,
+                                int minimum = 0);
+        void setProgressBarValue(int value);
+
+    /* widgets enabling control { */
+    public:
+        void enableDataManipulating(bool isEnabled);
+
+    /* } widgets enabling control */
+
     private slots:
         /* buttons */
         void on_load_ini_btn_clicked();
@@ -76,6 +86,10 @@ namespace viewpkg
         void on_calculate_btn_clicked();
         void on_match_btn_clicked();
         void on_recover_trajectory_btn_clicked();
+
+        void on_open_ini_file_btn_clicked();
+        void on_open_first_trj_btn_clicked();
+        void on_open_sec_trj_btn_clicked();
 
         void on_load_first_trj_btn_clicked();
         void on_load_sec_trj_btn_clicked();
@@ -99,6 +113,8 @@ namespace viewpkg
         void on_trj2_shift_x_spin_valueChanged(int shift_x);
         void on_trj2_shift_y_spin_valueChanged(int shift_y);
         void on_shift_second_trj_group_toggled(bool isChecked);
+
+        void on_progressBar_valueChanged(int value);
 
     private:
         void updateShift(int shift_x, int shift_y);

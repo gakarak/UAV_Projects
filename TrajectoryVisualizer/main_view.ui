@@ -14,319 +14,304 @@
    <string>MainView</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_4">
+   <layout class="QVBoxLayout" name="verticalLayout_7">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Ini file</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="ini_edit">
-          <property name="text">
-           <string>config.ini</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="label_traj_first">
-          <property name="text">
-           <string>Trajectory #1: </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="first_traj_edit">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="statusTip">
-           <string/>
-          </property>
-          <property name="whatsThis">
-           <string/>
-          </property>
-          <property name="accessibleDescription">
-           <string/>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="placeholderText">
-           <string>Trajectory #1 path to csv</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="load_first_trj_btn">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>30</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="calc_first_trj_btn">
-          <property name="text">
-           <string>Calculate</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLabel" name="label_traj_second">
-          <property name="text">
-           <string>Trajectory #2: </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="second_traj_edit">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="placeholderText">
-           <string>Trajectory #2 path to csv</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="load_sec_trj_btn">
-          <property name="maximumSize">
-           <size>
-            <width>30</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="calc_sec_trj_btn">
-          <property name="text">
-           <string>Calculate</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="viewpkg::GraphicsMapView" name="graphicsView">
-        <property name="mouseTracking">
-         <bool>true</bool>
+       <widget class="QProgressBar" name="progressBar">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QPushButton" name="load_ini_btn">
-        <property name="text">
-         <string>Load Ini</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="clear_btn">
-        <property name="text">
-         <string>Clear</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="model_settings_group">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QGroupBox {
-    border: 1px solid gray;
-    border-radius: 9px;
-    margin-top: 0.5em;
-}
-
-QGroupBox::title {
-    subcontrol-origin: margin;
-    left: 10px;
-    padding: 0 3px 0 3px;
-}</string>
-        </property>
-        <property name="title">
+        <property name="statusTip">
          <string/>
         </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
-         <item>
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Detector</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="detector_combo"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Descriptor</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="descriptor_combo"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="calculate_btn">
-           <property name="text">
-            <string>Load | Calculate</string>
-           </property>
-           <property name="default">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="match_btn">
-           <property name="text">
-            <string>Match</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="recover_trajectory_btn">
-           <property name="text">
-            <string>Recover Trajectory</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="is_trajectory_show_chk">
-        <property name="text">
-         <string>show trajectories</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="is_orientation_show_chk">
-        <property name="text">
-         <string>show orientations</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="is_direction_show_chk">
-        <property name="text">
-         <string>show directions</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="is_key_point_show_chk">
-        <property name="text">
-         <string>show key points</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="is_matches_show_check">
-        <property name="text">
-         <string>show matches</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="is_map_show_check">
-        <property name="text">
-         <string>show map</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="is_recovery_show_check">
-        <property name="text">
-         <string>show recovery</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="shift_second_trj_group">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
         </property>
         <property name="autoFillBackground">
          <bool>false</bool>
         </property>
-        <property name="styleSheet">
-         <string notr="true">QGroupBox {
+        <property name="value">
+         <number>100</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="textVisible">
+         <bool>true</bool>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="invertedAppearance">
+         <bool>false</bool>
+        </property>
+        <property name="textDirection">
+         <enum>QProgressBar::BottomToTop</enum>
+        </property>
+        <property name="format">
+         <string>%p%</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Ini file:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="ini_edit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>config.ini</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="open_ini_file_btn">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="load_ini_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Load</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="calculate_btn">
+            <property name="text">
+             <string>Calculate</string>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="label_traj_first">
+            <property name="text">
+             <string>Trajectory #1: </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="first_traj_edit">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="statusTip">
+             <string/>
+            </property>
+            <property name="whatsThis">
+             <string/>
+            </property>
+            <property name="accessibleDescription">
+             <string/>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>Trajectory #1 path to csv</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="open_first_trj_btn">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="load_first_trj_btn">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Load</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="calc_first_trj_btn">
+            <property name="text">
+             <string>Calculate</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_traj_second">
+            <property name="text">
+             <string>Trajectory #2: </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="second_traj_edit">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>Trajectory #2 path to csv</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="open_sec_trj_btn">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="load_sec_trj_btn">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Load</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="calc_sec_trj_btn">
+            <property name="text">
+             <string>Calculate</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="viewpkg::GraphicsMapView" name="graphicsView">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="mouseTracking">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QPushButton" name="clear_btn">
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="model_settings_group">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QGroupBox {
     border: 1px solid gray;
     border-radius: 9px;
     margin-top: 0.5em;
@@ -337,134 +322,265 @@ QGroupBox::title {
     left: 10px;
     padding: 0 3px 0 3px;
 }</string>
-        </property>
-        <property name="title">
-         <string>Shift trajectory</string>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_5">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
+          </property>
+          <property name="title">
+           <string/>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
            <item>
-            <layout class="QVBoxLayout" name="verticalLayout_3">
-             <item>
-              <widget class="QLabel" name="label_2">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>X</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="trj2_shift_x_spin">
-               <property name="suffix">
-                <string/>
-               </property>
-               <property name="minimum">
-                <number>-10000</number>
-               </property>
-               <property name="maximum">
-                <number>10000</number>
-               </property>
-               <property name="singleStep">
-                <number>5</number>
-               </property>
-               <property name="value">
-                <number>4000</number>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Detector</string>
+             </property>
+            </widget>
            </item>
            <item>
-            <layout class="QVBoxLayout" name="verticalLayout_4">
+            <widget class="QComboBox" name="detector_combo"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Descriptor</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="descriptor_combo"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="match_btn">
+             <property name="text">
+              <string>Match</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="recover_trajectory_btn">
+             <property name="text">
+              <string>Recover Trajectory</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="is_trajectory_show_chk">
+          <property name="text">
+           <string>show trajectories</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="is_orientation_show_chk">
+          <property name="text">
+           <string>show orientations</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="is_direction_show_chk">
+          <property name="text">
+           <string>show directions</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="is_key_point_show_chk">
+          <property name="text">
+           <string>show key points</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="is_matches_show_check">
+          <property name="text">
+           <string>show matches</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="is_map_show_check">
+          <property name="text">
+           <string>show map</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="is_recovery_show_check">
+          <property name="text">
+           <string>show recovery</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="shift_second_trj_group">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QGroupBox {
+    border: 1px solid gray;
+    border-radius: 9px;
+    margin-top: 0.5em;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 3px 0 3px;
+}</string>
+          </property>
+          <property name="title">
+           <string>Shift trajectory</string>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
              <item>
-              <widget class="QLabel" name="label_3">
-               <property name="text">
-                <string>Y</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-               <property name="margin">
-                <number>-3</number>
-               </property>
-              </widget>
+              <layout class="QVBoxLayout" name="verticalLayout_3">
+               <item>
+                <widget class="QLabel" name="label_2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>X</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="trj2_shift_x_spin">
+                 <property name="suffix">
+                  <string/>
+                 </property>
+                 <property name="minimum">
+                  <number>-10000</number>
+                 </property>
+                 <property name="maximum">
+                  <number>10000</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>5</number>
+                 </property>
+                 <property name="value">
+                  <number>4000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
              <item>
-              <widget class="QSpinBox" name="trj2_shift_y_spin">
-               <property name="suffix">
-                <string/>
-               </property>
-               <property name="prefix">
-                <string/>
-               </property>
-               <property name="minimum">
-                <number>-10000</number>
-               </property>
-               <property name="maximum">
-                <number>10000</number>
-               </property>
-               <property name="singleStep">
-                <number>5</number>
-               </property>
-               <property name="value">
-                <number>5000</number>
-               </property>
-              </widget>
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <item>
+                <widget class="QLabel" name="label_3">
+                 <property name="text">
+                  <string>Y</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="margin">
+                  <number>-3</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="trj2_shift_y_spin">
+                 <property name="suffix">
+                  <string/>
+                 </property>
+                 <property name="prefix">
+                  <string/>
+                 </property>
+                 <property name="minimum">
+                  <number>-10000</number>
+                 </property>
+                 <property name="maximum">
+                  <number>10000</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>5</number>
+                 </property>
+                 <property name="value">
+                  <number>5000</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
             </layout>
            </item>
           </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QDoubleSpinBox" name="score_thres_spinbox">
-        <property name="decimals">
-         <number>5</number>
-        </property>
-        <property name="singleStep">
-         <double>0.001000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="filter_recovered_by_score_check">
-        <property name="text">
-         <string>filter by scores</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="score_thres_spinbox">
+          <property name="decimals">
+           <number>5</number>
+          </property>
+          <property name="singleStep">
+           <double>0.001000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.100000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="filter_recovered_by_score_check">
+          <property name="text">
+           <string>filter by scores</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
