@@ -18,6 +18,17 @@ class TrajectoryLoader
   /*
    * KeyPoints loader
    */
+
+  /**
+   * @brief loadOrCalculateKeyPoints
+   * try load key points otherwise calculate
+   * @param trj
+   * @param filename
+   * @param detector
+   */
+  static void loadOrCalculateKeyPoints(modelpkg::Trajectory &trj,
+                                       std::string filename,
+                                       cv::Ptr<cv::Feature2D> detector);
   static void loadKeyPoints(modelpkg::Trajectory &trj, std::string filename);
   static void calculateKeyPoints(modelpkg::Trajectory &trj,
                                  cv::Ptr<cv::Feature2D> detector);
@@ -29,6 +40,16 @@ class TrajectoryLoader
    * Descriptions loader
    */
 
+  /**
+   * @brief loadOrCalculateDescriptions
+   * try load descriptions otherwise calculate
+   * @param trj
+   * @param filename
+   * @param descriptor
+   */
+  static void loadOrCalculateDescriptions(modelpkg::Trajectory &trj,
+                                          std::string filename,
+                                          cv::Ptr<cv::Feature2D> descriptor);
   static void loadDescriptions(modelpkg::Trajectory &trj, std::string filename);
   static void calculateDescriptions(modelpkg::Trajectory &trj,
                                     cv::Ptr<cv::Feature2D> descriptor);

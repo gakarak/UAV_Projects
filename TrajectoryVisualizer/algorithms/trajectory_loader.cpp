@@ -36,6 +36,20 @@ Trajectory TrajectoryLoader::loadTrajectory(string trj_idx_path)
   return trj;
 }
 
+void TrajectoryLoader::loadOrCalculateKeyPoints(Trajectory &trj,
+                                                string filename,
+                                                cv::Ptr<Feature2D> detector)
+{
+  try
+  {
+    loadKeyPoints(trj, filename);
+  }
+  catch (TrajectoryLoader::NoFileExist &e)
+  {
+    calculateKeyPoints(trj, detector);
+  }
+}
+
 Map TrajectoryLoader::loadMapFromRow(vector<string> params)
 {
     //need for atof, because '.' is not delimeter of float part
@@ -132,6 +146,18 @@ void TrajectoryLoader::saveKeyPoints(const Trajectory &trj, string filename)
           out.write(reinterpret_cast<const char*>(&frame_key_points[kp_num]),
                     sizeof(frame_key_points[kp_num]));
       }
+  }
+}
+
+void TrajectoryLoader::loadOrCalculateDescriptions(Trajectory &trj, string filename, cv::Ptr<Feature2D> descriptor)
+{
+  try
+  {
+    loadDescriptions(trj, filename);
+  }
+  catch (TrajectoryLoader::NoFileExist &e)
+  {
+    calculateDescriptions(trj, descriptior);
   }
 }
 
