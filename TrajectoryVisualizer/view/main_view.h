@@ -94,7 +94,7 @@ namespace viewpkg
         void onFirstTrajectoryDoubleClicked(int frame_num, bool isSelected);
         void onSecondTrajectoryDoubleClicked(int frame_num, bool isSelected);
 
-    /* shift trajectory */
+    /* shift trajectory { */
     private slots:
         void on_trj2_shift_x_spin_valueChanged(int shift_x);
         void on_trj2_shift_y_spin_valueChanged(int shift_y);
@@ -102,9 +102,9 @@ namespace viewpkg
 
     private:
         void updateShift(int shift_x, int shift_y);
-    /* shift trajectory */
+    /* } shift trajectory */
 
-    /* status bar */
+    /* status bar { */
     public:
         void setMouseScenePosition(QPointF pos);
         void setZoom(double zoom);
@@ -114,7 +114,7 @@ namespace viewpkg
 
         QPointF mouse_scene_pos_m;
         double  zoom;
-    /* status bar */
+    /* } status bar */
 
     private://members
         std::shared_ptr<controllerpkg::MainController> controller;
