@@ -75,14 +75,20 @@ namespace viewpkg
 
     /* widgets enabling control { */
     public:
-        void enableDataManipulating(bool isEnabled);
+        /**
+         * @brief enableDataManipulating
+         * serves for enabling data manipulating buttons, like calculate
+         * @param isEnabled
+         * @param trj_num enable or disable only for trj_num if -1, then both
+         */
+        void setEnabledDataCalculating(bool isEnabled, int trj_num = -1);
+        void setEnabledDataManipulating(bool isEnabled);
 
     /* } widgets enabling control */
 
     private slots:
         /* buttons */
         void on_load_ini_btn_clicked();
-        void on_clear_btn_clicked();
         void on_calculate_btn_clicked();
         void on_match_btn_clicked();
         void on_recover_trajectory_btn_clicked();
@@ -104,6 +110,9 @@ namespace viewpkg
         void on_is_recovery_show_check_toggled(bool checked);
         void on_filter_recovered_by_score_check_toggled(bool checked);
 
+        /* progress bar */
+        void on_progressBar_valueChanged(int value);
+
         /* frame selection */
         void onFirstTrajectoryDoubleClicked(int frame_num, bool isSelected);
         void onSecondTrajectoryDoubleClicked(int frame_num, bool isSelected);
@@ -113,8 +122,6 @@ namespace viewpkg
         void on_trj2_shift_x_spin_valueChanged(int shift_x);
         void on_trj2_shift_y_spin_valueChanged(int shift_y);
         void on_shift_second_trj_group_toggled(bool isChecked);
-
-        void on_progressBar_valueChanged(int value);
 
     private:
         void updateShift(int shift_x, int shift_y);

@@ -200,12 +200,34 @@ void MainView::setProgressBarValue(int value)
   ui->progressBar->setValue(value);
 }
 
-void MainView::enableDataManipulating(bool isEnabled)
+void MainView::setEnabledDataCalculating(bool isEnabled, int trj_num)
 {
-  ui->model_settings_group->setEnabled(isEnabled);
-  ui->calculate_btn->setEnabled(isEnabled);
-  ui->calc_first_trj_btn->setEnabled(isEnabled);
-  ui->calc_sec_trj_btn->setEnabled(isEnabled);
+  if (trj_num == -1)
+  {
+    ui->calc_first_trj_btn->setEnabled(isEnabled);
+    ui->calc_sec_trj_btn->setEnabled(isEnabled);
+  }
+  else if (trj_num == 0)
+  {
+    ui->calc_first_trj_btn->setEnabled(isEnabled);
+  }
+  else if (trj_num == 1)
+  {
+    ui->calc_sec_trj_btn->setEnabled(isEnabled);
+  }
+
+  bool calc_both_enabled = ui->calc_first_trj_btn->isEnabled() &&
+                           ui->calc_sec_trj_btn->isEnabled();
+  ui->calculate_btn->setEnabled(calc_both_enabled);
+
+  bool settings_enabled = ui->calc_first_trj_btn->isEnabled() ||
+                          ui->calc_sec_trj_btn->isEnabled();
+  ui->calculation_settings_group->setEnabled(settings_enabled);
+}
+
+void MainView::setEnabledDataManipulating(bool isEnabled)
+{
+  ui->maniplations_group->setEnabled(isEnabled);
 }
 
 /*
@@ -220,20 +242,10 @@ void viewpkg::MainView::on_load_ini_btn_clicked()
 
     ConfigSingleton &cfg = ConfigSingleton::getInstance();
 
-    ui->model_settings_group->setEnabled(true);
     ui->first_traj_edit->setText(
           QString::fromStdString(cfg.getPathToTrajectoryCsv(0)));
     ui->second_traj_edit->setText(
           QString::fromStdString(cfg.getPathToTrajectoryCsv(1)));
-}
-
-void viewpkg::MainView::on_clear_btn_clicked()
-{
-    scene.getFirstTrajectory().clear();
-    scene.getSecondTrajectory().clear();
-    scene.getMatches().clear();
-
-    ui->model_settings_group->setEnabled(false);
 }
 
 void viewpkg::MainView::on_calculate_btn_clicked()

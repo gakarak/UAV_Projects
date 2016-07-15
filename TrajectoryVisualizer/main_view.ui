@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>932</width>
-    <height>735</height>
+    <height>758</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -293,16 +293,9 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QPushButton" name="clear_btn">
-          <property name="text">
-           <string>Clear</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="model_settings_group">
+         <widget class="QGroupBox" name="calculation_settings_group">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="minimumSize">
            <size>
@@ -311,20 +304,10 @@
            </size>
           </property>
           <property name="styleSheet">
-           <string notr="true">QGroupBox {
-    border: 1px solid gray;
-    border-radius: 9px;
-    margin-top: 0.5em;
-}
-
-QGroupBox::title {
-    subcontrol-origin: margin;
-    left: 10px;
-    padding: 0 3px 0 3px;
-}</string>
+           <string notr="true"/>
           </property>
           <property name="title">
-           <string/>
+           <string>Calculation settings</string>
           </property>
           <property name="flat">
            <bool>false</bool>
@@ -350,6 +333,15 @@ QGroupBox::title {
            <item>
             <widget class="QComboBox" name="descriptor_combo"/>
            </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="maniplations_group">
+          <property name="title">
+           <string>Manipulations</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_8">
            <item>
             <widget class="QPushButton" name="match_btn">
              <property name="text">
@@ -364,83 +356,108 @@ QGroupBox::title {
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="score_thres_spinbox">
+             <property name="decimals">
+              <number>5</number>
+             </property>
+             <property name="singleStep">
+              <double>0.001000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.100000000000000</double>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="is_trajectory_show_chk">
-          <property name="text">
-           <string>show trajectories</string>
+         <widget class="QGroupBox" name="view_settings_group">
+          <property name="title">
+           <string>View settings</string>
           </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="is_orientation_show_chk">
-          <property name="text">
-           <string>show orientations</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="is_direction_show_chk">
-          <property name="text">
-           <string>show directions</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="is_key_point_show_chk">
-          <property name="text">
-           <string>show key points</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="is_matches_show_check">
-          <property name="text">
-           <string>show matches</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="is_map_show_check">
-          <property name="text">
-           <string>show map</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="is_recovery_show_check">
-          <property name="text">
-           <string>show recovery</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="shift_second_trj_group">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="autoFillBackground">
+          <property name="flat">
            <bool>false</bool>
           </property>
-          <property name="styleSheet">
-           <string notr="true">QGroupBox {
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <item>
+            <widget class="QCheckBox" name="is_trajectory_show_chk">
+             <property name="text">
+              <string>show trajectories</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="is_orientation_show_chk">
+             <property name="text">
+              <string>show orientations</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="is_direction_show_chk">
+             <property name="text">
+              <string>show directions</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="is_key_point_show_chk">
+             <property name="text">
+              <string>show key points</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="is_matches_show_check">
+             <property name="text">
+              <string>show matches</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="is_map_show_check">
+             <property name="text">
+              <string>show map</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="is_recovery_show_check">
+             <property name="text">
+              <string>show recovery</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="shift_second_trj_group">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QGroupBox {
     border: 1px solid gray;
     border-radius: 9px;
     margin-top: 0.5em;
@@ -451,120 +468,110 @@ QGroupBox::title {
     left: 10px;
     padding: 0 3px 0 3px;
 }</string>
-          </property>
-          <property name="title">
-           <string>Shift trajectory</string>
-          </property>
-          <property name="flat">
-           <bool>false</bool>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
+             </property>
+             <property name="title">
+              <string>Shift trajectory</string>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_5">
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_3">
+                  <item>
+                   <widget class="QLabel" name="label_2">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>X</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="trj2_shift_x_spin">
+                    <property name="suffix">
+                     <string/>
+                    </property>
+                    <property name="minimum">
+                     <number>-10000</number>
+                    </property>
+                    <property name="maximum">
+                     <number>10000</number>
+                    </property>
+                    <property name="singleStep">
+                     <number>5</number>
+                    </property>
+                    <property name="value">
+                     <number>4000</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_4">
+                  <item>
+                   <widget class="QLabel" name="label_3">
+                    <property name="text">
+                     <string>Y</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                    <property name="margin">
+                     <number>-3</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="trj2_shift_y_spin">
+                    <property name="suffix">
+                     <string/>
+                    </property>
+                    <property name="prefix">
+                     <string/>
+                    </property>
+                    <property name="minimum">
+                     <number>-10000</number>
+                    </property>
+                    <property name="maximum">
+                     <number>10000</number>
+                    </property>
+                    <property name="singleStep">
+                     <number>5</number>
+                    </property>
+                    <property name="value">
+                     <number>5000</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_3">
-               <item>
-                <widget class="QLabel" name="label_2">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string>X</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QSpinBox" name="trj2_shift_x_spin">
-                 <property name="suffix">
-                  <string/>
-                 </property>
-                 <property name="minimum">
-                  <number>-10000</number>
-                 </property>
-                 <property name="maximum">
-                  <number>10000</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>5</number>
-                 </property>
-                 <property name="value">
-                  <number>4000</number>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_4">
-               <item>
-                <widget class="QLabel" name="label_3">
-                 <property name="text">
-                  <string>Y</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                 <property name="margin">
-                  <number>-3</number>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QSpinBox" name="trj2_shift_y_spin">
-                 <property name="suffix">
-                  <string/>
-                 </property>
-                 <property name="prefix">
-                  <string/>
-                 </property>
-                 <property name="minimum">
-                  <number>-10000</number>
-                 </property>
-                 <property name="maximum">
-                  <number>10000</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>5</number>
-                 </property>
-                 <property name="value">
-                  <number>5000</number>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-            </layout>
+            <widget class="QCheckBox" name="filter_recovered_by_score_check">
+             <property name="text">
+              <string>filter by scores</string>
+             </property>
+            </widget>
            </item>
           </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="score_thres_spinbox">
-          <property name="decimals">
-           <number>5</number>
-          </property>
-          <property name="singleStep">
-           <double>0.001000000000000</double>
-          </property>
-          <property name="value">
-           <double>0.100000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="filter_recovered_by_score_check">
-          <property name="text">
-           <string>filter by scores</string>
-          </property>
          </widget>
         </item>
         <item>
@@ -579,6 +586,16 @@ QGroupBox::title {
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="clear_btn">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

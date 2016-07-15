@@ -299,6 +299,7 @@ void MainController::loadIni(string ini_filename)
                                   cfg.getPathToTrajectoryCsv(0)));
         view->setTrajectoryPath(1, QString::fromStdString(
                                   cfg.getPathToTrajectoryCsv(1)));
+        view->setEnabledDataCalculating(true);
     }
     catch (ConfigSingleton::Exception &e)
     {
@@ -332,6 +333,7 @@ void MainController::loadTrajectory(int trj_num, string trj_filename)
     cfg.setPathToTrajectoryCsv(trj_num, trj_filename);
 
     this->showTrajectory(trj_num);
+    view->setEnabledDataCalculating(true, trj_num);
   }
   catch (runtime_error er)
   {
@@ -549,6 +551,8 @@ void MainController::showView()
 {
     view->setDetectors(detectors_names);
     view->setDescriptors(descriptors_names);
+    view->setEnabledDataCalculating(false);
+    view->setEnabledDataManipulating(false);
     view->show();
 }
 
