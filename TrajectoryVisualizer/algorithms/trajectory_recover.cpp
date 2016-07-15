@@ -111,7 +111,7 @@ void TrajectoryRecover::loadMatcher(string filename)
   //fs.release();
 }
 
-void TrajectoryRecover::recoverTrajectory(const Mat &que_frame,
+double TrajectoryRecover::recoverTrajectory(const Mat &que_frame,
                                           vector<KeyPoint> &key_points,
                                           Mat &descriptors, Mat &homography,
                                           vector<DMatch> &matches)
@@ -123,7 +123,7 @@ void TrajectoryRecover::recoverTrajectory(const Mat &que_frame,
   detector->detect(que_frame, key_points);
   descriptor->compute(que_frame, key_points, descriptors);
 
-  this->recoverTrajectory(key_points, descriptors, homography, matches);
+  return this->recoverTrajectory(key_points, descriptors, homography, matches);
 }
 
 double TrajectoryRecover::recoverTrajectory(const vector<KeyPoint> &que_key_points,

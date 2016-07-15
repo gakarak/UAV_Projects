@@ -32,10 +32,10 @@ class TrajectoryRecover
 
   //void addBoundedKeyPoints(const std::vector<cv::KeyPoint> &key_points);
 
-  void recoverTrajectory(const cv::Mat &que_frame,
-                         std::vector<cv::KeyPoint> &key_points,
-                         cv::Mat &descriptors, cv::Mat &homography,
-                         std::vector<cv::DMatch> &matches);
+  double recoverTrajectory(const cv::Mat &que_frame,
+                           std::vector<cv::KeyPoint> &key_points,
+                           cv::Mat &descriptors, cv::Mat &homography,
+                           std::vector<cv::DMatch> &matches);
   double recoverTrajectory(const std::vector<cv::KeyPoint> &que_key_points,
                            const cv::Mat &que_descriptors,
                            cv::Mat &homography,
