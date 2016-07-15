@@ -38,7 +38,8 @@ Trajectory TrajectoryLoader::loadTrajectory(string trj_idx_path)
 
 void TrajectoryLoader::loadOrCalculateKeyPoints(Trajectory &trj,
                                                 string filename,
-                                                cv::Ptr<Feature2D> detector)
+                                                cv::Ptr<Feature2D> detector,
+                                                bool save)
 {
   try
   {
@@ -47,6 +48,10 @@ void TrajectoryLoader::loadOrCalculateKeyPoints(Trajectory &trj,
   catch (TrajectoryLoader::NoFileExist &e)
   {
     calculateKeyPoints(trj, detector);
+    if (save)
+    {
+      saveKeyPoints(trj, filename);
+    }
   }
 }
 
@@ -149,7 +154,7 @@ void TrajectoryLoader::saveKeyPoints(const Trajectory &trj, string filename)
   }
 }
 
-void TrajectoryLoader::loadOrCalculateDescriptions(Trajectory &trj, string filename, cv::Ptr<Feature2D> descriptor)
+void TrajectoryLoader::loadOrCalculateDescriptions(Trajectory &trj, string filename, cv::Ptr<Feature2D> descriptor, bool save)
 {
   try
   {
@@ -158,6 +163,10 @@ void TrajectoryLoader::loadOrCalculateDescriptions(Trajectory &trj, string filen
   catch (TrajectoryLoader::NoFileExist &e)
   {
     calculateDescriptions(trj, descriptor);
+    if (save)
+    {
+      saveDescriptions(trj, filename);
+    }
   }
 }
 
