@@ -52,9 +52,12 @@ void MainController::loadOrCalculateModel(int trj_num,
                                              descriptor_name);
 
   TrajectoryLoader::loadOrCalculateKeyPoints(trj, path_to_kp_bin,
-                                             detectors[detector_idx]);
+                                             detectors[detector_idx], true);
+  TrajectoryLoader::sortKeyPointsByResponse(trj);
+
   TrajectoryLoader::loadOrCalculateDescriptions(trj, path_to_descr_bin,
-                                                descriptors[descriptor_idx]);
+                                                descriptors[descriptor_idx],
+                                                true);
 
   //preparing trajectory recover
   TrajectoryRecover &recover = trj_recovers[trj_num];
