@@ -321,9 +321,25 @@ void MainController::loadTrajectories(string trj1_filename, string trj2_filename
 
 void MainController::loadTrajectory(int trj_num, string trj_filename)
 {
-  model->setTrajectory(trj_num, loadTrjFromCsv(trj_filename));
-  this->calculateFramesQuality(trj_num);
-  this->showTrajectory(trj_num);
+  ConfigSingleton &cfg = ConfigSingleton::getInstance();
+  try
+  {
+    Trajectory new_trj = loadTrjFromCsv(trj_filename);
+
+    model->setTrajectory(trj_num, new_trj);
+    this->calculateFramesQuality(trj_num);
+
+    cfg.setPathToTrajectoryCsv(trj_num, trj_filename);
+
+    this->showTrajectory(trj_num);
+  }
+  catch (runtime_error er)
+  {
+      showException(er.what());
+
+      QString prev = QString::fromStdString(cfg.getPathToTrajectoryCsv(trj_num));
+      view->setTrajectoryPath(trj_num, prev);
+  }
 }
 
 void MainController::loadMainMap(string filename, double meters_per_pixel)
@@ -872,29 +888,22 @@ void MainController::clear()
 Trajectory MainController::loadTrjFromCsv(string csv_filename)
 {        
     Trajectory trj;
-    try
+
+    auto parsed_csv = utils::csvtools::read_csv(csv_filename);
+
+    size_t found = csv_filename.find_last_of("/\\");
+    string folder = csv_filename.substr(0,found);
+
+    for (auto &row : parsed_csv)
     {
-        auto parsed_csv = utils::csvtools::read_csv(csv_filename);
-
-        size_t found = csv_filename.find_last_of("/\\");
-        string folder = csv_filename.substr(0,found);
-
-        for (auto &row : parsed_csv)
-        {
-            if (row[0] == "Path")
-            {//column names
-                continue;
-            }
-            row[0] = folder + "/" + row[0];
-            Map frame = loadMapFromRow(row);
-            trj.pushBackFrame(frame);
+        if (row[0] == "Path")
+        {//column names
+            continue;
         }
+        row[0] = folder + "/" + row[0];
+        Map frame = loadMapFromRow(row);
+        trj.pushBackFrame(frame);
     }
-    catch (runtime_error er)
-    {
-        showException(er.what());
-    }
-
 
     return trj;
 }
