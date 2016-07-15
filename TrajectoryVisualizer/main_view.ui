@@ -587,16 +587,6 @@ QGroupBox::title {
           </property>
          </spacer>
         </item>
-        <item>
-         <widget class="QPushButton" name="clear_btn">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Clear</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
      </layout>
