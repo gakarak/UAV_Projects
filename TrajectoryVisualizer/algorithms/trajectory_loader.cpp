@@ -157,7 +157,7 @@ void TrajectoryLoader::loadOrCalculateDescriptions(Trajectory &trj, string filen
   }
   catch (TrajectoryLoader::NoFileExist &e)
   {
-    calculateDescriptions(trj, descriptior);
+    calculateDescriptions(trj, descriptor);
   }
 }
 
