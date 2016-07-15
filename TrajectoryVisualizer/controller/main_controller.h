@@ -22,7 +22,8 @@ namespace controllerpkg
     public:
         MainController();
 
-        void loadOrCalculateModel(int detector_idx, int descriptor_idx);
+        void loadOrCalculateModel(int trj_num,
+                                  int detector_idx, int descriptor_idx);
         void calculateMatches(int descriptor_idx);
         void recoverTrajectory(double score_thres);
 
@@ -76,16 +77,6 @@ namespace controllerpkg
 
         void calculateFramesQuality();
         void calculateFramesQuality(int trj_num);
-
-        void loadOrCalculateKeyPoints(int detector_idx);
-        void       calculateKeyPoints(int trj_num, int detector_idx);
-        void            loadKeyPoints(int trj_num, std::string filename);
-        void            saveKeyPoints(int trj_num, std::string filename);
-
-        void loadOrCalculateDescriptions(int detector_idx, int descriptor_idx);
-        void       calculateDescriptions(int trj_num, int descriptor_idx);
-        void            loadDescriptions(int trj_num, std::string filename);
-        void            saveDescriptions(int trj_num, std::string filename);
 
                                 //params - filename, x_m, y_m, angle, m_per_px
         modelpkg::Map           loadMapFromRow(std::vector<std::string> params);

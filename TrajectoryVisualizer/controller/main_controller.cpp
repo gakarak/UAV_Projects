@@ -38,34 +38,48 @@ MainController::MainController()
     accumulative_trj_cuts.assign(2, vector<int>());
 }
 
-void MainController::loadOrCalculateModel(int detector_idx, int descriptor_idx)
+void MainController::loadOrCalculateModel(int trj_num,
+                                          int detector_idx, int descriptor_idx)
 {
-    loadOrCalculateKeyPoints(detector_idx);
-    loadOrCalculateDescriptions(detector_idx, descriptor_idx);
+  ConfigSingleton &cfg = ConfigSingleton::getInstance();
+  Trajectory &trj = model->getTrajectory(trj_num);
+  string detector_name = detectors_names[detector_idx].toStdString();
+  string descriptor_name = descriptors_names[descriptor_idx].toStdString();
+  string path_to_kp_bin = cfg.getPathToKeyPoints(trj_num,
+                                                 detector_name);
+  string path_to_descr_bin = cfg.getPathToDescriptors(trj_num,
+                                             detector_name,
+                                             descriptor_name);
 
-    for (size_t trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
-    {
-        auto &trj = model->getTrajectory(trj_num);
-        TrajectoryRecover &recover = trj_recovers[trj_num];
-        recover.setDetector(detectors[detector_idx]);
-        recover.setDescriptor(descriptors[descriptor_idx]);
+  TrajectoryLoader::loadOrCalculateKeyPoints(trj, path_to_kp_bin,
+                                             detectors[detector_idx]);
+  TrajectoryLoader::loadOrCalculateDescriptions(trj, path_to_descr_bin,
+                                                descriptors[descriptor_idx]);
 
-        recover.clear();
-        for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
-        {
-            recover.addFrame(trj.getFrame(frame_num).image,
-                             trj.getFrameAllKeyPoints(frame_num),
-                             trj.getFrameDescription(frame_num),
-                             trj.getFrame(frame_num).pos_m,
-                             -trj.getFrame(frame_num).angle,
-                             trj.getFrame(frame_num).m_per_px);
-        }
-    }
+  //preparing trajectory recover
+  TrajectoryRecover &recover = trj_recovers[trj_num];
+  recover.setDetector(detectors[detector_idx]);
+  recover.setDescriptor(descriptors[descriptor_idx]);
 
-    for (size_t trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
-    {
-        this->showKeyPoints(trj_num);
-    }
+  recover.clear();
+  for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
+  {
+      recover.addFrame(trj.getFrame(frame_num).image,
+                       trj.getFrameAllKeyPoints(frame_num),
+                       trj.getFrameDescription(frame_num),
+                       trj.getFrame(frame_num).pos_m,
+                       -trj.getFrame(frame_num).angle,
+                       trj.getFrame(frame_num).m_per_px);
+  }
+
+  //stupid way to find out if the model ready for manipulations
+  if (model->getTrajectory(0).getAllKeyPoints().size() != 0 &&
+      model->getTrajectory(1).getAllKeyPoints().size() != 0)
+  {
+    view->setEnabledDataManipulating(true);
+  }
+
+  this->showKeyPoints(trj_num);
 }
 
 void MainController::calculateMatches(int descriptor_idx)
@@ -605,228 +619,6 @@ void MainController::calculateFramesQuality(int trj_num)
 
       trj.setFrameQuality(frame_num, quality);
   }
-}
-
-/*
- * Key points
- */
-void MainController::loadOrCalculateKeyPoints(int detector_idx)
-{
-    ConfigSingleton &cfg = ConfigSingleton::getInstance();
-
-    for (size_t trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
-    {
-        string path_to_kp_bin = cfg.getPathToKeyPoints(trj_num, detectors_names[detector_idx].toStdString());
-
-        try
-        {
-            loadKeyPoints(trj_num, path_to_kp_bin);
-        }
-        catch (MainController::NoFileExist &e)
-        {
-            clog << e.what() << endl;
-            clog << "Calculating key points for trajectory #" << trj_num+1 << endl;
-            calculateKeyPoints(trj_num, detector_idx);
-
-            clog << "Saving key points" << endl;
-            saveKeyPoints(trj_num, path_to_kp_bin);
-        }
-    }
-}
-
-void MainController::calculateKeyPoints(int trj_num, int detector_idx)
-{
-    cv::Ptr<cv::Feature2D> &detector = detectors[detector_idx];
-    Trajectory &trj = model->getTrajectory(trj_num);
-
-    for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
-    {
-        const auto &frame = trj.getFrame(frame_num);
-        auto &mutable_frame_kps = trj.getFrameAllKeyPoints(frame_num);
-
-        detector->detect(frame.image, mutable_frame_kps);
-
-        //sort by response
-        std::sort(mutable_frame_kps.begin(), mutable_frame_kps.end(), []( const cv::KeyPoint &left, const cv::KeyPoint &right ) ->
-                                         bool { return left.response > right.response; });
-    }
-}
-
-void MainController::loadKeyPoints(int trj_num, string filename)
-{
-    ifstream in(filename, ios::binary);
-    if (!in)
-    {
-        throw MainController::NoFileExist(filename);
-    }
-
-    auto &trj = model->getTrajectory(trj_num);
-
-    //maybe format checking
-    size_t framesCount = 0;
-    in.read(reinterpret_cast<char*>(&framesCount), sizeof(framesCount));
-    for (size_t frame_num = 0; frame_num < framesCount; frame_num++)
-    {
-        auto &mutable_frame_kps = trj.getFrameAllKeyPoints(frame_num);
-        mutable_frame_kps.clear();
-
-        size_t keyPointsCount = 0;
-        in.read(reinterpret_cast<char*>(&keyPointsCount), sizeof(keyPointsCount));
-        for (size_t kp_num = 0; kp_num < keyPointsCount; kp_num++)
-        {
-            cv::KeyPoint kp;
-            in.read(reinterpret_cast<char*>(&kp), sizeof(kp));
-            mutable_frame_kps.push_back(kp);
-        }
-    }
-}
-
-void MainController::saveKeyPoints(int trj_num, string filename)
-{
-    const auto &trj = model->getTrajectory(trj_num);
-
-    ofstream out(filename, ios::binary);
-
-    size_t framesCount = trj.getFramesCount();
-    out.write(reinterpret_cast<char*>(&framesCount), sizeof(framesCount));
-    for (size_t frame_num = 0; frame_num < framesCount; frame_num++)
-    {
-        const auto &frame_key_points = trj.getFrameAllKeyPoints(frame_num);
-
-        size_t keyPointsCount = frame_key_points.size();
-        out.write(reinterpret_cast<char*>(&keyPointsCount), sizeof(keyPointsCount));
-        for (size_t kp_num = 0; kp_num < keyPointsCount; kp_num++)
-        {
-            out.write(reinterpret_cast<const char*>(&frame_key_points[kp_num]), sizeof(frame_key_points[kp_num]));
-        }
-    }
-}
-
-/*
- * Descriptions
- */
-
-void MainController::loadOrCalculateDescriptions(int detector_idx, int descriptor_idx)
-{
-    ConfigSingleton &cfg = ConfigSingleton::getInstance();
-
-    for (size_t trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
-    {
-        string path_to_dscr_xml = cfg.getPathToDescriptors(trj_num, detectors_names[detector_idx].toStdString(),
-                                                                    descriptors_names[descriptor_idx].toStdString());
-
-        try
-        {
-            loadDescriptions(trj_num, path_to_dscr_xml);
-        }
-        catch (MainController::NoFileExist &e)
-        {
-            clog << e.what() << endl;
-            clog << "Calculating descriptors for trajectory #" << trj_num+1 << endl;
-            calculateDescriptions(trj_num, detector_idx);
-
-            clog << "Saving descriptors" << endl;
-            saveDescriptions(trj_num, path_to_dscr_xml);
-        }
-    }
-
-}
-
-void MainController::calculateDescriptions(int trj_num, int descriptor_idx)
-{
-    cv::Ptr<cv::Feature2D> &descriptor = descriptors[descriptor_idx];
-    Trajectory &trj = model->getTrajectory(trj_num);
-
-    for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
-    {
-        cv::Mat descr;
-        descriptor->compute(trj.getFrame(frame_num).image, trj.getFrameAllKeyPoints(frame_num), descr);
-
-        trj.setFrameDescription(frame_num, descr);
-    }
-}
-
-void MainController::loadDescriptions(int trj_num, string filename)
-{
-    auto &trj = model->getTrajectory(trj_num);
-
-    ifstream in(filename, ios::binary);
-    if (!in)
-    {
-        throw MainController::NoFileExist(filename);
-    }
-
-    //maybe format checking
-    size_t framesCount = 0;
-    in.read(reinterpret_cast<char*>(&framesCount), sizeof(framesCount));
-    for (size_t frame_num = 0; frame_num < framesCount; frame_num++)
-    {
-        int rows = 0;
-        in.read(reinterpret_cast<char*>(&rows),
-                  sizeof(rows));
-        int cols = 0;
-        in.read(reinterpret_cast<char*>(&cols),
-                  sizeof(cols));
-
-        cv::Mat description(rows, cols, CV_32F);
-
-        in.read(reinterpret_cast<char*>(description.data), rows*cols*sizeof(float));
-
-        trj.setFrameDescription(frame_num, description);
-    }
-    /*cv::FileStorage file(filename, cv::FileStorage::READ);
-
-    if (!file.isOpened())
-    {
-        throw MainController::NoFileExist(filename);
-    }
-
-    int framesCount = 0;
-    file["count"] >> framesCount;
-    for (int frame_num = 0; frame_num < framesCount; frame_num++)
-    {
-        cv::Mat descr;
-        file["img"+to_string(frame_num)] >> descr;
-
-        trj.setFrameDescription(frame_num, descr);
-    }
-    file.release();*/
-}
-
-void MainController::saveDescriptions(int trj_num, string filename)
-{
-    const auto &trj = model->getTrajectory(trj_num);
-
-    ofstream out(filename, ios::binary);
-
-    size_t framesCount = trj.getFramesCount();
-    out.write(reinterpret_cast<char*>(&framesCount), sizeof(framesCount));
-    for (size_t frame_num = 0; frame_num < framesCount; frame_num++)
-    {
-        const auto &frame_description = trj.getFrameDescription(frame_num);
-
-        int rows = frame_description.rows;
-        out.write(reinterpret_cast<char*>(&rows),
-                  sizeof(frame_description.rows));
-        int cols = frame_description.cols;
-        out.write(reinterpret_cast<char*>(&cols),
-                  sizeof(frame_description.cols));
-
-        if (frame_description.type() == CV_32F)
-        {
-          out.write(reinterpret_cast<char*>(frame_description.data), rows*cols*sizeof(float));
-        }
-    }
-
-    /*cv::FileStorage file(filename, cv::FileStorage::WRITE);
-
-    int framesCount = trj.getFramesCount();
-    file << "count" << framesCount;
-    for (int frame_num = 0; frame_num < framesCount; frame_num++)
-    {
-        file << "img"+to_string(frame_num) << trj.getFrameDescription(frame_num);
-    }
-    file.release();*/
 }
 
 void MainController::initDetectors()

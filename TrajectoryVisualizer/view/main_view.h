@@ -88,17 +88,20 @@ namespace viewpkg
 
     private slots:
         /* buttons */
-        void on_load_ini_btn_clicked();
-        void on_calculate_btn_clicked();
-        void on_match_btn_clicked();
-        void on_recover_trajectory_btn_clicked();
-
         void on_open_ini_file_btn_clicked();
         void on_open_first_trj_btn_clicked();
         void on_open_sec_trj_btn_clicked();
 
+        void on_load_ini_btn_clicked();
         void on_load_first_trj_btn_clicked();
         void on_load_sec_trj_btn_clicked();
+
+        void on_calculate_btn_clicked();
+        void on_calc_first_trj_btn_clicked();
+        void on_calc_sec_trj_btn_clicked();
+
+        void on_match_btn_clicked();
+        void on_recover_trajectory_btn_clicked();
 
         /* checkboxes */
         void on_is_trajectory_show_chk_toggled(bool checked);
