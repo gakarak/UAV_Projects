@@ -63,11 +63,6 @@ namespace viewpkg
         std::vector<std::shared_ptr<GraphicsOrientationItem>> orientations;
 
         std::vector<std::shared_ptr<GraphicsFastKeyPointItem>> key_points;
-        std::vector<int> frames_num;
-
-        //std::vector<std::shared_ptr<QGraphicsEllipseItem>>
-
-        //double m_per_px;
     };
 
 }

@@ -21,6 +21,10 @@ GraphicsTrajectoryItem::GraphicsTrajectoryItem()
     this->setHandlesChildEvents(false);
     this->setAcceptHoverEvents(true);
 
+    key_point_layer.setAcceptedMouseButtons(false);
+    key_point_layer.setAcceptHoverEvents(false);
+    key_point_layer.setAcceptTouchEvents(false);
+
     this->addToGroup(&trajectory_layer);
     this->addToGroup(&orientation_layer);
     this->addToGroup(&direction_layer);
@@ -76,23 +80,27 @@ void GraphicsTrajectoryItem::addKeyPoint(int frame_num, QPointF center_px, doubl
     key_point->setRotation(frame_item->rotation());
     key_point->setTransform(QTransform().translate(0, 0).scale(scale, scale).translate(0, 0));
 
+    key_point->setAcceptHoverEvents(false);
+    key_point->setAcceptedMouseButtons(false);
+    key_point->setAcceptTouchEvents(false);
+
     key_points.push_back(key_point);
     key_point_layer.addToGroup(key_points.back().get());
-    frames_num.push_back(frame_num);
 }
 
 void GraphicsTrajectoryItem::addKeyPointNew(QPointF pos, double angle, double radius, double scale, QColor color)
 {
-    shared_ptr<GraphicsFastKeyPointItem> key_point = make_shared<GraphicsFastKeyPointItem>(QPointF(0, 0), 0, 1, &key_point_layer);
+  shared_ptr<GraphicsFastKeyPointItem> key_point =
+      make_shared<GraphicsFastKeyPointItem>(QPointF(0, 0), 0, 1,
+                                            &key_point_layer);
 
-    key_point->setRadius(radius * scale);
-    key_point->setAngle(angle);
-    key_point->setColor(color);
+  key_point->setRadius(radius * scale);
+  key_point->setAngle(angle);
+  key_point->setColor(color);
 
-    key_point->setPos(pos);
-    key_points.push_back(key_point);
-    key_point_layer.addToGroup(key_points.back().get());
-    //frames_num.push_back(frame_num);
+  key_point->setPos(pos);
+  key_points.push_back(key_point);
+  key_point_layer.addToGroup(key_points.back().get());
 }
 
 void GraphicsTrajectoryItem::showFrame(int frame_num)
@@ -167,7 +175,6 @@ void GraphicsTrajectoryItem::clear()
 void GraphicsTrajectoryItem::clearKeyPoints()
 {
     key_points.clear();
-    frames_num.clear();
 }
 
 void GraphicsTrajectoryItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
