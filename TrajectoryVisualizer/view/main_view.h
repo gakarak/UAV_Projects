@@ -69,6 +69,11 @@ namespace viewpkg
                                  scene.getSecondTrajectory();
         }
 
+        GraphicsMatchesItem& getMatchesItem()
+        {
+          return scene.getMatches();
+        }
+
         void setProgressBarTask(QString name, int maximum = 100,
                                 int minimum = 0);
         void setProgressBarValue(int value);

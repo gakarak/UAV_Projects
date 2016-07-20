@@ -43,8 +43,10 @@ void MainController::loadOrCalculateModel(int trj_num,
 {
   ConfigSingleton &cfg = ConfigSingleton::getInstance();
   Trajectory &trj = model->getTrajectory(trj_num);
+
   string detector_name = detectors_names[detector_idx].toStdString();
   string descriptor_name = descriptors_names[descriptor_idx].toStdString();
+
   string path_to_kp_bin = cfg.getPathToKeyPoints(trj_num,
                                                  detector_name);
   string path_to_descr_bin = cfg.getPathToDescriptors(trj_num,
@@ -85,177 +87,23 @@ void MainController::loadOrCalculateModel(int trj_num,
   this->showKeyPoints(trj_num);
 }
 
-void MainController::calculateMatches(int descriptor_idx)
+void MainController::calculateMatches()
 {
-    //norm_type for each descriptor setted
-    //cv::BFMatcher matcher(norm_types[descriptor_idx]);
-    cv::FlannBasedMatcher matcher;
+  isFirstMatchingOnSecond = trajectories_selected_frames[1].empty();
+  int from_trj_num = isFirstMatchingOnSecond? 0: 1;
+  int to_trj_num = isFirstMatchingOnSecond? 1: 0;
 
-    vector<vector<cv::KeyPoint>> trajectories_kp_clouds(2, vector<cv::KeyPoint>());
-    vector<cv::Mat> trajectories_descr_clouds(2, cv::Mat());
+  int frame_num = trajectories_selected_frames[from_trj_num][0];
+  Trajectory &from_trj = model->getTrajectory(from_trj_num);
 
-    //generate descriptors and key_points clouds
-    for (size_t trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
-    {
-        const auto &trj = model->getTrajectory(trj_num);
-        const auto &selected_frames = trajectories_selected_frames[trj_num];
-        vector<cv::Mat> descriptions_cloud;
-        auto &key_points_cloud = trajectories_kp_clouds[trj_num];
-        auto &accumulative_cut = accumulative_trj_cuts[trj_num];
+  //cv::Mat homography;
+  TrajectoryRecover &recover = trj_recovers[to_trj_num];
+  recover.recoverTrajectory(from_trj.getFrameAllKeyPoints(frame_num),
+                            from_trj.getFrameDescription(frame_num),
+                            homography,
+                            matches);
+  this->showMatches();
 
-        //accumulative_cut need for further relevant key points extraction
-        accumulative_cut.clear();
-        accumulative_cut.push_back(0);
-        if (selected_frames.empty())
-        {//take all trajectory
-            for (const auto &frame_key_points: trj.getAllKeyPoints())
-            {
-                key_points_cloud.insert(key_points_cloud.end(),
-                                        frame_key_points.begin(), frame_key_points.end());
-
-                //sum of all counts of key_poins on frame
-                accumulative_cut.push_back(accumulative_cut.back() + frame_key_points.size());
-            }
-            for (const auto &description: trj.getAllDescriptions())
-            {
-                if (!description.empty())
-                {
-                    descriptions_cloud.push_back(description);
-                }
-            }
-        }
-        else
-        {//only selected
-            for (const auto &frame_num: selected_frames)
-            {
-                const auto &frame_key_points = trj.getFrameAllKeyPoints(frame_num);
-                key_points_cloud.insert(key_points_cloud.end(),
-                                        frame_key_points.begin(), frame_key_points.end());
-                descriptions_cloud.push_back(trj.getFrameDescription(frame_num));
-
-                //sum of all counts of key_poins on frame
-                accumulative_cut.push_back(accumulative_cut.back() + frame_key_points.size());
-            }
-        }
-
-        cv::vconcat(descriptions_cloud, trajectories_descr_clouds[trj_num]);
-
-        //it need for flann matcher | http://stackoverflow.com/a/11798593/2627487
-        if(trajectories_descr_clouds[trj_num].type() != CV_32F) {
-            trajectories_descr_clouds[trj_num].convertTo(trajectories_descr_clouds[trj_num], CV_32F);
-        }
-    }
-
-    isFirstMatchingOnSecond = trajectories_selected_frames[1].empty();
-    int from_trj_num = isFirstMatchingOnSecond? 0: 1;
-    int to_trj_num = isFirstMatchingOnSecond? 1: 0;
-    vector<cv::DMatch> rough_matches;
-
-    matcher.add(trajectories_descr_clouds[to_trj_num]);
-    matcher.train();
-
-    auto start_match_time = chrono::high_resolution_clock::now();
-
-    matcher.match(trajectories_descr_clouds[from_trj_num],
-                  rough_matches);
-
-    auto finish_match_time = chrono::high_resolution_clock::now();
-    clog << "Match time: " <<
-            chrono::duration_cast<chrono::milliseconds>(finish_match_time - start_match_time).count() <<
-            "ms" << endl;
-
-    //prepare points for findHomography | using trajectories_kp_cloud
-    //we need to transform to_trj_pts to points on map
-    vector<cv::Point2f> from_trj_pts;
-    vector<cv::Point2f> to_trj_pts;
-
-    //for (int i = 0; i < rough_matches.size(); i++)
-    for (const cv::DMatch &match: rough_matches)
-    {
-        //here I assume that choosed one frame otherwise shitty code like for to_trj_pts
-        from_trj_pts.push_back(trajectories_kp_clouds[from_trj_num][match.queryIdx].pt);
-        //we need to transform to_trj_pts from points on image to points on map
-        //SHITTY CODE START (doubled from showMatches() )
-        int frame_num = 0;
-
-        //to_trj - it's always train
-        const auto &idx = match.trainIdx;
-
-        //calculating frame_num and kp_num
-        while (idx >= accumulative_trj_cuts[to_trj_num][frame_num])
-        {
-            frame_num++;
-        }
-        frame_num--; //because start from 0
-
-        int kp_num = idx - accumulative_trj_cuts[to_trj_num][frame_num];
-
-        const Map &frame = model->getTrajectory(to_trj_num).getFrame(frame_num);
-        const cv::KeyPoint &kp = model->getTrajectory(to_trj_num).getFrameKeyPoint(frame_num, kp_num);
-        QPointF kp_translated_to_center(kp.pt.x - frame.image.cols/2., kp.pt.y - frame.image.rows/2.);
-        QPointF rotated_kp = QTransform().rotate(frame.angle).map(kp_translated_to_center);
-
-        QPointF pt_on_map( rotated_kp*frame.m_per_px + utils::cv::toQPointF(frame.pos_m) /* frame.m_per_px*/);
-
-        to_trj_pts.push_back(cv::Point2f(pt_on_map.x(), pt_on_map.y()));
-        //to_trj_pts.push_back(trajectories_kp_cloud[to_trj_num][match.trainIdx].pt);
-    }
-
-    auto start_homo_time = chrono::high_resolution_clock::now();
-
-    vector<char> mask;   
-    cv::Mat homography = cv::findHomography(from_trj_pts, to_trj_pts, cv::RANSAC, 3, mask);
-
-    auto finish_homo_time = chrono::high_resolution_clock::now();
-    clog << "Finding homography time: " <<
-            chrono::duration_cast<chrono::milliseconds>(finish_homo_time - start_homo_time).count() <<
-            "ms" << endl;
-
-
-    //setting ghost recover
-    const Map &frame = model->getTrajectory(from_trj_num).getFrame(trajectories_selected_frames[from_trj_num].front());
-    /*cv::Point2f cv_center(frame.image.cols/2., frame.image.rows/2.);
-    vector<cv::Point2f> tmp_in(1, cv_center);
-    vector<cv::Point2f> tmp_out;
-    cv::perspectiveTransform(tmp_in, tmp_out, homography);
-    cv::Point2f cv_center_transformed = tmp_out[0];*/
-
-    QSize size(frame.image.cols, frame.image.rows);
-    cv::Point2f center(frame.image.cols/2., frame.image.rows/2.);
-    cv::Point2f rotate_pt(center.x+10, center.y);
-
-    cv::Point2f bounded_center = algorithmspkg::Transformator::transform(center, homography);
-    cv::Point2f bounded_rotate_pt = algorithmspkg::Transformator::transform(rotate_pt, homography);
-
-
-    QPointF center_px(bounded_center.x, bounded_center.y);
-    double angle = utils::cv::angleBetween(rotate_pt-center, bounded_rotate_pt - bounded_center);
-    //double angle = atan(homography.at<double>(1, 0) / homography.at<double>(0, 0))*180/M_PI;
-    double coords_m_per_px = 1;//model->getTrajectory(to_trj_num).getFrame(0).m_per_px;
-    double m_per_px = cv::norm(bounded_rotate_pt - bounded_center) / cv::norm(rotate_pt - center);
-    cout << "length to " << cv::norm(bounded_rotate_pt - bounded_center) << endl;
-    cout << "length from " << cv::norm(rotate_pt - center) << endl;
-    cout << "scale " << m_per_px << endl;
-    //double m_per_px = frame.m_per_px;
-
-    view->setGhostRecovery(center_px, size, angle,
-                           m_per_px, coords_m_per_px);
-
-    //setting matches
-    matches.clear();
-    int mask_true_count = 0;
-    for (int i = 0; i < mask.size(); i++)
-    {
-        if (mask[i])
-        {
-            matches.push_back(rough_matches[i]);
-            mask_true_count++;
-        }
-    }
-    cout << "Score: " << mask_true_count / double(mask.size()) << endl;
-    //matches.assign(rough_matches.begin(), rough_matches.end());
-
-    this->showMatches();
 }
 
 void MainController::recoverTrajectory(double score_thres)
@@ -474,55 +322,36 @@ void MainController::showKeyPointsNew(int trj_num)
 
 void MainController::showMatches()
 {
-    //DMatch query_idx = first_trj, train_idx = second_trj
-    vector<vector<QPointF>> trajectories_kp(matches.size(), vector<QPointF>(model->getTrajectoriesCount(), QPointF(0, 0)));
-    vector<vector<QPointF>> frames_center_on_map(matches.size(), vector<QPointF>());
-    vector<vector<double>> angles(matches.size(), vector<double>());
-    vector<vector<double>> meters_per_pixels(matches.size(), vector<double>());
+  int from_trj_num = isFirstMatchingOnSecond? 0: 1;
+  int to_trj_num = isFirstMatchingOnSecond? 1: 0;
 
-    for (size_t match_num = 0; match_num < matches.size(); match_num++)
+  int frame_num = trajectories_selected_frames[from_trj_num][0];
+  Trajectory &from_trj = model->getTrajectory(from_trj_num);
+
+  const vector<cv::KeyPoint> &to_kps =
+                                trj_recovers[to_trj_num].getKeyPointsCloud();
+
+  view->getMatchesItem().clear();
+  for (size_t match_num = 0; match_num < matches.size(); match_num++)
+  {
+    cv::DMatch &match = matches[match_num];
+    cv::Point2f to_pt = to_kps[match.trainIdx].pt;
+    cv::Point2f from_pt = from_trj.getFrameKeyPoint(frame_num,
+                                                    match.queryIdx).pt;
+
+    from_pt = Transformator::transform(from_pt, homography);
+
+    if (isFirstMatchingOnSecond)
     {
-        const cv::DMatch &match = matches[match_num];
-        vector<int> frame_nums(model->getTrajectoriesCount(), 0);
-        vector<int> kp_nums(model->getTrajectoriesCount(), 0);
-
-        for (size_t trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
-        {
-            const auto &trj = model->getTrajectory(trj_num);
-            const auto &accumulate_cuts = accumulative_trj_cuts[trj_num];
-            const auto &selected_frames = trajectories_selected_frames[trj_num];
-            auto &frame_num = frame_nums[trj_num];
-            auto &kp_num = kp_nums[trj_num];
-
-            //tricky code
-            const auto &idx = isFirstMatchingOnSecond == trj_num? match.trainIdx:  match.queryIdx;
-
-            //calculating frame_num and kp_num
-            while (idx >= accumulate_cuts[frame_num])
-            {
-                frame_num++;
-            }
-            frame_num--; //because start from 0
-
-            kp_num = idx - accumulate_cuts[frame_num];
-
-            if (!selected_frames.empty())
-            {
-                frame_num = selected_frames[frame_num];
-            }
-
-
-            //get point
-            const Map &frame = trj.getFrame(frame_num);
-            const cv::KeyPoint &kp = trj.getFrameKeyPoint(frame_num, kp_num);
-            trajectories_kp[match_num][trj_num] = utils::cv::toQPointF(kp.pt) - QPointF(frame.image.cols, frame.image.rows)/2 +
-                                               utils::cv::toQPointF(frame.pos_m) / frame.m_per_px;
-            frames_center_on_map[match_num].push_back(utils::cv::toQPointF(frame.pos_m) / frame.m_per_px);
-            angles[match_num].push_back(frame.angle);
-            meters_per_pixels[match_num].push_back(frame.m_per_px);
-        }
+      view->getMatchesItem().addLine(utils::cv::toQPointF(from_pt),
+                                     utils::cv::toQPointF(to_pt));
     }
-    view->setMatches(trajectories_kp, frames_center_on_map, angles, meters_per_pixels);
+    else
+    {
+      view->getMatchesItem().addLine(utils::cv::toQPointF(to_pt),
+                                     utils::cv::toQPointF(from_pt));
+    }
+  }
 }
 
 void MainController::filterByScore(bool isFilter)

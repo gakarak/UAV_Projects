@@ -24,6 +24,7 @@ namespace controllerpkg
 
         void loadOrCalculateModel(int trj_num,
                                   int detector_idx, int descriptor_idx);
+        void calculateMatches();
         void calculateMatches(int descriptor_idx);
         void recoverTrajectory(double score_thres);
 
@@ -96,6 +97,7 @@ namespace controllerpkg
         std::vector<std::vector<int>> trajectories_selected_frames;
 
         bool isFirstMatchingOnSecond;
+        cv::Mat homography;
         std::vector<cv::DMatch> matches;
         std::vector<std::vector<int>> accumulative_trj_cuts;
 

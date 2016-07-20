@@ -278,7 +278,7 @@ void viewpkg::MainView::on_match_btn_clicked()
 {
     int descriptor_idx = ui->descriptor_combo->currentIndex();
 
-    controller->calculateMatches(descriptor_idx);
+    controller->calculateMatches();
 }
 
 void viewpkg::MainView::on_recover_trajectory_btn_clicked()
