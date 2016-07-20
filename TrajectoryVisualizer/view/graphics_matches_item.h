@@ -15,6 +15,7 @@ public:
     //void addLine(QPointF first_trj_pt, QPointF second_trj_pt, double meters_per_pixel);
     void addLine(std::vector<QPointF> trajectories_pt, std::vector<QPointF> frames_center_on_map,
                  std::vector<double> angles, std::vector<double> meters_per_pixels);
+    void addLine(QPointF first_trj_pt, QPointF sec_trj_pt);
 
     void setShift(double dx, double dy);
     void setShift(QPointF shift);

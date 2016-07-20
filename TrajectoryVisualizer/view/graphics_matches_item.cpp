@@ -44,6 +44,20 @@ void GraphicsMatchesItem::addLine(vector<QPointF> trajectories_pt, vector<QPoint
     this->addToGroup(lines.back().get());
 }
 
+void GraphicsMatchesItem::addLine(QPointF first_trj_pt, QPointF sec_trj_pt)
+{
+  second_trj_pts.push_back(sec_trj_pt);
+
+  shared_ptr<QGraphicsLineItem> line = make_shared<QGraphicsLineItem>(this);
+
+  line->setPen(QPen(QBrush(QColor(51, 102, 153)), 10));
+  line->setLine(QLineF(first_trj_pt, sec_trj_pt + shift));
+  line->setAcceptedMouseButtons(false);
+
+  lines.push_back(line);
+  this->addToGroup(lines.back().get());
+}
+
 void GraphicsMatchesItem::setShift(double dx, double dy)
 {
     setShift(QPointF(dx, dy));
