@@ -38,14 +38,14 @@ vector<Point2f> Transformator::transform(const vector<Point2f> &pts,
 Point2f Transformator::transform(const cv::Point2f &pt,
                                  initializer_list<Mat> transformations)
 {
-    std::vector<cv::Point2f> wrap(1, pt);
-    return Transformator::transform(wrap, transformations).front();
+  std::vector<cv::Point2f> wrap(1, pt);
+  return Transformator::transform(wrap, transformations).front();
 }
 
 Point2f Transformator::transform(const Point2f &pt, const Mat &transformation)
 {
-    std::vector<cv::Point2f> wrap(1, pt);
-    return Transformator::transform(wrap, transformation).front();
+  std::vector<cv::Point2f> wrap(1, pt);
+  return Transformator::transform(wrap, transformation).front();
 }
 
 /**
@@ -57,50 +57,50 @@ Point2f Transformator::transform(const Point2f &pt, const Mat &transformation)
 vector<Point2f> Transformator::transform(const vector<Point2f> &pts,
                                          initializer_list<Mat> transformations)
 {
-    Mat final_transform = *transformations.begin();
-    for (auto it = transformations.begin()+1; it != transformations.end(); it++)
-    {
-      final_transform = (*it)*final_transform;
-    }
+  Mat final_transform = *transformations.begin();
+  for (auto it = transformations.begin()+1; it != transformations.end(); it++)
+  {
+    final_transform = (*it)*final_transform;
+  }
 
-    return Transformator::transform(pts, final_transform);
+  return Transformator::transform(pts, final_transform);
 }
 
 std::vector<Point2f> Transformator::transform(const std::vector<Point2f> &pts,
                                               const Mat &transformation)
 {
-    vector<Point2f> result;
+  vector<Point2f> result;
 
-    perspectiveTransform(pts, result, transformation);
+  perspectiveTransform(pts, result, transformation);
 
-    return result;
+  return result;
 }
 
 Mat Transformator::getTranslate(Point2f shift)
 {
-    return Mat_<double>(3, 3) << 1, 0, shift.x,
-                                 0, 1, shift.y,
-                                 0, 0,    1   ;
+  return Mat_<double>(3, 3) << 1, 0, shift.x,
+      0, 1, shift.y,
+      0, 0,    1   ;
 }
 
 Mat Transformator::getRotate(double angle)
 {
-    double radians = angle/180*M_PI;
-    return Mat_<double>(3, 3) << cos(radians), sin(radians), 0,
-                                -sin(radians), cos(radians), 0,
-                                      0,            0,       1;
+  double radians = angle/180*M_PI;
+  return Mat_<double>(3, 3) << cos(radians), sin(radians), 0,
+      -sin(radians), cos(radians), 0,
+      0,            0,       1;
 }
 
 Mat Transformator::getScale(double scale)
 {
-    return Mat_<double>(3, 3) << scale, 0, 0,
-                                 0, scale, 0,
-                                 0,     0, 1;
+  return Mat_<double>(3, 3) << scale, 0, 0,
+      0, scale, 0,
+      0,     0, 1;
 }
 
 Mat Transformator::getScale(Point2f scale)
 {
-    return Mat_<double>(3, 3) << scale.x, 0, 0,
-                                 0, scale.y, 0,
-                                 0,       0, 1;
+  return Mat_<double>(3, 3) << scale.x, 0, 0,
+      0, scale.y, 0,
+      0,       0, 1;
 }
