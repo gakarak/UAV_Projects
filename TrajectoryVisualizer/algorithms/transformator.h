@@ -26,8 +26,8 @@ class Transformator
   static std::vector<cv::Point2f> transform(const std::vector<cv::Point2f> &pts,
                                             const cv::Mat &transformation);
 
-
-
+  static void getParams(const cv::Mat &homography,
+                        cv::Point2f &shift, double &angle, double &scale);
 
   static cv::Mat getTranslate(cv::Point2f shift);
   static cv::Mat getRotate(double angle /*degrees*/);

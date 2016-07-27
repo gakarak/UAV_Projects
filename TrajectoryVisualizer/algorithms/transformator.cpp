@@ -2,11 +2,11 @@
 
 #include <opencv2/calib3d.hpp>
 
+#include "utils/geom_utils.h"
+
 using namespace algorithmspkg;
 using namespace std;
 using namespace cv;
-
-#include <iostream>
 
 Transformator::Transformator()
 {
@@ -74,6 +74,29 @@ std::vector<Point2f> Transformator::transform(const std::vector<Point2f> &pts,
   perspectiveTransform(pts, result, transformation);
 
   return result;
+}
+
+void Transformator::getParams(const Mat &homography,
+                              cv::Point2f &shift, double &angle, double &scale)
+{
+  if (homography.rows == 3 &&
+      homography.cols == 3)
+  {
+    Point2f pt1(0, 0);
+    Point2f pt2(0, 1);
+
+    Point2f t_pt1 = transform(pt1, homography);
+    Point2f t_pt2 = transform(pt2, homography);
+
+    shift = t_pt1 - pt1;
+    angle = utils::cv::angleBetween(pt2 - pt1, t_pt2 - t_pt1);
+    scale = cv::norm(t_pt2 - t_pt1) / cv::norm(pt2 - pt1);
+  }
+  else
+  {
+    shift = cv::Point2f(0, 0);
+    angle = scale = 0;
+  }
 }
 
 Mat Transformator::getTranslate(Point2f shift)
