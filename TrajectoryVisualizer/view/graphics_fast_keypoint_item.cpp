@@ -37,7 +37,9 @@ void GraphicsFastKeyPointItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     painter->drawEllipse(center.x() - radius, center.y() - radius, 2*radius, 2*radius);
 
-    QPointF directed_pt = QPointF(radius * cos(angle*M_PI/180.), radius * sin(angle*M_PI/180.));
+    double radians_angle = angle*M_PI/180.;
+    QPointF directed_pt = radius*QPointF(cos(radians_angle), -sin(radians_angle)); //like a RotMat*(radius, 0)
+
     painter->drawLine(center.x(), center.y(), center.x() + directed_pt.x(), center.y() + directed_pt.y());
 }
 
