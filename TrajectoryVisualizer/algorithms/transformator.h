@@ -30,6 +30,12 @@ class Transformator
                         cv::Point2f &shift, double &angle, double &scale);
 
   static cv::Mat getTranslate(cv::Point2f shift);
+
+  /**
+   * @brief getRotate counter-clockwise rotate
+   * @param angle - degrees
+   * @return matrix 3x3
+   */
   static cv::Mat getRotate(double angle /*degrees*/);
   static cv::Mat getScale(double scale);
   static cv::Mat getScale(cv::Point2f scale);
