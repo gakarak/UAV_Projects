@@ -32,7 +32,8 @@ class Transformator
   static cv::Mat getTranslate(cv::Point2f shift);
 
   /**
-   * @brief getRotate counter-clockwise rotate
+   * @brief getRotate rotation from x to y (normally counter-clockwise)
+   *                                       (if y reversed then clockwise)
    * @param angle - degrees
    * @return matrix 3x3
    */
