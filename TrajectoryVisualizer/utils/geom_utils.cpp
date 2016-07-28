@@ -1,9 +1,10 @@
 #include "geom_utils.h"
 
-double utils::cv::angleBetween(const ::cv::Point2f &v1, const ::cv::Point2f &v2)
+double utils::cv::angleBetween(const ::cv::Point2f &from,
+                               const ::cv::Point2f &to)
 {
-  double dot = (v1.x * v2.x + v1.y * v2.y);
-  double det = (v1.x * v2.y - v1.y * v2.x);
+  double dot = (from.x * to.x + from.y * to.y);
+  double det = (from.x * to.y - from.y * to.x);
 
   return atan2(det, dot) / M_PI * 180;
 }

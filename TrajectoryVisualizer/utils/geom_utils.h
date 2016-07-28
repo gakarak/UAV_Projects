@@ -9,7 +9,15 @@ namespace utils
 namespace cv
 {
 
-  double angleBetween(const ::cv::Point2f &v1, const ::cv::Point2f &v2);
+  /**
+   * @brief angleBetween vector from and to
+   *        positive is direction from x to y (normally counter-clockwise)
+   *                                          (if y reversed then clockwise)
+   * @param from
+   * @param to
+   * @return
+   */
+  double angleBetween(const ::cv::Point2f &from, const ::cv::Point2f &to);
 
 }
 
