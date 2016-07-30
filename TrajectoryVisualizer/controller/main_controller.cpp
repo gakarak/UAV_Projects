@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <chrono>
 
+#include <QApplication>
 #include <QPixmap>
 #include <QPointF>
 #include <QDebug>
@@ -102,6 +103,24 @@ void MainController::calculateMatches()
                             from_trj.getFrameDescription(frame_num),
                             homography,
                             matches);
+
+  cv::Point2f shift;
+  double angle;
+  double scale;
+  Transformator::getParams(homography, shift, angle, scale);
+
+  cout << "Pos: " << shift <<
+          "\tAngle: " << angle <<
+          "\tScale: " << scale << endl;
+
+  QPointF image_center = QPointF(from_trj.getFrame(frame_num).image.cols/2.,
+                                 from_trj.getFrame(frame_num).image.rows/2.);
+  QPointF pos = utils::cv::toQPointF(shift) + image_center*scale;
+
+  double radius = min(from_trj.getFrame(frame_num).image.cols/2.,
+                      from_trj.getFrame(frame_num).image.rows/2.)*scale;
+  view->setGhostRecovery(pos, 0, radius);
+
   this->showMatches();
 
 }
@@ -125,6 +144,8 @@ void MainController::recoverTrajectory(double score_thres)
 
         if (score > score_thres)
         {
+//          Transformator::getParams(homography, frame.pos_m, frame.angle,
+//                                               frame.m_per_px);
           cv::Point2f center(frame.image.cols/2., frame.image.rows/2.);
           cv::Point2f rotate_pt(center.x+10, center.y);
 
@@ -157,8 +178,8 @@ void MainController::loadIni(string ini_filename)
         loadTrajectories(cfg.getPathToTrajectoryCsv(0),
                          cfg.getPathToTrajectoryCsv(1));
 
-        loadMainMap(cfg.getPathToMapCsv(),
-                    cfg.getMapMetersPerPixel());
+//        loadMainMap(cfg.getPathToMapCsv(),
+//                    cfg.getMapMetersPerPixel());
 
         view->setTrajectoryPath(0, QString::fromStdString(
                                   cfg.getPathToTrajectoryCsv(0)));
@@ -174,8 +195,8 @@ void MainController::loadIni(string ini_filename)
 
 void MainController::loadTrajectories(string trj1_filename, string trj2_filename)
 {
-    model->setTrajectory(0, loadTrjFromCsv(trj1_filename));
-    model->setTrajectory(1, loadTrjFromCsv(trj2_filename));
+    model->setTrajectory(0, TrajectoryLoader::loadTrajectory(trj1_filename));
+    model->setTrajectory(1, TrajectoryLoader::loadTrajectory(trj2_filename));
 
     this->calculateFramesQuality();
 
@@ -190,7 +211,7 @@ void MainController::loadTrajectory(int trj_num, string trj_filename)
   ConfigSingleton &cfg = ConfigSingleton::getInstance();
   try
   {
-    Trajectory new_trj = loadTrjFromCsv(trj_filename);
+    Trajectory new_trj = TrajectoryLoader::loadTrajectory(trj_filename);
 
     model->setTrajectory(trj_num, new_trj);
     this->calculateFramesQuality(trj_num);
@@ -252,7 +273,6 @@ void MainController::showTrajectory(int trj_num)
 void MainController::showMainMap()
 {
     QPixmap qpix = utils::ASM::cvMatToQPixmap(model->getMainMap().image);
-
     view->setMainMap(qpix, model->getMainMap().m_per_px);
 }
 
@@ -303,10 +323,15 @@ void MainController::showKeyPointsNew(int trj_num)
     TrajectoryRecover &recover = trj_recovers[trj_num];
     const auto &kps_cloud = recover.getKeyPointsCloud();
 
+    view->getTrajectoryItem(trj_num).clearKeyPoints();
+    view->setProgressBarTask("Drawing key points", kps_cloud.size());
+    qDebug() << kps_cloud.size();
+
     int i = 0;
     for (const cv::KeyPoint &kp: kps_cloud)
     {
-      if (kp.response > 50)
+      //qDebug() << kp.response;
+      if (kp.response > 0)
       {
         view->getTrajectoryItem(trj_num).addKeyPointNew(
               utils::cv::toQPointF(kp.pt),
@@ -315,7 +340,11 @@ void MainController::showKeyPointsNew(int trj_num)
               1,
               QColor(255, 0, 0));
       }
+
       i++;
+      view->setProgressBarValue(i);
+      if (i % 100 == 0)
+        QApplication::processEvents();
     }
 
 }
@@ -399,6 +428,7 @@ void MainController::showView()
     view->setDescriptors(descriptors_names);
     view->setEnabledDataCalculating(false);
     view->setEnabledDataManipulating(false);
+
     view->show();
 }
 
@@ -456,7 +486,7 @@ void MainController::calculateFramesQuality(int trj_num)
 void MainController::initDetectors()
 {
     detectors_names.push_back("SIFT");
-    detectors.push_back(cv::xfeatures2d::SIFT::create());
+    detectors.push_back(cv::xfeatures2d::SIFT::create(100));
 
     detectors_names.push_back("SURF");
     detectors.push_back(cv::xfeatures2d::SURF::create());

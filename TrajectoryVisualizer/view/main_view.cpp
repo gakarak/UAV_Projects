@@ -8,9 +8,11 @@
 #include <QPen>
 #include <QFileDialog>
 #include <QIntValidator>
+#include <QGraphicsView>
 
 #include "controller/main_controller.h"
 #include "config_singleton.h"
+#include "utils/geom_utils.h"
 
 using namespace std;
 using namespace viewpkg;
@@ -31,6 +33,9 @@ MainView::MainView(QWidget *parent) :
     zoom = ui->graphicsView->getZoom();
 
     ui->progressBar->setVisible(false);
+
+    ui->graphicsView->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
+    ui->graphicsView->setCacheMode(QGraphicsView::CacheBackground);
 
     QObject::connect(ui->calculate_btn, SIGNAL(clicked(bool)), &scene.getFirstTrajectory(), SLOT(cleanSelection()));
     QObject::connect(ui->calculate_btn, SIGNAL(clicked(bool)), &scene.getSecondTrajectory(), SLOT(cleanSelection()));
@@ -144,6 +149,18 @@ void MainView::setGhostRecovery(QPointF center_px, QSize size, double angle, dou
     scene.getGhostRecovery().setTransform(QTransform().translate(dx, dy).scale(scale, scale)
                                                      .translate(-dx, -dy), false);
     qDebug() << "ghost recover setted" << endl;
+}
+
+void MainView::setGhostRecovery(QPointF pos, double angle, double radius)
+{
+  static GraphicsFastKeyPointItem *item = nullptr;
+  if (item)
+  {
+    delete item;
+  }
+  item = new GraphicsFastKeyPointItem(pos, angle, radius);
+  item->setColor(QColor(255, 255, 0));
+  scene.addItem(item);
 }
 
 void MainView::setMainMap(QPixmap map, double meter_per_pixel)
