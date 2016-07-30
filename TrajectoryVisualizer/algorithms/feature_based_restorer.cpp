@@ -63,5 +63,7 @@ void FeatureBasedRestorer::transformKeyPointsPosition(
   for (int i = 0; i < to_transform.size(); i++)
   {
     key_points[i].pt = to_transform[i];
+    key_points[i].angle += angle;
+    key_points[i].size *= scale;
   }
 }
