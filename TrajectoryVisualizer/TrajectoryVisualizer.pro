@@ -65,7 +65,8 @@ HEADERS  += \
     algorithms/saveableflannmatcher.h \
     algorithms/feature_based_restorer.h \
     algorithms/ilocation_restorer.h \
-    algorithms/restorer_by_cloud.h
+    algorithms/restorer_by_cloud.h \
+    model/entities/location.h
 
 INCLUDEPATH += /home/ar/dev/opencv-3.1/include #/home/pisarik/Libs/opencv-3.1.0-build-debug/include
 LIBS += -L/home/ar/dev/opencv-3.1/lib \ #/home/pisarik/Libs/opencv-3.1.0-build-debug/lib \
