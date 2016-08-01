@@ -1,6 +1,7 @@
 #include "restorer_by_cloud.h"
 
 #include <algorithm>
+#include <iostream>
 
 #include <opencv2/calib3d.hpp>
 
@@ -121,6 +122,16 @@ const cv::Mat&
             RestorerByCloud::getFrameDescriptions(size_t frame_num) const
 {
   return matcher->getTrainDescriptors()[frame_num];
+}
+
+void RestorerByCloud::save(std::string filename)
+{
+  std::clog << "No implementation for saving restorerByCloud" << std::endl;
+}
+
+void RestorerByCloud::load(std::string filename)
+{
+  std::clog << "No implementation for loading restorerByCloud" << std::endl;
 }
 
 FeatureBasedRestorer::MatcherPtr RestorerByCloud::getMatcher() const

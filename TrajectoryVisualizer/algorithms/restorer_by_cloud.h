@@ -29,6 +29,8 @@ public:
   const KeyPointsList& getFrameKeyPoints(size_t frame_num) const override;
   const cv::Mat& getFrameDescriptions(size_t frame_num) const override;
 
+  void save(std::string filename) override;
+  void load(std::string filename) override;
 
   MatcherPtr    getMatcher() const;
 
