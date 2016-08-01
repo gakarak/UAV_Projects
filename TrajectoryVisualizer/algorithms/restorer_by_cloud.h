@@ -12,7 +12,8 @@ public:
   RestorerByCloud() = delete;
   RestorerByCloud(DetectorPtr detector,
                   DescriptorPtr descriptor,
-                  MatcherPtr matcher, size_t max_key_points_per_frame = 0);
+                  MatcherPtr matcher = cv::DescriptorMatcher::create("FlannBased"),
+                  size_t max_key_points_per_frame = 0);
 
   void addFrame(const cv::Mat &frame,
                 const cv::Point2f &pos, double angle, double scale) override;
