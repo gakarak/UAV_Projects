@@ -19,6 +19,8 @@ namespace cv
    */
   double angleBetween(const ::cv::Point2f &from, const ::cv::Point2f &to);
 
+  ::cv::Point2f elementMul(const ::cv::Point2f &a, const ::cv::Point2f &b);
+
 }
 
 }
