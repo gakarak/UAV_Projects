@@ -101,38 +101,6 @@ void MainView::setSecondTrajectory(const vector<QPixmap> &imgs, const vector<QPo
     }
 }
 
-void MainView::setFirstKeyPoints(const vector<int> &frames_num, const vector<QPointF> &centers_px, const vector<double> &angles,
-                                 const vector<double> &radius, const vector<QColor> &colors)
-{
-    scene.getFirstTrajectory().clearKeyPoints();
-    for (size_t i = 0; i < frames_num.size(); i++)
-    {
-        scene.getFirstTrajectory().addKeyPoint(frames_num[i], centers_px[i], angles[i], radius[i], colors[i]);
-    }
-}
-
-void MainView::setSecondKeyPoints(const vector<int> &frames_num, const vector<QPointF> &centers_px, const vector<double> &angles,
-                                 const vector<double> &radius, const vector<QColor> &colors)
-{
-    scene.getSecondTrajectory().clearKeyPoints();
-    for (size_t i = 0; i < frames_num.size(); i++)
-    {
-        scene.getSecondTrajectory().addKeyPoint(frames_num[i], centers_px[i], angles[i], radius[i], colors[i]);
-    }
-}
-
-void MainView::setMatches(const std::vector<std::vector<QPointF>> &trajectory_pts,
-                          const std::vector<std::vector<QPointF>> &frames_center_on_map,
-                          const std::vector<std::vector<double>> &angles,
-                          const std::vector<std::vector<double>> &meters_per_pixels)
-{
-    scene.getMatches().clear();
-    for (size_t i = 0; i < trajectory_pts.size(); i++)
-    {
-        scene.getMatches().addLine(trajectory_pts[i], frames_center_on_map[i], angles[i], meters_per_pixels[i]);
-    }
-}
-
 void MainView::setGhostRecovery(QPointF pos, double width, double height, double angle)
 {
   scene.getGhostRecovery().setRect(pos.x() - width/2., pos.y()-height/2.,

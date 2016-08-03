@@ -42,15 +42,6 @@ namespace viewpkg
         void setSecondTrajectory(const std::vector<QPixmap> &imgs, const std::vector<QPointF> center_coords_px,
                                  const std::vector<double> &angles, const std::vector<double> &meters_per_pixels,
                                  const std::vector<double> &qualities);
-        void setFirstKeyPoints(const std::vector<int> &frames_num, const std::vector<QPointF> &centers_px, const std::vector<double> &angles,
-                               const std::vector<double> &radius, const std::vector<QColor> &colors);
-        void setSecondKeyPoints(const std::vector<int> &frames_num, const std::vector<QPointF> &centers_px, const std::vector<double> &angles,
-                               const std::vector<double> &radius, const std::vector<QColor> &colors);
-
-        void setMatches(const std::vector<std::vector<QPointF>> &trajectory_pts,
-                        const std::vector<std::vector<QPointF>> &frames_center_on_map,
-                        const std::vector<std::vector<double>> &angles,
-                        const std::vector<std::vector<double>> &meters_per_pixels);
 
         void setGhostRecovery(QPointF pos, double width, double height,
                               double angle);
