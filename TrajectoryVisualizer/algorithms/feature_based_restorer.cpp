@@ -9,6 +9,16 @@ FeatureBasedRestorer::FeatureBasedRestorer(DetectorPtr detector,
 {
 }
 
+void FeatureBasedRestorer::setQueryKeyPoints(const KeyPointsList &key_points)
+{
+  query_key_points = key_points;
+}
+
+void FeatureBasedRestorer::setQueryDescriptions(const cv::Mat &descriptions)
+{
+  query_descriptions = descriptions;
+}
+
 double FeatureBasedRestorer::recoverLocation(const cv::Mat &query_frame,
                                              cv::Point2f &pos,
                                              double &angle,
@@ -20,13 +30,20 @@ double FeatureBasedRestorer::recoverLocation(const cv::Mat &query_frame,
   descriptor->compute(query_frame, query_key_points,
                                    query_descriptions);
 
-  return recoverLocation(pos, angle, scale);
+  cv::Point2f image_center( query_frame.cols/2., query_frame.rows/2. );
+
+  return recoverLocation(image_center, pos, angle, scale);
 }
 
 const FeatureBasedRestorer::MatchesList&
             FeatureBasedRestorer::getLastMatches() const
 {
   return matches;
+}
+
+const cv::Mat& FeatureBasedRestorer::getLastHomography() const
+{
+  return homography;
 }
 
 

@@ -46,7 +46,8 @@ class FeatureBasedRestorer : public ILocationRestorer
    * @param scale - scale from pixels to preffered units
    * @return confidence (the strength of the result) [0..1]
    */
-  virtual double recoverLocation(cv::Point2f &pos,
+  virtual double recoverLocation(const cv::Point2f &frame_center,
+                                 cv::Point2f &pos,
                                  double &angle, double &scale) = 0;
 
   virtual size_t getFramesCount() const = 0;
@@ -60,6 +61,7 @@ class FeatureBasedRestorer : public ILocationRestorer
   const cv::Mat& getQueryDescriptions() const;
 
   virtual const MatchesList& getLastMatches() const;
+  virtual const cv::Mat& getLastHomography() const;
 
   DetectorPtr   getDetector() const;
   DescriptorPtr getDescriptor() const;
@@ -74,6 +76,7 @@ class FeatureBasedRestorer : public ILocationRestorer
   KeyPointsList               query_key_points;
   cv::Mat                     query_descriptions;
 
+  cv::Mat                     homography;
   MatchesList                 matches;
 
   bool isTrained;
