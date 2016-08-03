@@ -64,8 +64,9 @@ void RestorerByCloud::addFrame(const cv::Point2f &image_center,
                              pos, angle, scale);
 }
 
-double RestorerByCloud::recoverLocation(cv::Point2f &pos,
-                               double &angle, double &scale)
+double RestorerByCloud::recoverLocation(const cv::Point2f &frame_center,
+                                        cv::Point2f &pos,
+                                        double &angle, double &scale)
 {
   rough_matches.clear();
   if (query_key_points.empty())
@@ -88,9 +89,13 @@ double RestorerByCloud::recoverLocation(cv::Point2f &pos,
   }
 
   std::vector<char> mask;
-  cv::Mat homography = cv::findHomography(query_pts, train_pts,
+  homography = cv::findHomography(query_pts, train_pts,
                                          cv::RANSAC, 3, mask);
-  Transformator::getParams(homography, pos, angle, scale);
+
+  cv::Point2f shift;
+  Transformator::getParams(homography, shift, angle, scale);
+
+  pos =  Transformator::transform(frame_center, homography);
 
   matches.clear();
   size_t count = 0;
