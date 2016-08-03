@@ -27,12 +27,14 @@ namespace viewpkg
         GraphicsMapItem&            getMainMap()            { return main_map; }
         GraphicsMatchesItem&        getMatches()            { return matches; }
         QGraphicsRectItem&          getGhostRecovery()      { return ghostRecovery; }
+        GraphicsOrientationItem&    getGhostOrientation()   { return ghostOrientation; }
 
         const GraphicsTrajectoryItem&     getFirstTrajectory() const    { return trajectory1; }
         const GraphicsTrajectoryItem&     getSecondTrajectory() const   { return trajectory2; }
         const GraphicsMapItem&            getMainMap() const            { return main_map; }
         const GraphicsMatchesItem&        getMatches() const            { return matches; }
         const QGraphicsRectItem&          getGhostRecovery() const      { return ghostRecovery; }
+        const GraphicsOrientationItem&    getGhostOrientation() const   { return ghostOrientation; }
 
         //double                            getMetersPerPixel() const     { return m_per_px; }
     protected:
@@ -47,6 +49,7 @@ namespace viewpkg
         GraphicsMatchesItem matches;
 
         QGraphicsRectItem ghostRecovery;
+        GraphicsOrientationItem ghostOrientation;
 
         GraphicsMapItem main_map;
 

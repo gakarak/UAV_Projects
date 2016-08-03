@@ -56,7 +56,7 @@ MainView::MainView(QWidget *parent) :
 
     scene.getMatches().setVisible(ui->is_matches_show_check->isChecked());
 
-    scene.getGhostRecovery().setVisible(ui->is_recovery_show_check->isChecked());
+    on_is_recovery_show_check_toggled(ui->is_recovery_show_check->isChecked());
 
     //intially update shift
     on_shift_second_trj_group_toggled(ui->shift_second_trj_group->isChecked());
@@ -133,34 +133,24 @@ void MainView::setMatches(const std::vector<std::vector<QPointF>> &trajectory_pt
     }
 }
 
-void MainView::setGhostRecovery(QPointF center_px, QSize size, double angle, double meters_per_pixel, double coords_m_per_px)
+void MainView::setGhostRecovery(QPointF pos, double width, double height, double angle)
 {
-    double scale = meters_per_pixel;
-    double coords_scale = coords_m_per_px;
+  scene.getGhostRecovery().setRect(pos.x() - width/2., pos.y()-height/2.,
+                                   width, height);
+  scene.getGhostRecovery().setTransformOriginPoint(pos);
+  scene.getGhostRecovery().setRotation(angle);
 
-    scene.getGhostRecovery().setRect(0, 0, size.width(), size.height());
-    scene.getGhostRecovery().setTransformOriginPoint(QPointF(size.width(), size.height())/2.);
-
-    //magic
-    scene.getGhostRecovery().setPos((center_px) * coords_scale - QPointF(size.width(), size.height())/2. * scale);
-    scene.getGhostRecovery().setRotation(angle);
-    qreal dx = 0;//item_center_px.x()/scale;
-    qreal dy = 0;//item_center_px.y()/scale;
-    scene.getGhostRecovery().setTransform(QTransform().translate(dx, dy).scale(scale, scale)
-                                                     .translate(-dx, -dy), false);
-    qDebug() << "ghost recover setted" << endl;
+  scene.getGhostOrientation().setCenter(pos);
+  scene.getGhostOrientation().setAxisLength(min(width, height)/4.);
+  scene.getGhostOrientation().setTransformOriginPoint(pos);
+  scene.getGhostOrientation().setRotation(angle);
 }
 
-void MainView::setGhostRecovery(QPointF pos, double angle, double radius)
+void MainView::clearGhostRecovery()
 {
-  static GraphicsFastKeyPointItem *item = nullptr;
-  if (item)
-  {
-    delete item;
-  }
-  item = new GraphicsFastKeyPointItem(pos, angle, radius);
-  item->setColor(QColor(255, 255, 0));
-  scene.addItem(item);
+  scene.getGhostRecovery().setRect(0, 0, 0, 0);
+  scene.getGhostOrientation().setCenter(QPointF(0, 0));
+  scene.getGhostOrientation().setAxisLength(0);
 }
 
 void MainView::setMainMap(QPixmap map, double meter_per_pixel)
@@ -354,6 +344,7 @@ void viewpkg::MainView::on_is_map_show_check_toggled(bool checked)
 void viewpkg::MainView::on_is_recovery_show_check_toggled(bool checked)
 {
     scene.getGhostRecovery().setVisible(checked);
+    scene.getGhostOrientation().setVisible(checked);
 }
 
 void viewpkg::MainView::on_filter_recovered_by_score_check_toggled(bool checked)

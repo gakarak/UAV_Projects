@@ -52,8 +52,9 @@ namespace viewpkg
                         const std::vector<std::vector<double>> &angles,
                         const std::vector<std::vector<double>> &meters_per_pixels);
 
-        void setGhostRecovery(QPointF center_px, QSize size, double angle, double meters_per_pixel, double coord_m_per_px);
-        void setGhostRecovery(QPointF pos, double angle, double radius);
+        void setGhostRecovery(QPointF pos, double width, double height,
+                              double angle);
+        void clearGhostRecovery();
 
         void setMainMap(QPixmap map, double meter_per_pixel);
 
