@@ -67,9 +67,9 @@ namespace viewpkg
           return scene.getMatches();
         }
 
-        void setProgressBarTask(QString name, int maximum = 100,
-                                int minimum = 0);
-        void setProgressBarValue(int value);
+        void setProgressBarTask(QString name, bool reset = true);
+        void setProgressBarValue(int value, int maximum = 100,
+                                 int minimum = 0);
 
     /* widgets enabling control { */
     public:

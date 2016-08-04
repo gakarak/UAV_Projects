@@ -162,16 +162,19 @@ void MainView::setTrajectoryPath(int trj_num, QString path)
   }
 }
 
-void MainView::setProgressBarTask(QString name, int maximum, int minimum)
+void MainView::setProgressBarTask(QString name, bool reset)
 {
   ui->progressBar->setFormat(name + " %p%");
-  ui->progressBar->setMinimum(minimum);
-  ui->progressBar->setMaximum(maximum);
-  ui->progressBar->setValue(minimum);
+  if (reset)
+  {
+    ui->progressBar->setValue(ui->progressBar->minimum());
+  }
 }
 
-void MainView::setProgressBarValue(int value)
+void MainView::setProgressBarValue(int value, int maximum, int minimum)
 {
+  ui->progressBar->setMaximum(maximum);
+  ui->progressBar->setMinimum(minimum);
   ui->progressBar->setValue(value);
 }
 
