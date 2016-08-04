@@ -70,8 +70,10 @@ int main(int argc, char *argv[])
         int descriptor_idx = it - descr_names.begin();
         auto descriptor = main_controller->getDescriptor(descriptor_idx);
 
-        main_model->setTrajectory(0, TrajectoryLoader::loadTrajectory(argv[1]));
-        main_model->setTrajectory(1, TrajectoryLoader::loadTrajectory(argv[2]));
+        TrajectoryLoader trj_loader;
+
+        main_model->setTrajectory(0, trj_loader.loadTrajectory(argv[1]));
+        main_model->setTrajectory(1, trj_loader.loadTrajectory(argv[2]));
         //load or calculate keypoints
         {
             auto &trj = main_model->getTrajectory(0);
@@ -80,16 +82,16 @@ int main(int argc, char *argv[])
 
             try
             {
-                TrajectoryLoader::loadKeyPoints(trj, path_to_kp_bin);
+                trj_loader.loadKeyPoints(trj, path_to_kp_bin);
             }
             catch (TrajectoryLoader::NoFileExist &e)
             {
                 clog << e.what() << endl;
                 clog << "Calculating key points for train trajectory\n";
-                TrajectoryLoader::calculateKeyPoints(trj, detector);
+                trj_loader.calculateKeyPoints(trj, detector);
 
                 clog << "Saving key points" << endl;
-                TrajectoryLoader::saveKeyPoints(trj, path_to_kp_bin);
+                trj_loader.saveKeyPoints(trj, path_to_kp_bin);
             }
         }
         //load or calculate descriptions
@@ -99,16 +101,16 @@ int main(int argc, char *argv[])
                                                                         descr_names[descriptor_idx].toStdString());
             try
             {
-                TrajectoryLoader::loadDescriptions(trj, path_to_dscr_xml);
+                trj_loader.loadDescriptions(trj, path_to_dscr_xml);
             }
             catch (TrajectoryLoader::NoFileExist &e)
             {
                 clog << e.what() << endl;
                 clog << "Calculating descriptors for train trajectory\n";
-                TrajectoryLoader::calculateDescriptions(trj, descriptor);
+                trj_loader.calculateDescriptions(trj, descriptor);
 
                 clog << "Saving descriptors" << endl;
-                TrajectoryLoader::saveDescriptions(trj, path_to_dscr_xml);
+                trj_loader.saveDescriptions(trj, path_to_dscr_xml);
             }
         }
 
