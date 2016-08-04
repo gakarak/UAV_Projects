@@ -11,9 +11,9 @@
 #include "view/main_view.h"
 #include "algorithms/transformator.h"
 #include "algorithms/trajectory_loader.h"
-#include "algorithms/trajectory_recover.h"
 #include "algorithms/image_info_gradient_estimator.h"
 #include "utils/geom_utils.h"
+#include "algorithms/restorer_by_cloud.h"
 
 using namespace std;
 using namespace algorithmspkg;
@@ -112,16 +112,14 @@ int main(int argc, char *argv[])
             }
         }
 
-        TrajectoryRecover recover;
-
-        recover.setDetector(detector);
-        recover.setDescriptor(descriptor);
+        shared_ptr<FeatureBasedRestorer> restorer(
+                              new RestorerByCloud(detector, descriptor));
 
         {//prepare recover
             auto &trj = main_model->getTrajectory(0);
             for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
             {
-                recover.addFrame(trj.getFrame(frame_num).image,
+                restorer->addFrame(trj.getFrame(frame_num).image_center,
                                  trj.getFrameAllKeyPoints(frame_num),
                                  trj.getFrameDescription(frame_num),
                                  trj.getFrame(frame_num).pos_m,
@@ -152,31 +150,18 @@ int main(int argc, char *argv[])
         for (size_t frame_num = 0; frame_num < que_trj.getFramesCount(); frame_num++)
         {
             const auto& frame = que_trj.getFrame(frame_num);
-            vector<cv::KeyPoint> que_frame_kps;
-            cv::Mat que_frame_descr;
-            cv::Mat homography;
-            vector<cv::DMatch> matches;
 
-            recover.recoverTrajectory(frame.image,
-                                      que_frame_kps,
-                                      que_frame_descr,
-                                      homography, matches);
+            cv::Point2f pos;
+            double angle;
+            double scale;
+            restorer->recoverLocation(frame.image,
+                                      pos, angle, scale);
 
             double quality = ImageInfoGradientEstimator(frame.m_per_px / 4.).estimate(frame.image);
-            if (!homography.empty())
+            if (!restorer->getLastHomography().empty())
             {
-                cv::Point2f center(frame.image.cols/2., frame.image.rows/2.);
-                cv::Point2f rotate_pt(center.x, center.y - 10);
-                cv::Point2f bounded_center = Transformator::transform(center, homography);
-                cv::Point2f bounded_rotate_pt = Transformator::transform(rotate_pt, homography);
-
-
-                //cout << homography << endl;
-                double angle = utils::cv::angleBetween(rotate_pt-center, bounded_rotate_pt - bounded_center);
-
-
                 out << quality << ',' <<
-                       cv::norm(bounded_center - frame.pos_m) << ',' <<
+                       cv::norm(pos - frame.pos_m) << ',' <<
                        fabs(angle - frame.angle) << endl;
             }
             else
