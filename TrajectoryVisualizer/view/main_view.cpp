@@ -176,6 +176,7 @@ void MainView::setProgressBarValue(int value, int maximum, int minimum)
   ui->progressBar->setMaximum(maximum);
   ui->progressBar->setMinimum(minimum);
   ui->progressBar->setValue(value);
+  QApplication::processEvents();
 }
 
 void MainView::setEnabledDataCalculating(bool isEnabled, int trj_num)
