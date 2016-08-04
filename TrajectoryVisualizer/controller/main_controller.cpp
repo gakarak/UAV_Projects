@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <chrono>
+#include <tr1/functional>
 
 #include <QApplication>
 #include <QPixmap>
@@ -32,8 +33,7 @@ MainController::MainController()
 {
     initDetectors();
     initDescriptors();
-    trj_recovers.assign(2, TrajectoryRecover(detectors[0],
-                                             descriptors[0]));
+    trj_recovers.assign(2, RestorerPtr());
 
     trajectories_selected_frames.assign(2, vector<int>());
     accumulative_trj_cuts.assign(2, vector<int>());
@@ -54,38 +54,40 @@ void MainController::loadOrCalculateModel(int trj_num,
                                              detector_name,
                                              descriptor_name);
 
-  TrajectoryLoader::loadOrCalculateKeyPoints(trj, path_to_kp_bin,
+  trj_loader.loadOrCalculateKeyPoints(trj, path_to_kp_bin,
                                              detectors[detector_idx], true);
-  TrajectoryLoader::sortKeyPointsByResponse(trj);
+  trj_loader.sortKeyPointsByResponse(trj);
 
-  TrajectoryLoader::loadOrCalculateDescriptions(trj, path_to_descr_bin,
+  trj_loader.loadOrCalculateDescriptions(trj, path_to_descr_bin,
                                                 descriptors[descriptor_idx],
                                                 true);
 
   //preparing trajectory recover
-  TrajectoryRecover &recover = trj_recovers[trj_num];
-  recover.setDetector(detectors[detector_idx]);
-  recover.setDescriptor(descriptors[descriptor_idx]);
+  RestorerPtr &restorer = trj_recovers[trj_num];
+  restorer = make_shared<RestorerByCloud>(detectors[detector_idx],
+                                          descriptors[descriptor_idx]);
 
-  recover.clear();
   for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
   {
-      recover.addFrame(trj.getFrame(frame_num).image,
-                       trj.getFrameAllKeyPoints(frame_num),
-                       trj.getFrameDescription(frame_num),
-                       trj.getFrame(frame_num).pos_m,
-                       -trj.getFrame(frame_num).angle,
-                       trj.getFrame(frame_num).m_per_px);
+      restorer->addFrame(trj.getFrame(frame_num).image_center,
+                         trj.getFrameAllKeyPoints(frame_num),
+                         trj.getFrameDescription(frame_num),
+                         trj.getFrame(frame_num).pos_m,
+                         trj.getFrame(frame_num).angle,
+                         trj.getFrame(frame_num).m_per_px);
   }
 
   //stupid way to find out if the model ready for manipulations
-  if (model->getTrajectory(0).getAllKeyPoints().size() != 0 &&
-      model->getTrajectory(1).getAllKeyPoints().size() != 0)
+  if (model->getTrajectory(0).getFramesCount() != 0 &&
+      !model->getTrajectory(0).getFrameAllKeyPoints(0).empty() &&
+      model->getTrajectory(1).getFramesCount() != 0 &&
+      !model->getTrajectory(1).getFrameAllKeyPoints(0).empty()
+      )
   {
     view->setEnabledDataManipulating(true);
   }
 
-  this->showKeyPoints(trj_num);
+  this->showKeyPointsNew(trj_num);
 }
 
 void MainController::calculateMatches()
@@ -96,30 +98,27 @@ void MainController::calculateMatches()
 
   int frame_num = trajectories_selected_frames[from_trj_num][0];
   Trajectory &from_trj = model->getTrajectory(from_trj_num);
+  auto &query_frame = from_trj.getFrame(frame_num);
 
   //cv::Mat homography;
-  TrajectoryRecover &recover = trj_recovers[to_trj_num];
-  recover.recoverTrajectory(from_trj.getFrameAllKeyPoints(frame_num),
-                            from_trj.getFrameDescription(frame_num),
-                            homography,
-                            matches);
+  RestorerPtr &restorer = trj_recovers[to_trj_num];
+  restorer->setQueryKeyPoints(from_trj.getFrameAllKeyPoints(frame_num));
+  restorer->setQueryDescriptions(from_trj.getFrameDescription(frame_num));
 
-  cv::Point2f shift;
+  cv::Point2f pos;
   double angle;
   double scale;
-  Transformator::getParams(homography, shift, angle, scale);
+  restorer->recoverLocation(query_frame.image_center,
+                            pos, angle, scale);
 
-  cout << "Pos: " << shift <<
+  cout << "Pos: " << pos <<
           "\tAngle: " << angle <<
           "\tScale: " << scale << endl;
 
-  QPointF image_center = QPointF(from_trj.getFrame(frame_num).image.cols/2.,
-                                 from_trj.getFrame(frame_num).image.rows/2.);
-  QPointF pos = utils::cv::toQPointF(shift) + image_center*scale;
-
-  double radius = min(from_trj.getFrame(frame_num).image.cols/2.,
-                      from_trj.getFrame(frame_num).image.rows/2.)*scale;
-  view->setGhostRecovery(pos, 0, radius);
+  view->setGhostRecovery(utils::cv::toQPointF(pos),
+                         query_frame.image.cols*scale,
+                         query_frame.image.rows*scale,
+                         angle);
 
   this->showMatches();
 
@@ -127,7 +126,7 @@ void MainController::calculateMatches()
 
 void MainController::recoverTrajectory(double score_thres)
 {
-    TrajectoryRecover &recover = this->trj_recovers[0];
+    /*RestorerPtr &restorer = this->trj_recovers[0];
     Trajectory &trj = model->getTrajectory(1);
 
     frames_to_hide_by_score.clear();
@@ -137,7 +136,11 @@ void MainController::recoverTrajectory(double score_thres)
 
         cv::Mat homography;
         std::vector<cv::DMatch> matches;
-        double score = recover.recoverTrajectory(trj.getFrameAllKeyPoints(frame_num),
+
+        restorer->setQueryKeyPoints(trj.getFrameAllKeyPoints(frame_num));
+        restorer->setQueryDescriptions(trj.getFrameDescription(frame_num));
+
+        double score = restorer->recoverTrajectory(trj.getFrameAllKeyPoints(frame_num),
                                   trj.getFrameDescription(frame_num),
                                   homography, matches);
         cout << "Score: " << score << endl;
@@ -164,7 +167,7 @@ void MainController::recoverTrajectory(double score_thres)
     }
 
 
-    showTrajectory(1);
+    showTrajectory(1);*/
 }
 
 void MainController::loadIni(string ini_filename)
@@ -175,17 +178,15 @@ void MainController::loadIni(string ini_filename)
     try
     {
         cfg.loadIni(ini_filename);
-        loadTrajectories(cfg.getPathToTrajectoryCsv(0),
-                         cfg.getPathToTrajectoryCsv(1));
-
-//        loadMainMap(cfg.getPathToMapCsv(),
-//                    cfg.getMapMetersPerPixel());
+        loadTrajectory(0, cfg.getPathToTrajectoryCsv(0));
+        loadTrajectory(1, cfg.getPathToTrajectoryCsv(1));
 
         view->setTrajectoryPath(0, QString::fromStdString(
                                   cfg.getPathToTrajectoryCsv(0)));
         view->setTrajectoryPath(1, QString::fromStdString(
                                   cfg.getPathToTrajectoryCsv(1)));
         view->setEnabledDataCalculating(true);
+        view->setEnabledDataManipulating(false);
     }
     catch (ConfigSingleton::Exception &e)
     {
@@ -193,25 +194,12 @@ void MainController::loadIni(string ini_filename)
     }
 }
 
-void MainController::loadTrajectories(string trj1_filename, string trj2_filename)
-{
-    model->setTrajectory(0, TrajectoryLoader::loadTrajectory(trj1_filename));
-    model->setTrajectory(1, TrajectoryLoader::loadTrajectory(trj2_filename));
-
-    this->calculateFramesQuality();
-
-    for (size_t trj_num = 0; trj_num < model->getTrajectoriesCount(); trj_num++)
-    {
-        this->showTrajectory(trj_num);
-    }
-}
-
 void MainController::loadTrajectory(int trj_num, string trj_filename)
 {
   ConfigSingleton &cfg = ConfigSingleton::getInstance();
   try
-  {
-    Trajectory new_trj = TrajectoryLoader::loadTrajectory(trj_filename);
+  {    
+    Trajectory new_trj = trj_loader.loadTrajectory(trj_filename);
 
     model->setTrajectory(trj_num, new_trj);
     this->calculateFramesQuality(trj_num);
@@ -220,6 +208,7 @@ void MainController::loadTrajectory(int trj_num, string trj_filename)
 
     this->showTrajectory(trj_num);
     view->setEnabledDataCalculating(true, trj_num);
+    view->setEnabledDataManipulating(false);
   }
   catch (runtime_error er)
   {
@@ -243,6 +232,9 @@ void MainController::loadMainMap(string filename, double meters_per_pixel)
 
 void MainController::showTrajectory(int trj_num)
 {
+    view->getMatchesItem().clear();
+    view->clearGhostRecovery();
+
     vector<QPixmap> qpixs;
     vector<QPointF> center_coords_px;
     vector<double>  angles;
@@ -276,75 +268,32 @@ void MainController::showMainMap()
     view->setMainMap(qpix, model->getMainMap().m_per_px);
 }
 
-void MainController::showKeyPoints(int trj_num)
-{
-    const Trajectory &trj = model->getTrajectory(trj_num);
-    const auto &key_points = trj.getAllKeyPoints();
-
-    vector<int> frames_num;
-    vector<QPointF> center_coords_px;
-    vector<double> angles;
-    vector<double> radius;
-    vector<QColor> colors;
-
-    for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
-    {
-        for (size_t kp_num = 0; kp_num < std::min((size_t)100, key_points[frame_num].size()); kp_num++)
-        {
-            const Map &frame = trj.getFrame(frame_num);
-            const cv::KeyPoint &kp = key_points[frame_num][kp_num];
-
-            double mul = kp.response / 100;
-            if (mul > 1) mul = 1;
-
-            frames_num.push_back(frame_num);
-            //pos_m - it's center of frame, so we need postpone vector (pt - image.center) from frame.centr
-            center_coords_px.push_back( utils::cv::toQPointF(kp.pt) - QPointF(frame.image.cols, frame.image.rows)/2 +
-                                        utils::cv::toQPointF(frame.pos_m) / frame.m_per_px);
-            angles.push_back(kp.angle);
-            radius.push_back(kp.size / 2.);
-            colors.push_back( QColor(255*(1-mul), 255*(mul), 0) );//QColor(255*mul, 165*mul, 0));
-        }
-    }
-
-    if (trj_num == 0)
-    {
-        view->setFirstKeyPoints(frames_num, center_coords_px, angles, radius, colors);
-    }
-    else
-    {
-        view->setSecondKeyPoints(frames_num, center_coords_px, angles, radius, colors);
-    }
-}
-
 void MainController::showKeyPointsNew(int trj_num)
 {
-    const Trajectory &trj = model->getTrajectory(trj_num);
-    TrajectoryRecover &recover = trj_recovers[trj_num];
-    const auto &kps_cloud = recover.getKeyPointsCloud();
+    RestorerPtr &restorer = trj_recovers[trj_num];
+
+
+    view->getMatchesItem().clear();
+    view->clearGhostRecovery();
 
     view->getTrajectoryItem(trj_num).clearKeyPoints();
-    view->setProgressBarTask("Drawing key points", kps_cloud.size());
-    qDebug() << kps_cloud.size();
+    view->setProgressBarTask("Drawing key points");
 
-    int i = 0;
-    for (const cv::KeyPoint &kp: kps_cloud)
+    for (size_t i = 0; i < restorer->getFramesCount(); i++)
     {
-      //qDebug() << kp.response;
-      if (kp.response > 0)
+      auto kps = restorer->getFrameKeyPoints(i);
+      for (size_t kp_num = 0; kp_num < min(kps.size(), (size_t)100); kp_num++)
       {
+        auto &kp = kps[kp_num];
         view->getTrajectoryItem(trj_num).addKeyPointNew(
               utils::cv::toQPointF(kp.pt),
               kp.angle,
               kp.size/2.,
               1,
               QColor(255, 0, 0));
+        view->getMatchesItem().clear();
       }
-
-      i++;
-      view->setProgressBarValue(i);
-      if (i % 100 == 0)
-        QApplication::processEvents();
+      view->setProgressBarValue(i+1, restorer->getFramesCount());
     }
 
 }
@@ -356,19 +305,19 @@ void MainController::showMatches()
 
   int frame_num = trajectories_selected_frames[from_trj_num][0];
   Trajectory &from_trj = model->getTrajectory(from_trj_num);
-
-  const vector<cv::KeyPoint> &to_kps =
-                                trj_recovers[to_trj_num].getKeyPointsCloud();
+  RestorerPtr &restorer = trj_recovers[to_trj_num];
+  auto &matches = restorer->getLastMatches();
 
   view->getMatchesItem().clear();
   for (size_t match_num = 0; match_num < matches.size(); match_num++)
   {
-    cv::DMatch &match = matches[match_num];
-    cv::Point2f to_pt = to_kps[match.trainIdx].pt;
+    const cv::DMatch &match = matches[match_num];
+    cv::Point2f to_pt = restorer->getFrameKeyPoints(
+                                            match.imgIdx)[match.trainIdx].pt;
     cv::Point2f from_pt = from_trj.getFrameKeyPoint(frame_num,
                                                     match.queryIdx).pt;
 
-    from_pt = Transformator::transform(from_pt, homography);
+    from_pt = Transformator::transform(from_pt, restorer->getLastHomography());
 
     if (isFirstMatchingOnSecond)
     {
@@ -399,6 +348,23 @@ void MainController::filterByScore(bool isFilter)
         view->getTrajectoryItem(1).showFrame(frame_num);
       }
     }
+}
+
+void MainController::setView(std::shared_ptr<viewpkg::MainView> view)
+{
+  this->view = view;
+
+  trj_loader.setTitleSetter([this](std::string title, bool reset)
+  {
+    this->view->setProgressBarTask(QString::fromStdString(title), reset);
+  });
+  trj_loader.setProgressNotifier(tr1::bind(
+                                   &viewpkg::MainView::setProgressBarValue,
+                                   this->view,
+                                   tr1::placeholders::_1,
+                                   tr1::placeholders::_2,
+                                   tr1::placeholders::_3)
+                                 );
 }
 
 void MainController::selectedFrame(int trj_num, int frame_num)
