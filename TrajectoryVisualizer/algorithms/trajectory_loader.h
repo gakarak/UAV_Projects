@@ -5,15 +5,17 @@
 #include <exception>
 
 #include "model/entities/trajectory.h"
+#include "progress_bar_notifier.h"
 
 namespace algorithmspkg
 {
 
-class TrajectoryLoader
+class TrajectoryLoader: public ProgressBarNotifier
 {
- public:
+public:
   TrajectoryLoader();
-  static modelpkg::Trajectory loadTrajectory(std::string trj_idx_path);
+
+  modelpkg::Trajectory loadTrajectory(std::string trj_idx_path);
 
   /*
    * KeyPoints loader
@@ -27,16 +29,21 @@ class TrajectoryLoader
    * @param detector
    * @param save save if calculated
    */
-  static void loadOrCalculateKeyPoints(modelpkg::Trajectory &trj,
-                                       std::string filename,
-                                       cv::Ptr<cv::Feature2D> detector,
-                                       bool save = false);
-  static void loadKeyPoints(modelpkg::Trajectory &trj, std::string filename);
-  static void calculateKeyPoints(modelpkg::Trajectory &trj,
-                                 cv::Ptr<cv::Feature2D> detector);
-  static void sortKeyPointsByResponse(modelpkg::Trajectory &trj);
-  static void saveKeyPoints(const modelpkg::Trajectory &trj,
-                            std::string filename);
+  void loadOrCalculateKeyPoints(modelpkg::Trajectory &trj,
+                                std::string filename,
+                                cv::Ptr<cv::Feature2D> detector,
+                                bool save = false);
+  void loadKeyPoints(modelpkg::Trajectory &trj, std::string filename);
+  void calculateKeyPoints(modelpkg::Trajectory &trj,
+                          cv::Ptr<cv::Feature2D> detector);
+  /**
+   * @brief TrajectoryLoader::sortKeyPointsByResponse
+   * This method isn't sort descriptions
+   * @param trj
+   */
+  void sortKeyPointsByResponse(modelpkg::Trajectory &trj);
+  void saveKeyPoints(const modelpkg::Trajectory &trj,
+                     std::string filename);
 
   /*
    * Descriptions loader
@@ -50,21 +57,21 @@ class TrajectoryLoader
    * @param descriptor
    * @param save save if calculated
    */
-  static void loadOrCalculateDescriptions(modelpkg::Trajectory &trj,
-                                          std::string filename,
-                                          cv::Ptr<cv::Feature2D> descriptor,
-                                          bool save = false);
-  static void loadDescriptions(modelpkg::Trajectory &trj, std::string filename);
-  static void calculateDescriptions(modelpkg::Trajectory &trj,
-                                    cv::Ptr<cv::Feature2D> descriptor);
-  static void saveDescriptions(const modelpkg::Trajectory &trj,
-                               std::string filename);
+  void loadOrCalculateDescriptions(modelpkg::Trajectory &trj,
+                                   std::string filename,
+                                   cv::Ptr<cv::Feature2D> descriptor,
+                                   bool save = false);
+  void loadDescriptions(modelpkg::Trajectory &trj, std::string filename);
+  void calculateDescriptions(modelpkg::Trajectory &trj,
+                             cv::Ptr<cv::Feature2D> descriptor);
+  void saveDescriptions(const modelpkg::Trajectory &trj,
+                        std::string filename);
 
 
 
   class Exception: public std::runtime_error
   {
-   public:
+  public:
     Exception(const std::string &what):
       std::runtime_error("TrajectoryLoader: " + what)
     {}
@@ -72,13 +79,13 @@ class TrajectoryLoader
 
   class NoFileExist: public Exception
   {
-   public:
+  public:
     NoFileExist(const std::string filename):
       Exception("Cannot open file: " + filename)
     {}
   };
 
- private:
+private:
   static modelpkg::Map loadMapFromRow(std::vector<std::string> params);
 };
 

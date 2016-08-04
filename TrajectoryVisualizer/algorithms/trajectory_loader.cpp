@@ -15,6 +15,7 @@ TrajectoryLoader::TrajectoryLoader()
 
 Trajectory TrajectoryLoader::loadTrajectory(string trj_idx_path)
 {
+  setProgressBarTitle("Loading trajectory", true);
   Trajectory trj;
 
   auto parsed_csv = utils::csvtools::read_csv(trj_idx_path);
@@ -22,6 +23,7 @@ Trajectory TrajectoryLoader::loadTrajectory(string trj_idx_path)
   size_t found = trj_idx_path.find_last_of("/\\");
   string folder = trj_idx_path.substr(0,found);
 
+  int count = 0;
   for (auto &row : parsed_csv)
   {
     if (row[0] == "Path")
@@ -31,6 +33,8 @@ Trajectory TrajectoryLoader::loadTrajectory(string trj_idx_path)
     row[0] = folder + "/" + row[0];
     Map frame = loadMapFromRow(row);
     trj.pushBackFrame(frame);
+
+    notifyProgressBar(++count + 1, parsed_csv.size());
   }
 
   return trj;
@@ -57,21 +61,21 @@ void TrajectoryLoader::loadOrCalculateKeyPoints(Trajectory &trj,
 
 Map TrajectoryLoader::loadMapFromRow(vector<string> params)
 {
-    //need for atof, because '.' is not delimeter of float part
-    char *saved_locale;
-    saved_locale = setlocale(LC_NUMERIC, "C");
+  //need for atof, because '.' is not delimeter of float part
+  char *saved_locale;
+  saved_locale = setlocale(LC_NUMERIC, "C");
 
 
-    double x_m = atof(params[1].c_str());
-    double y_m = atof(params[2].c_str());
+  double x_m = atof(params[1].c_str());
+  double y_m = atof(params[2].c_str());
 
-    double angle = atof(params[3].c_str());
-    double m_per_px = atof(params[4].c_str());
+  double angle = atof(params[3].c_str());
+  double m_per_px = atof(params[4].c_str());
 
 
-    setlocale(LC_NUMERIC, saved_locale);
+  setlocale(LC_NUMERIC, saved_locale);
 
-    return Map(params[0], x_m, y_m, angle, m_per_px);
+  return Map(params[0], x_m, y_m, angle, m_per_px);
 }
 
 /*
@@ -85,6 +89,8 @@ void TrajectoryLoader::loadKeyPoints(Trajectory &trj, string filename)
   {
     throw TrajectoryLoader::NoFileExist(filename);
   }
+
+  setProgressBarTitle("Loading key points");
 
   //maybe format checking
   size_t framesCount = 0;
@@ -102,26 +108,26 @@ void TrajectoryLoader::loadKeyPoints(Trajectory &trj, string filename)
       in.read(reinterpret_cast<char*>(&kp), sizeof(kp));
       mutable_frame_kps.push_back(kp);
     }
+
+    notifyProgressBar(frame_num + 1, framesCount);
   }
 }
 
 void TrajectoryLoader::calculateKeyPoints(Trajectory &trj,
-                                         Ptr<Feature2D> detector)
+                                          Ptr<Feature2D> detector)
 {
+  setProgressBarTitle("Calculating key points");
   for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
   {
     const auto &frame = trj.getFrame(frame_num);
     auto &mutable_frame_kps = trj.getFrameAllKeyPoints(frame_num);
 
     detector->detect(frame.image, mutable_frame_kps);
+
+    notifyProgressBar(frame_num + 1, trj.getFramesCount());
   }
 }
 
-/**
- * @brief TrajectoryLoader::sortKeyPointsByResponse
- * This method isn't sort descriptions
- * @param trj
- */
 void TrajectoryLoader::sortKeyPointsByResponse(Trajectory &trj)
 {
   for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
@@ -138,23 +144,30 @@ void TrajectoryLoader::saveKeyPoints(const Trajectory &trj, string filename)
 {
   ofstream out(filename, ios::binary);
 
+  setProgressBarTitle("Saving key points");
+
   size_t framesCount = trj.getFramesCount();
   out.write(reinterpret_cast<char*>(&framesCount), sizeof(framesCount));
   for (size_t frame_num = 0; frame_num < framesCount; frame_num++)
   {
-      const auto &frame_key_points = trj.getFrameAllKeyPoints(frame_num);
+    const auto &frame_key_points = trj.getFrameAllKeyPoints(frame_num);
 
-      size_t keyPointsCount = frame_key_points.size();
-      out.write(reinterpret_cast<char*>(&keyPointsCount), sizeof(keyPointsCount));
-      for (size_t kp_num = 0; kp_num < keyPointsCount; kp_num++)
-      {
-          out.write(reinterpret_cast<const char*>(&frame_key_points[kp_num]),
-                    sizeof(frame_key_points[kp_num]));
-      }
+    size_t keyPointsCount = frame_key_points.size();
+    out.write(reinterpret_cast<char*>(&keyPointsCount), sizeof(keyPointsCount));
+    for (size_t kp_num = 0; kp_num < keyPointsCount; kp_num++)
+    {
+      out.write(reinterpret_cast<const char*>(&frame_key_points[kp_num]),
+                sizeof(frame_key_points[kp_num]));
+    }
+
+    notifyProgressBar(frame_num + 1, framesCount);
   }
 }
 
-void TrajectoryLoader::loadOrCalculateDescriptions(Trajectory &trj, string filename, cv::Ptr<Feature2D> descriptor, bool save)
+void TrajectoryLoader::loadOrCalculateDescriptions(Trajectory &trj,
+                                                   string filename,
+                                                   cv::Ptr<Feature2D> descriptor,
+                                                   bool save)
 {
   try
   {
@@ -179,8 +192,10 @@ void TrajectoryLoader::loadDescriptions(Trajectory &trj, string filename)
   ifstream in(filename, ios::binary);
   if (!in)
   {
-      throw TrajectoryLoader::NoFileExist(filename);
+    throw TrajectoryLoader::NoFileExist(filename);
   }
+
+  setProgressBarTitle("Loading descriptions");
 
   //maybe format checking
   size_t framesCount = 0;
@@ -189,13 +204,13 @@ void TrajectoryLoader::loadDescriptions(Trajectory &trj, string filename)
   {
     int rows = 0;
     in.read(reinterpret_cast<char*>(&rows),
-              sizeof(rows));
+            sizeof(rows));
     int cols = 0;
     in.read(reinterpret_cast<char*>(&cols),
-              sizeof(cols));
+            sizeof(cols));
     int type = 0;
     in.read(reinterpret_cast<char*>(&type),
-              sizeof(type));
+            sizeof(type));
 
     cv::Mat descriptions(rows, cols, type);
 
@@ -203,25 +218,33 @@ void TrajectoryLoader::loadDescriptions(Trajectory &trj, string filename)
             rows*cols*descriptions.elemSize());
 
     trj.setFrameDescription(frame_num, descriptions);
+
+    notifyProgressBar(frame_num + 1, framesCount);
   }
 }
 
 void TrajectoryLoader::calculateDescriptions(Trajectory &trj,
                                              Ptr<Feature2D> descriptor)
 {
+  setProgressBarTitle("Calculating descriptions");
+
   for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
   {
-      Mat descr;
-      descriptor->compute(trj.getFrame(frame_num).image,
-                          trj.getFrameAllKeyPoints(frame_num), descr);
+    Mat descr;
+    descriptor->compute(trj.getFrame(frame_num).image,
+                        trj.getFrameAllKeyPoints(frame_num), descr);
 
-      trj.setFrameDescription(frame_num, descr);
+    trj.setFrameDescription(frame_num, descr);
+
+    notifyProgressBar(frame_num + 1, trj.getFramesCount());
   }
 }
 
 void TrajectoryLoader::saveDescriptions(const Trajectory &trj, string filename)
 {
   ofstream out(filename, ios::binary);
+
+  setProgressBarTitle("Saving descriptions");
 
   size_t framesCount = trj.getFramesCount();
   out.write(reinterpret_cast<char*>(&framesCount), sizeof(framesCount));
@@ -241,5 +264,7 @@ void TrajectoryLoader::saveDescriptions(const Trajectory &trj, string filename)
 
     out.write(reinterpret_cast<char*>(frame_description.data),
               rows*cols*frame_description.elemSize());
+
+    notifyProgressBar(frame_num + 1, framesCount);
   }
 }
