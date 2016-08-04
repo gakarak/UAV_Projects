@@ -13,10 +13,12 @@ class Transformator
  public:
   Transformator();
 
-/*static std::vector<cv::Point2f> transform(const std::vector<cv::Point2f> &pts,
-                                            const cv::Point2f &center_shift,
-                                            double angle, double scale,
-                                            const cv::Point2f &scaled_shift);*/
+  /**
+   * @brief Transformator::transform
+   * @param pts
+   * @param transformations list of successive transformations
+   * @return
+   */
   static cv::Point2f transform(const cv::Point2f &pt,
                                std::initializer_list<cv::Mat> transformations);
   static cv::Point2f transform(const cv::Point2f &pt,

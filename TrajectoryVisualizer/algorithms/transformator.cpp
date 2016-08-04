@@ -13,28 +13,6 @@ Transformator::Transformator()
 
 }
 
-/**
- * @brief Transformator::transform
- * translate -center_shift, then rotate, then scale, then shift in scaled units
- * @param pts
- * @param center_shift
- * @param angle
- * @param scale
- * @param scaled_shift
- * @return
- */
-/*
-vector<Point2f> Transformator::transform(const vector<Point2f> &pts,
-                                                const Point2f &center_shift,
-                                                double angle, double scale,
-                                                const Point2f &scaled_shift)
-{
-    Mat transformation = getTranslate(scaled_shift).mul(getScale(scale).mul(
-                            getRotate(angle).mul(getTranslate(-center_shift))));
-
-    return Transformator::transform(pts, transformation);
-}*/
-
 Point2f Transformator::transform(const cv::Point2f &pt,
                                  initializer_list<Mat> transformations)
 {
@@ -48,12 +26,6 @@ Point2f Transformator::transform(const Point2f &pt, const Mat &transformation)
   return Transformator::transform(wrap, transformation).front();
 }
 
-/**
- * @brief Transformator::transform
- * @param pts
- * @param transformations list of successive transformations
- * @return
- */
 vector<Point2f> Transformator::transform(const vector<Point2f> &pts,
                                          initializer_list<Mat> transformations)
 {
