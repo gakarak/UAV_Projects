@@ -18,8 +18,10 @@ class FeatureBasedRestorer : public ILocationRestorer
   using MatcherPtr = cv::Ptr<cv::DescriptorMatcher>;
 
   FeatureBasedRestorer() = delete;
-  FeatureBasedRestorer(cv::Ptr<cv::FeatureDetector> detector,
-                       cv::Ptr<cv::DescriptorExtractor> descriptor);
+  FeatureBasedRestorer(DetectorPtr detector,
+                       DescriptorPtr descriptor,
+                       MatcherPtr matcher,
+                       size_t max_key_points_per_frame = 0);
 
   /**
    * @brief addFrame - adds precomputed key points and descrs, don't check them.
@@ -65,7 +67,8 @@ class FeatureBasedRestorer : public ILocationRestorer
 
   DetectorPtr   getDetector() const;
   DescriptorPtr getDescriptor() const;
-//  MatcherPtr    getMatcher() const;
+  MatcherPtr    getMatcher() const;
+  size_t        getMaxKeyPointsPerFrame() const;
 
  protected:
   void transformKeyPointsPosition(KeyPointsList &key_points,
@@ -84,6 +87,9 @@ class FeatureBasedRestorer : public ILocationRestorer
  private:
   DetectorPtr detector;
   DescriptorPtr descriptor;
+  MatcherPtr matcher;
+
+  const size_t max_key_points_per_frame;
 };
 
 }

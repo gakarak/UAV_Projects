@@ -4,8 +4,11 @@
 using namespace algorithmspkg;
 
 FeatureBasedRestorer::FeatureBasedRestorer(DetectorPtr detector,
-                                           DescriptorPtr descriptor)
-  : detector(detector), descriptor(descriptor)
+                                           DescriptorPtr descriptor,
+                                           MatcherPtr matcher,
+                                           size_t max_key_points_per_frame)
+  : detector(detector), descriptor(descriptor), matcher(matcher),
+    max_key_points_per_frame(max_key_points_per_frame)
 {
 }
 
@@ -57,6 +60,16 @@ FeatureBasedRestorer::DescriptorPtr FeatureBasedRestorer::getDescriptor() const
   return descriptor;
 }
 
+FeatureBasedRestorer::MatcherPtr FeatureBasedRestorer::getMatcher() const
+{
+  return matcher;
+}
+
+size_t FeatureBasedRestorer::getMaxKeyPointsPerFrame() const
+{
+  return max_key_points_per_frame;
+}
+
 void FeatureBasedRestorer::transformKeyPointsPosition(
                     FeatureBasedRestorer::KeyPointsList &key_points,
                     const cv::Point2f &image_center,
@@ -77,7 +90,7 @@ void FeatureBasedRestorer::transformKeyPointsPosition(
                                });
 
 
-  for (int i = 0; i < to_transform.size(); i++)
+  for (size_t i = 0; i < to_transform.size(); i++)
   {
     key_points[i].pt = to_transform[i];
     key_points[i].angle += angle;

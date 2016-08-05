@@ -13,8 +13,8 @@ RestorerByCloud::RestorerByCloud(FeatureBasedRestorer::DetectorPtr detector,
                                  FeatureBasedRestorer::DescriptorPtr descriptor,
                                  FeatureBasedRestorer::MatcherPtr matcher,
                                  size_t max_key_points_per_frame)
-  : FeatureBasedRestorer(detector, descriptor), matcher(matcher),
-    max_key_points_per_frame(max_key_points_per_frame)
+  : FeatureBasedRestorer(detector, descriptor, matcher,
+                         max_key_points_per_frame)
 {
 }
 
@@ -31,10 +31,10 @@ void RestorerByCloud::addFrame(const cv::Mat &frame,
             []( const cv::KeyPoint &left, const cv::KeyPoint &right ) ->
             bool { return left.response > right.response; });
 
-  if (max_key_points_per_frame != 0 &&
-      max_key_points_per_frame < key_points.size())
+  if (getMaxKeyPointsPerFrame() != 0 &&
+      getMaxKeyPointsPerFrame() < key_points.size())
   {
-    key_points.resize(max_key_points_per_frame);
+    key_points.resize(getMaxKeyPointsPerFrame());
   }
   key_points.shrink_to_fit();
 
@@ -44,7 +44,7 @@ void RestorerByCloud::addFrame(const cv::Mat &frame,
   getDescriptor()->compute(frame, frames_key_points.back(),
                      descriptions);
 
-  matcher->add(descriptions);
+  getMatcher()->add(descriptions);
 
   cv::Point2f image_center(frame.cols/2., frame.rows/2.);
   transformKeyPointsPosition(key_points, image_center,
@@ -58,7 +58,7 @@ void RestorerByCloud::addFrame(const cv::Point2f &image_center,
                                double angle, double scale)
 {
   frames_key_points.push_back(key_points);
-  matcher->add(descriptions);
+  getMatcher()->add(descriptions);
 
   transformKeyPointsPosition(frames_key_points.back(), image_center,
                              pos, angle, scale);
@@ -76,7 +76,7 @@ double RestorerByCloud::recoverLocation(const cv::Point2f &frame_center,
     return 0;
   }
 
-  matcher->match(query_descriptions, rough_matches);
+  getMatcher()->match(query_descriptions, rough_matches);
 
   //prepare points for findHomography
   std::vector<cv::Point2f> query_pts;
@@ -126,7 +126,7 @@ const FeatureBasedRestorer::KeyPointsList&
 const cv::Mat&
             RestorerByCloud::getFrameDescriptions(size_t frame_num) const
 {
-  return matcher->getTrainDescriptors()[frame_num];
+  return getMatcher()->getTrainDescriptors()[frame_num];
 }
 
 void RestorerByCloud::save(std::string filename)
@@ -137,9 +137,4 @@ void RestorerByCloud::save(std::string filename)
 void RestorerByCloud::load(std::string filename)
 {
   std::clog << "No implementation for loading restorerByCloud" << std::endl;
-}
-
-FeatureBasedRestorer::MatcherPtr RestorerByCloud::getMatcher() const
-{
-  return matcher;
 }

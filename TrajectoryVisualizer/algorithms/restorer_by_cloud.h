@@ -32,17 +32,10 @@ public:
 
   void save(std::string filename) override;
   void load(std::string filename) override;
-
-  MatcherPtr    getMatcher() const;
-
 private:
   std::vector<KeyPointsList>  frames_key_points;
 
   MatchesList rough_matches;
-
-  MatcherPtr matcher;
-
-  const size_t max_key_points_per_frame;
 };
 
 }
