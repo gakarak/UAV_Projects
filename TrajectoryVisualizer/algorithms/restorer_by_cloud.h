@@ -33,6 +33,9 @@ public:
   void save(std::string filename) override;
   void load(std::string filename) override;
 private:
+  double calculateConfidence() noexcept;
+  std::vector<char> homography_mask;
+
   std::vector<KeyPointsList>  frames_key_points;
 
   MatchesList rough_matches;

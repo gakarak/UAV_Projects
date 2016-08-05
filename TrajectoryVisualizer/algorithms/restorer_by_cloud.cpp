@@ -87,9 +87,9 @@ double RestorerByCloud::recoverLocation(const cv::Point2f &frame_center,
     query_pts.push_back(query_key_points[match.queryIdx].pt);
   }
 
-  std::vector<char> mask;
+  homography_mask.clear();
   homography = cv::findHomography(query_pts, train_pts,
-                                         cv::RANSAC, 3, mask);
+                                         cv::RANSAC, 3, homography_mask);
 
   cv::Point2f shift;
   Transformator::getParams(homography, shift, angle, scale);
@@ -97,18 +97,28 @@ double RestorerByCloud::recoverLocation(const cv::Point2f &frame_center,
   pos =  Transformator::transform(frame_center, homography);
 
   matches.clear();
-  size_t count = 0;
-  for (size_t i = 0; i < mask.size(); i++)
+  for (size_t i = 0; i < homography_mask.size(); i++)
   {
-    if (mask[i])
+    if (homography_mask[i])
     {
-      count++;
       matches.push_back(rough_matches[i]);
     }
   }
-  double score = count / double(mask.size());
 
-  return score;
+  return calculateConfidence();
+}
+
+
+double RestorerByCloud::calculateConfidence() noexcept
+{
+  if (!rough_matches.empty())
+  {
+    return matches.size() / double(rough_matches.size());
+  }
+  else
+  {
+    return 0;
+  }
 }
 
 size_t RestorerByCloud::getFramesCount() const
