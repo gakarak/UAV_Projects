@@ -91,21 +91,31 @@ double RestorerByCloud::recoverLocation(const cv::Point2f &frame_center,
   homography = cv::findHomography(query_pts, train_pts,
                                          cv::RANSAC, 3, homography_mask);
 
-  cv::Point2f shift;
-  Transformator::getParams(homography, shift, angle, scale);
-
-  pos =  Transformator::transform(frame_center, homography);
-
-  matches.clear();
-  for (size_t i = 0; i < homography_mask.size(); i++)
+  if (!homography.empty())
   {
-    if (homography_mask[i])
-    {
-      matches.push_back(rough_matches[i]);
-    }
-  }
+    cv::Point2f shift;
+    Transformator::getParams(homography, shift, angle, scale);
 
-  return calculateConfidence();
+    pos =  Transformator::transform(frame_center, homography);
+
+    matches.clear();
+    for (size_t i = 0; i < homography_mask.size(); i++)
+    {
+      if (homography_mask[i])
+      {
+        matches.push_back(rough_matches[i]);
+      }
+    }
+
+    return calculateConfidence();
+  }
+  else
+  {
+    pos = cv::Point2f(0, 0);
+    angle = scale = 0;
+
+    return 0;
+  }
 }
 
 
