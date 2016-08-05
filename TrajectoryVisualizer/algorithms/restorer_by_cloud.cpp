@@ -78,10 +78,9 @@ double RestorerByCloud::recoverLocation(const cv::Point2f &frame_center,
 
   getMatcher()->match(query_descriptions, rough_matches);
 
-  //prepare points for findHomography
-  std::vector<cv::Point2f> query_pts;
-  std::vector<cv::Point2f> train_pts;
 
+  train_pts.clear();
+  query_pts.clear();
   for (const cv::DMatch &match: rough_matches)
   {
     train_pts.push_back(frames_key_points[match.imgIdx][match.trainIdx].pt);

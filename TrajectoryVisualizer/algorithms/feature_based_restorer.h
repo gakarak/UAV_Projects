@@ -79,6 +79,10 @@ class FeatureBasedRestorer : public ILocationRestorer
   KeyPointsList               query_key_points;
   cv::Mat                     query_descriptions;
 
+  //points for findHomography
+  std::vector<cv::Point2f> query_pts;
+  std::vector<cv::Point2f> train_pts;
+
   cv::Mat                     homography;
   MatchesList                 matches;
 
