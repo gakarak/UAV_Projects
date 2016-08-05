@@ -20,7 +20,8 @@ class FeatureBasedRestorer : public ILocationRestorer
   FeatureBasedRestorer() = delete;
   FeatureBasedRestorer(DetectorPtr detector,
                        DescriptorPtr descriptor,
-                       MatcherPtr matcher,
+                       MatcherPtr matcher = cv::DescriptorMatcher::
+                                                create("FlannBased"),
                        size_t max_key_points_per_frame = 0);
 
   /**
