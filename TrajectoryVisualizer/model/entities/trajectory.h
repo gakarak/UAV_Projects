@@ -22,6 +22,7 @@ struct Trajectory
   size_t getFramesCount() const  { return frames.size(); }
 
   std::vector<cv::KeyPoint>&  getFrameAllKeyPoints(int frame_num) { return key_points[frame_num]; }
+  cv::Mat&                    getFrameDescription(int frame_num) { return descriptions[frame_num]; }
 
   Map&                          getFrame(int frame_num)                           { return frames[frame_num]; }
   const Map&                          getFrame(int frame_num)                     const { return frames[frame_num]; }
