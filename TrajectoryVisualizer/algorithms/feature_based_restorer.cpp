@@ -22,6 +22,17 @@ void FeatureBasedRestorer::setQueryDescriptions(const cv::Mat &descriptions)
   query_descriptions = descriptions;
 }
 
+const FeatureBasedRestorer::KeyPointsList
+              &FeatureBasedRestorer::getQueryKeyPoints() const
+{
+  return query_key_points;
+}
+
+const cv::Mat &FeatureBasedRestorer::getQueryDescriptions() const
+{
+  return query_descriptions;
+}
+
 double FeatureBasedRestorer::recoverLocation(const cv::Mat &query_frame,
                                              cv::Point2f &pos,
                                              double &angle,
