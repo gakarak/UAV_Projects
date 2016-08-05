@@ -24,7 +24,8 @@ class MainController
   MainController();
 
   void loadOrCalculateModel(int trj_num,
-                            int detector_idx, int descriptor_idx);
+                            int detector_idx, int descriptor_idx,
+                            size_t max_key_points_per_frame = 0);
   void calculateMatches();
   void recoverTrajectory(double score_thres);
 

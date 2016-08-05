@@ -333,6 +333,24 @@
            <item>
             <widget class="QComboBox" name="descriptor_combo"/>
            </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>Max KeyPoints:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="max_key_points_spin">
+               <property name="maximum">
+                <number>10000</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
           </layout>
          </widget>
         </item>

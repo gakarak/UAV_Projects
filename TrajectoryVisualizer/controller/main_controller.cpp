@@ -40,7 +40,8 @@ MainController::MainController()
 }
 
 void MainController::loadOrCalculateModel(int trj_num,
-                                          int detector_idx, int descriptor_idx)
+                                          int detector_idx, int descriptor_idx,
+                                          size_t max_key_points_per_frame)
 {
   ConfigSingleton &cfg = ConfigSingleton::getInstance();
   Trajectory &trj = model->getTrajectory(trj_num);
@@ -56,11 +57,25 @@ void MainController::loadOrCalculateModel(int trj_num,
 
   trj_loader.loadOrCalculateKeyPoints(trj, path_to_kp_bin,
                                              detectors[detector_idx], true);
-  trj_loader.sortKeyPointsByResponse(trj);
+  trj_loader.sortKeyPointsByResponse(trj, max_key_points_per_frame);
 
+  bool isAllKeyPoints = max_key_points_per_frame == 0;
   trj_loader.loadOrCalculateDescriptions(trj, path_to_descr_bin,
                                                 descriptors[descriptor_idx],
-                                                true);
+                                                isAllKeyPoints);
+  if (!isAllKeyPoints)
+  {//check for right descriptions, otherwise truncate to key_points size
+    for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
+    {
+      const auto &kps = trj.getFrameAllKeyPoints(frame_num);
+      auto &descrs = trj.getFrameDescription(frame_num);
+      if (kps.size() != descrs.rows)
+      {
+        cv::Rect roi;
+        descrs = descrs(cv::Rect(0, 0, descrs.cols, kps.size()));
+      }
+    }
+  }
 
   //preparing trajectory recover
   RestorerPtr &restorer = trj_recovers[trj_num];
@@ -108,10 +123,11 @@ void MainController::calculateMatches()
   cv::Point2f pos;
   double angle;
   double scale;
-  restorer->recoverLocation(query_frame.image_center,
-                            pos, angle, scale);
+  double confidence = restorer->recoverLocation(query_frame.image_center,
+                                                pos, angle, scale);
 
-  cout << "Pos: " << pos <<
+  cout << "Confidence: " << confidence <<
+          "\tPos: " << pos <<
           "\tAngle: " << angle <<
           "\tScale: " << scale << endl;
 
@@ -282,7 +298,7 @@ void MainController::showKeyPointsNew(int trj_num)
     for (size_t i = 0; i < restorer->getFramesCount(); i++)
     {
       auto kps = restorer->getFrameKeyPoints(i);
-      for (size_t kp_num = 0; kp_num < min(kps.size(), (size_t)100); kp_num++)
+      for (size_t kp_num = 0; kp_num < min(kps.size(), (size_t)500); kp_num++)
       {
         auto &kp = kps[kp_num];
         view->getTrajectoryItem(trj_num).addKeyPointNew(
@@ -304,7 +320,8 @@ void MainController::showMatches()
   int to_trj_num = isFirstMatchingOnSecond? 1: 0;
 
   int frame_num = trajectories_selected_frames[from_trj_num][0];
-  Trajectory &from_trj = model->getTrajectory(from_trj_num);
+  auto &from_frame = model->getTrajectory(from_trj_num).getFrame(frame_num);
+
   RestorerPtr &restorer = trj_recovers[to_trj_num];
   auto &matches = restorer->getLastMatches();
 
@@ -314,10 +331,15 @@ void MainController::showMatches()
     const cv::DMatch &match = matches[match_num];
     cv::Point2f to_pt = restorer->getFrameKeyPoints(
                                             match.imgIdx)[match.trainIdx].pt;
-    cv::Point2f from_pt = from_trj.getFrameKeyPoint(frame_num,
-                                                    match.queryIdx).pt;
+    cv::Point2f from_pt = restorer->getQueryKeyPoints()[match.queryIdx].pt;
 
-    from_pt = Transformator::transform(from_pt, restorer->getLastHomography());
+    //from_pt = Transformator::transform(from_pt, restorer->getLastHomography());
+    from_pt = Transformator::transform(from_pt, {//transformations
+                                    Transformator::getTranslate(-from_frame.image_center),
+                                    Transformator::getRotate(from_frame.angle),
+                                    Transformator::getScale(from_frame.m_per_px),
+                                    Transformator::getTranslate(from_frame.pos_m)
+                                 });
 
     if (isFirstMatchingOnSecond)
     {

@@ -229,11 +229,13 @@ void viewpkg::MainView::on_load_ini_btn_clicked()
 
 void viewpkg::MainView::on_calculate_btn_clicked()
 {
-    int detector_idx = ui->detector_combo->currentIndex();
-    int descriptor_idx = ui->descriptor_combo->currentIndex();
+//    int detector_idx = ui->detector_combo->currentIndex();
+//    int descriptor_idx = ui->descriptor_combo->currentIndex();
 
-    controller->loadOrCalculateModel(0, detector_idx, descriptor_idx);
-    controller->loadOrCalculateModel(1, detector_idx, descriptor_idx);
+//    controller->loadOrCalculateModel(0, detector_idx, descriptor_idx);
+//    controller->loadOrCalculateModel(1, detector_idx, descriptor_idx);
+  on_calc_first_trj_btn_clicked();
+  on_calc_sec_trj_btn_clicked();
 }
 
 
@@ -241,16 +243,20 @@ void viewpkg::MainView::on_calc_first_trj_btn_clicked()
 {
   int detector_idx = ui->detector_combo->currentIndex();
   int descriptor_idx = ui->descriptor_combo->currentIndex();
+  size_t max_key_points_per_frame = ui->max_key_points_spin->value();
 
-  controller->loadOrCalculateModel(0, detector_idx, descriptor_idx);
+  controller->loadOrCalculateModel(0, detector_idx, descriptor_idx,
+                                   max_key_points_per_frame);
 }
 
 void viewpkg::MainView::on_calc_sec_trj_btn_clicked()
 {
   int detector_idx = ui->detector_combo->currentIndex();
   int descriptor_idx = ui->descriptor_combo->currentIndex();
+  size_t max_key_points_per_frame = ui->max_key_points_spin->value();
 
-  controller->loadOrCalculateModel(1, detector_idx, descriptor_idx);
+  controller->loadOrCalculateModel(1, detector_idx, descriptor_idx,
+                                   max_key_points_per_frame);
 }
 
 void viewpkg::MainView::on_match_btn_clicked()
