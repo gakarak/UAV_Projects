@@ -128,7 +128,8 @@ void TrajectoryLoader::calculateKeyPoints(Trajectory &trj,
   }
 }
 
-void TrajectoryLoader::sortKeyPointsByResponse(Trajectory &trj)
+void TrajectoryLoader::sortKeyPointsByResponse(Trajectory &trj,
+                                               size_t max_key_points_per_frame)
 {
   for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
   {
@@ -137,6 +138,13 @@ void TrajectoryLoader::sortKeyPointsByResponse(Trajectory &trj)
     std::sort(mutable_frame_kps.begin(), mutable_frame_kps.end(),
               []( const cv::KeyPoint &left, const cv::KeyPoint &right ) ->
               bool { return left.response > right.response; });
+
+    if (max_key_points_per_frame != 0 &&
+        max_key_points_per_frame < mutable_frame_kps.size())
+    {
+      mutable_frame_kps.resize(max_key_points_per_frame);
+      mutable_frame_kps.shrink_to_fit();
+    }
   }
 }
 

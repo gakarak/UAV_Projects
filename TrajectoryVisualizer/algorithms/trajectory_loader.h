@@ -41,7 +41,8 @@ public:
    * This method isn't sort descriptions
    * @param trj
    */
-  void sortKeyPointsByResponse(modelpkg::Trajectory &trj);
+  void sortKeyPointsByResponse(modelpkg::Trajectory &trj,
+                               size_t max_key_points_per_frame = 0);
   void saveKeyPoints(const modelpkg::Trajectory &trj,
                      std::string filename);
 
