@@ -49,6 +49,7 @@ namespace viewpkg
 
         void setMainMap(QPixmap map, double meter_per_pixel);
 
+        void setAlgorithms(const std::vector<QString> &algorithms_names);
         void setDetectors(const std::vector<QString> &detectors_names);
         void setDescriptors(const std::vector<QString> &descriptors_names);
 

@@ -13,7 +13,7 @@
 #include "view/main_view.h"
 #include "model/main_model.h"
 #include "algorithms/trajectory_loader.h"
-#include "algorithms/restorer_by_cloud.h"
+#include "algorithms/feature_based_restorer.h"
 
 namespace controllerpkg
 {
@@ -23,7 +23,7 @@ class MainController
  public:
   MainController();
 
-  void loadOrCalculateModel(int trj_num,
+  void loadOrCalculateModel(int trj_num, int algorithm_idx,
                             int detector_idx, int descriptor_idx,
                             size_t max_key_points_per_frame = 0);
   void calculateMatches();
@@ -70,6 +70,7 @@ class MainController
   };
 
  private:
+  void initAlgorithms();
   void initDetectors();
   void initDescriptors();
 
@@ -87,6 +88,8 @@ class MainController
   std::shared_ptr<modelpkg::MainModel> model;
 
   algorithmspkg::TrajectoryLoader trj_loader;
+
+  std::vector<QString> algorithms_names;
 
   std::vector<QString> detectors_names;
   std::vector<cv::Ptr<cv::Feature2D>> detectors;

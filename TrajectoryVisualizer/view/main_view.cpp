@@ -127,6 +127,15 @@ void MainView::setMainMap(QPixmap map, double meter_per_pixel)
     scene.getMainMap().setScale(meter_per_pixel);
 }
 
+void MainView::setAlgorithms(const vector<QString> &algorithms_names)
+{
+  ui->algorithm_combo->clear();
+  for (const auto &name: algorithms_names)
+  {
+      ui->algorithm_combo->addItem(name);
+  }
+}
+
 void MainView::setDetectors(const vector<QString> &detectors_names)
 {
     ui->detector_combo->clear();
@@ -241,21 +250,25 @@ void viewpkg::MainView::on_calculate_btn_clicked()
 
 void viewpkg::MainView::on_calc_first_trj_btn_clicked()
 {
+  int algorithm_idx = ui->algorithm_combo->currentIndex();
   int detector_idx = ui->detector_combo->currentIndex();
   int descriptor_idx = ui->descriptor_combo->currentIndex();
   size_t max_key_points_per_frame = ui->max_key_points_spin->value();
 
-  controller->loadOrCalculateModel(0, detector_idx, descriptor_idx,
+  controller->loadOrCalculateModel(0, algorithm_idx,
+                                   detector_idx, descriptor_idx,
                                    max_key_points_per_frame);
 }
 
 void viewpkg::MainView::on_calc_sec_trj_btn_clicked()
 {
+  int algorithm_idx = ui->algorithm_combo->currentIndex();
   int detector_idx = ui->detector_combo->currentIndex();
   int descriptor_idx = ui->descriptor_combo->currentIndex();
   size_t max_key_points_per_frame = ui->max_key_points_spin->value();
 
-  controller->loadOrCalculateModel(1, detector_idx, descriptor_idx,
+  controller->loadOrCalculateModel(1, algorithm_idx,
+                                   detector_idx, descriptor_idx,
                                    max_key_points_per_frame);
 }
 

@@ -23,6 +23,8 @@
 #include "config_singleton.h"
 #include "algorithms/trajectory_loader.h"
 #include "algorithms/transformator.h"
+#include "algorithms/restorer_by_cloud.h"
+#include "algorithms/restorer_by_frame.h"
 
 using namespace std;
 using namespace modelpkg;
@@ -31,15 +33,16 @@ using namespace algorithmspkg;
 
 MainController::MainController()
 {
-    initDetectors();
-    initDescriptors();
-    trj_recovers.assign(2, RestorerPtr());
+  initAlgorithms();
+  initDetectors();
+  initDescriptors();
+  trj_recovers.assign(2, RestorerPtr());
 
-    trajectories_selected_frames.assign(2, vector<int>());
-    accumulative_trj_cuts.assign(2, vector<int>());
+  trajectories_selected_frames.assign(2, vector<int>());
+  accumulative_trj_cuts.assign(2, vector<int>());
 }
 
-void MainController::loadOrCalculateModel(int trj_num,
+void MainController::loadOrCalculateModel(int trj_num, int algorithm_idx,
                                           int detector_idx, int descriptor_idx,
                                           size_t max_key_points_per_frame)
 {
@@ -79,8 +82,28 @@ void MainController::loadOrCalculateModel(int trj_num,
 
   //preparing trajectory recover
   RestorerPtr &restorer = trj_recovers[trj_num];
-  restorer = make_shared<RestorerByCloud>(detectors[detector_idx],
-                                          descriptors[descriptor_idx]);
+  if (algorithms_names[algorithm_idx] == "FullTrjCloud")
+  {
+    restorer = make_shared<RestorerByCloud>(detectors[detector_idx],
+                                            descriptors[descriptor_idx],
+                                    cv::DescriptorMatcher::create("FlannBased"),
+                                            max_key_points_per_frame);
+  }
+  else if (algorithms_names[algorithm_idx] == "SingleFrame")
+  {
+    restorer = make_shared<RestorerByFrame>(detectors[detector_idx],
+                                            descriptors[descriptor_idx],
+                                    cv::DescriptorMatcher::create("FlannBased"),
+                                            max_key_points_per_frame);
+  }
+  else
+  {
+    //... what?
+    clog << "Error: algorithm " << algorithms_names[algorithm_idx].toStdString()
+            << " not found" << endl;
+    view->setEnabledDataManipulating(false);
+    return;
+  }
 
   for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
   {
@@ -412,6 +435,7 @@ void MainController::showException(string what)
 
 void MainController::showView()
 {
+    view->setAlgorithms(algorithms_names);
     view->setDetectors(detectors_names);
     view->setDescriptors(descriptors_names);
     view->setEnabledDataCalculating(false);
@@ -469,6 +493,12 @@ void MainController::calculateFramesQuality(int trj_num)
 
       trj.setFrameQuality(frame_num, quality);
   }
+}
+
+void MainController::initAlgorithms()
+{
+  algorithms_names.push_back("FullTrjCloud");
+  algorithms_names.push_back("SingleFrame");
 }
 
 void MainController::initDetectors()
