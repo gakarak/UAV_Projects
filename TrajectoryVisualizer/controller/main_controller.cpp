@@ -298,7 +298,7 @@ void MainController::showKeyPointsNew(int trj_num)
     for (size_t i = 0; i < restorer->getFramesCount(); i++)
     {
       auto kps = restorer->getFrameKeyPoints(i);
-      for (size_t kp_num = 0; kp_num < min(kps.size(), (size_t)500); kp_num++)
+      for (size_t kp_num = 0; kp_num < min(kps.size(), (size_t)100); kp_num++)
       {
         auto &kp = kps[kp_num];
         view->getTrajectoryItem(trj_num).addKeyPointNew(
