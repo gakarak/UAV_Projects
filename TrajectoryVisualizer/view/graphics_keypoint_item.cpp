@@ -3,9 +3,6 @@
 #include <QPen>
 #include <QBrush>
 
-#define __USE_BSD
-#include <math.h>
-
 using namespace std;
 using namespace viewpkg;
 

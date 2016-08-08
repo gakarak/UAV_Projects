@@ -26,8 +26,8 @@ namespace viewpkg
         QGraphicsLineItem       direction;
 
         QPointF center;
-        double radius;
         double angle;
+        double radius;
     };
 
 }
