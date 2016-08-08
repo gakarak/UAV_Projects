@@ -79,7 +79,7 @@ double RestorerByFrame::recoverLocation(const cv::Point2f &frame_center,
     return 0;
   }
 
-  size_t max_confidence = 0;
+  double max_confidence = 0;
   for (size_t frame_num = 0; frame_num < matchers.size(); frame_num++)
   {
     rough_matches.clear();
@@ -90,7 +90,7 @@ double RestorerByFrame::recoverLocation(const cv::Point2f &frame_center,
     query_pts.clear();
     for (const cv::DMatch &match: rough_matches)
     {
-      train_pts.push_back(frames_key_points[match.imgIdx][match.trainIdx].pt);
+      train_pts.push_back(frames_key_points[frame_num][match.trainIdx].pt);
       query_pts.push_back(query_key_points[match.queryIdx].pt);
     }
 
@@ -111,6 +111,7 @@ double RestorerByFrame::recoverLocation(const cv::Point2f &frame_center,
         if (homography_mask[i])
         {
           matches.push_back(rough_matches[i]);
+          matches.back().imgIdx = frame_num;
         }
       }
 
