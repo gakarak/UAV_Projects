@@ -123,7 +123,7 @@ double RestorerByCloud::recoverLocation(const cv::Point2f &frame_center,
 }
 
 
-double RestorerByCloud::calculateConfidence() noexcept
+double RestorerByCloud::calculateConfidence() const noexcept
 {
   if (!rough_matches.empty())
   {

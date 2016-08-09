@@ -126,7 +126,7 @@ double RestorerByFrame::recoverLocation(const cv::Point2f &frame_center,
   return max_confidence;
 }
 
-double RestorerByFrame::calculateConfidence() noexcept
+double RestorerByFrame::calculateConfidence() const noexcept
 {
   if (!homography_mask.empty())
   {
