@@ -29,13 +29,7 @@ Point2f Transformator::transform(const Point2f &pt, const Mat &transformation)
 vector<Point2f> Transformator::transform(const vector<Point2f> &pts,
                                          initializer_list<Mat> transformations)
 {
-  Mat final_transform = *transformations.begin();
-  for (auto it = transformations.begin()+1; it != transformations.end(); it++)
-  {
-    final_transform = (*it)*final_transform;
-  }
-
-  return Transformator::transform(pts, final_transform);
+  return Transformator::transform(pts, getTransformation(transformations));
 }
 
 std::vector<Point2f> Transformator::transform(const std::vector<Point2f> &pts,
@@ -69,6 +63,17 @@ void Transformator::getParams(const Mat &homography,
     shift = cv::Point2f(0, 0);
     angle = scale = 0;
   }
+}
+
+Mat Transformator::getTransformation(std::initializer_list<Mat> transforms)
+{
+  Mat final_transform = *transforms.begin();
+  for (auto it = transforms.begin()+1; it != transforms.end(); it++)
+  {
+    final_transform = (*it)*final_transform;
+  }
+
+  return final_transform;
 }
 
 Mat Transformator::getTranslate(Point2f shift)

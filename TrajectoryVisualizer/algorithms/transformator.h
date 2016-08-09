@@ -31,6 +31,13 @@ class Transformator
   static void getParams(const cv::Mat &homography,
                         cv::Point2f &shift, double &angle, double &scale);
 
+  /**
+   * @brief getTransformation constructs one mat from several (multiply)
+   * @param transformations list of successive transformations
+   * @return result transformation
+   */
+  static cv::Mat getTransformation(std::initializer_list<cv::Mat> transforms);
+
   static cv::Mat getTranslate(cv::Point2f shift);
 
   /**
