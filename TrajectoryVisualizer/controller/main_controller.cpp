@@ -72,7 +72,7 @@ void MainController::loadOrCalculateModel(int trj_num, int algorithm_idx,
     {
       const auto &kps = trj.getFrameAllKeyPoints(frame_num);
       auto &descrs = trj.getFrameDescription(frame_num);
-      if (kps.size() != descrs.rows)
+      if (kps.size() != static_cast<unsigned>(descrs.rows))
       {
         cv::Rect roi;
         descrs = descrs(cv::Rect(0, 0, descrs.cols, kps.size()));
