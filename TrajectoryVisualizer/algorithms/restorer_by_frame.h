@@ -9,6 +9,11 @@ namespace algorithmspkg
 class RestorerByFrame : public FeatureBasedRestorer
 {
 public:
+  //there is must be array<cv::Point2f, 4>, but InputArray accepts only vector
+  //so contract about 4 items in this type
+  //0-(0,0),1(0, height), 2(width, height), 3(width, 0)
+  using FramePolygon = std::vector<cv::Point2f>;
+
   RestorerByFrame() = delete;
   RestorerByFrame(DetectorPtr detector,
                   DescriptorPtr descriptor,
@@ -22,7 +27,7 @@ public:
                 const cv::Mat &descriptions,
                 const cv::Point2f &pos, double angle, double scale) override;
 
-  double recoverLocation(const cv::Point2f &frame_center,
+  double recoverLocation(const cv::Point2f &que_frame_center,
                          cv::Point2f &pos, double &angle, double &scale) override;
 
   size_t getFramesCount() const override;
@@ -33,8 +38,19 @@ public:
   void load(std::string filename) override;
 
 private:
-  double calculateConfidence() const noexcept;
+  double calculateMaskConfidence() const noexcept;
+  double calculateAreaConfidence(const cv::Point2f &query_frame_center,
+                                 int compared_frame_num) const;
+  FramePolygon calculateFramePolygon(const cv::Point2f &frame_center,
+                                     const cv::Point2f &pos, double angle,
+                                     double scale) const;
+  FramePolygon calculateFramePolygon(const cv::Point2f &frame_center,
+                                     const cv::Mat &homography) const;
+
   std::vector<char>           homography_mask;
+
+  std::vector<FramePolygon>   frames_polygons; //in pixels_size*scale
+  std::vector<double>         frames_area;
 
   std::vector<KeyPointsList>  frames_key_points;
   std::vector<MatcherPtr>     matchers; //for each frame

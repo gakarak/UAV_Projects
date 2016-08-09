@@ -1,3 +1,5 @@
+QT += gui
+
 CONFIG += c++11
 QMAKE_CXXFLAGS += -std=c++11
 
@@ -13,7 +15,8 @@ SOURCES += \
     $$PWD/algorithms/feature_based_restorer.cpp \
     $$PWD/algorithms/restorer_by_cloud.cpp \
     $$PWD/algorithms/progress_bar_notifier.cpp \
-    $$PWD/algorithms/restorer_by_frame.cpp
+    $$PWD/algorithms/restorer_by_frame.cpp \
+    $$PWD/utils/gradient_density.cpp
 
 HEADERS  += \
     $$PWD/utils/csv.h \
