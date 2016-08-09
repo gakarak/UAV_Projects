@@ -70,6 +70,10 @@ double RestorerByFrame::recoverLocation(const cv::Point2f &frame_center,
                                         cv::Point2f &pos,
                                         double &angle, double &scale)
 {
+  //points for findHomography
+  static std::vector<cv::Point2f> query_pts;
+  static std::vector<cv::Point2f> train_pts;
+
   pos = cv::Point2f(0, 0);
   angle = scale = 0;
   matches.clear();
