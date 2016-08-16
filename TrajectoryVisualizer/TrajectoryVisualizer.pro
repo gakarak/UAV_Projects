@@ -47,5 +47,4 @@ HEADERS  += \
 
 FORMS    += main_view.ui
 
-DISTFILES += \
-    TrajectoryAlgorithms.pri
+DISTFILES +=
