@@ -78,13 +78,14 @@ void RestorerByFrame::addFrame(const cv::Point2f &image_center,
   frames_area.push_back(cv::contourArea(frames_polygons.back()));
 }
 
-double RestorerByFrame::recoverLocation(const cv::Point2f &que_frame_center,
+double RestorerByFrame::recoverLocation(const cv::Rect2f &que_frame_rect,
                                         cv::Point2f &pos,
                                         double &angle, double &scale)
 {
   //points for findHomography
   static std::vector<cv::Point2f> query_pts;
   static std::vector<cv::Point2f> train_pts;
+  auto best_homography = cv::Mat();
 
   pos = cv::Point2f(0, 0);
   angle = scale = 0;
@@ -125,7 +126,7 @@ double RestorerByFrame::recoverLocation(const cv::Point2f &que_frame_center,
     Transformator::getParams(homography, shift, angle_temp, scale_temp);
 
     double maskConfidence = calculateMaskConfidence();
-    double areaConfidence = calculateAreaConfidence(que_frame_center, frame_num);
+    double areaConfidence = calculateAreaConfidence(que_frame_rect, frame_num);
 
     maskConfidenceOut << maskConfidence;
     areaConfidenceOut << areaConfidence;
@@ -141,7 +142,10 @@ double RestorerByFrame::recoverLocation(const cv::Point2f &que_frame_center,
     {
       cv::Point2f shift;
       Transformator::getParams(homography, shift, angle, scale);
-      pos =  Transformator::transform(que_frame_center, homography);
+      cv::Point2f que_center = (que_frame_rect.tl() + que_frame_rect.br()) / 2.;
+      pos =  Transformator::transform(que_center, homography);
+
+      homography.copyTo(best_homography);
 
       matches.clear();
       for (size_t i = 0; i < homography_mask.size(); i++)
@@ -160,6 +164,8 @@ double RestorerByFrame::recoverLocation(const cv::Point2f &que_frame_center,
   maskConfidenceOut << endl;
   areaConfidenceOut << endl;
   scalesOut << endl;
+
+  best_homography.copyTo(homography);
 
   return max_confidence;
 }
@@ -180,13 +186,19 @@ double RestorerByFrame::calculateMaskConfidence() const noexcept
 }
 
 double RestorerByFrame::calculateAreaConfidence(
-    const cv::Point2f &query_frame_center, int compared_frame_num) const
+    const cv::Rect2f &query_frame_rect, int base_frame_num) const
 {
-  if (!homography.empty())
+  cv::Point2f shift(0, 0);
+  double angle = 0;
+  double scale = 0;
+  Transformator::getParams(homography, shift, angle, scale);
+
+  if (!homography.empty() &&
+      scale > 0.2 && scale < 2)
   {
-    FramePolygon query_frame_polygon = calculateFramePolygon(query_frame_center,
+    FramePolygon query_frame_polygon = calculateFramePolygon(query_frame_rect,
                                                              homography);
-    const auto &compared_frame_polygon = frames_polygons[compared_frame_num];
+    const auto &base_frame_polygon = frames_polygons[base_frame_num];
 
     //calculate intersection with QPointF
     QPolygonF query;
@@ -196,42 +208,30 @@ double RestorerByFrame::calculateAreaConfidence(
     }
     //query << utils::cv::toQPointF(query_frame_polygon[0]);
 
-    QPolygonF compared;
-    for (const auto &pt: compared_frame_polygon)
+    QPolygonF base;
+    for (const auto &pt: base_frame_polygon)
     {
-      compared << utils::cv::toQPointF(pt);
+      base << utils::cv::toQPointF(pt);
     }
     //compared << utils::cv::toQPointF(compared_frame_polygon[0]);
 
-    QPolygonF intersection = compared.intersected(query);
+    QPolygonF intersection = base.intersected(query);
 
-    std::vector<cv::Point2f> v;
+    std::vector<cv::Point2f> inter_contour;
     for (const auto &pt: intersection.toStdVector())
     {
-      v.push_back(utils::cv::toPoint2f(pt));
+      inter_contour.push_back(utils::cv::toPoint2f(pt));
     }
-    /*std::cout << "[";
-    std::copy(query_frame_polygon.begin(), query_frame_polygon.end()-1,
-              ostream_iterator<cv::Point2f>(cout, ", "));
-    std::cout << query_frame_polygon.back() << "]" << endl;
 
-    std::cout << "[";
-    std::copy(compared_frame_polygon.begin(), compared_frame_polygon.end()-1,
-              ostream_iterator<cv::Point2f>(cout, ", "));
-    std::cout << compared_frame_polygon.back() << "]" << endl;
-
-    std::cout << "[";
-    std::copy(v.begin(), v.end()-1, ostream_iterator<cv::Point2f>(cout, ", "));
-    std::cout << v.back() << "]" << endl;*/
-    if (v.size() == 0)
+    if (inter_contour.size() == 0)
     {
-      std::cout << "lol" << std::endl;
+      std::cout << "No intersection" << std::endl;
       return 0;
     }
 
 
-    double inter_area = cv::contourArea(v);
-    return inter_area / frames_area[compared_frame_num];
+    double inter_area = cv::contourArea(inter_contour);
+    return inter_area / frames_area[base_frame_num];
   }
   else
   {
@@ -243,21 +243,39 @@ RestorerByFrame::FramePolygon RestorerByFrame::calculateFramePolygon(
     const cv::Point2f &frame_center, const cv::Point2f &pos,
     double angle, double scale) const
 {
-   cv::Mat transform = Transformator::getTransformation({//transformations
-                                    Transformator::getTranslate(-frame_center),
-                                    Transformator::getRotate(angle),
-                                    Transformator::getScale(scale),
-                                    Transformator::getTranslate(pos)
-                                 });
-   return calculateFramePolygon(frame_center, transform);
+  cv::Rect2f frame_rect(cv::Point2f(0, 0), frame_center*2);
+
+  return calculateFramePolygon(frame_rect, pos, angle, scale);
 }
 
 RestorerByFrame::FramePolygon RestorerByFrame::calculateFramePolygon(
       const cv::Point2f &frame_center, const cv::Mat &homography) const
 {
-  FramePolygon result(4, cv::Point2f(0, 0));
+  cv::Rect2f frame_rect(cv::Point2f(0, 0), frame_center*2);
 
-  result[2] = frame_center*2; //yield width, height
+  return calculateFramePolygon(frame_rect, homography);
+}
+
+RestorerByFrame::FramePolygon RestorerByFrame::calculateFramePolygon(
+    const cv::Rect2f &frame_rect, const cv::Point2f &pos,
+    double angle, double scale) const
+{
+  cv::Point2f center = (frame_rect.tl() + frame_rect.br()) / 2.;
+  cv::Mat transform = Transformator::getTransformation({//transformations
+                                   Transformator::getTranslate(-center),
+                                   Transformator::getRotate(angle),
+                                   Transformator::getScale(scale),
+                                   Transformator::getTranslate(pos)
+                                });
+  return calculateFramePolygon(frame_rect, transform);
+}
+
+RestorerByFrame::FramePolygon RestorerByFrame::calculateFramePolygon(
+      const cv::Rect2f &frame_rect, const cv::Mat &homography) const
+{
+  FramePolygon result(4, frame_rect.tl());
+
+  result[2] = frame_rect.br();
   result[1].y = result[2].y;
   result[3].x = result[2].x;
 

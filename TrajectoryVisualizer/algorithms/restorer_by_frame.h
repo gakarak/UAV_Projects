@@ -27,7 +27,7 @@ public:
                 const cv::Mat &descriptions,
                 const cv::Point2f &pos, double angle, double scale) override;
 
-  double recoverLocation(const cv::Point2f &que_frame_center,
+  double recoverLocation(const cv::Rect2f &que_frame_rect,
                          cv::Point2f &pos, double &angle, double &scale) override;
 
   size_t getFramesCount() const override;
@@ -39,12 +39,17 @@ public:
 
 private:
   double calculateMaskConfidence() const noexcept;
-  double calculateAreaConfidence(const cv::Point2f &query_frame_center,
-                                 int compared_frame_num) const;
+  double calculateAreaConfidence(const cv::Rect2f &query_frame_rect,
+                                 int base_frame_num) const;
   FramePolygon calculateFramePolygon(const cv::Point2f &frame_center,
                                      const cv::Point2f &pos, double angle,
                                      double scale) const;
   FramePolygon calculateFramePolygon(const cv::Point2f &frame_center,
+                                     const cv::Mat &homography) const;
+  FramePolygon calculateFramePolygon(const cv::Rect2f &frame_rect,
+                                     const cv::Point2f &pos, double angle,
+                                     double scale) const;
+  FramePolygon calculateFramePolygon(const cv::Rect2f &frame_rect,
                                      const cv::Mat &homography) const;
 
   std::vector<char>           homography_mask;

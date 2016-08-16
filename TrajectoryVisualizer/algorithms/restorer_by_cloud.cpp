@@ -64,7 +64,7 @@ void RestorerByCloud::addFrame(const cv::Point2f &image_center,
                              pos, angle, scale);
 }
 
-double RestorerByCloud::recoverLocation(const cv::Point2f &frame_center,
+double RestorerByCloud::recoverLocation(const cv::Rect2f &frame_rect,
                                         cv::Point2f &pos,
                                         double &angle, double &scale)
 {
@@ -81,6 +81,7 @@ double RestorerByCloud::recoverLocation(const cv::Point2f &frame_center,
   }
 
   getMatcher()->match(query_descriptions, rough_matches);
+  std::cout << getMatcher()->getTrainDescriptors().size() << std::endl;
 
 
   train_pts.clear();
@@ -100,7 +101,8 @@ double RestorerByCloud::recoverLocation(const cv::Point2f &frame_center,
     cv::Point2f shift;
     Transformator::getParams(homography, shift, angle, scale);
 
-    pos =  Transformator::transform(frame_center, homography);
+    cv::Point2f que_center = (frame_rect.tl() + frame_rect.br()) / 2.;
+    pos =  Transformator::transform(que_center, homography);
 
     matches.clear();
     for (size_t i = 0; i < homography_mask.size(); i++)

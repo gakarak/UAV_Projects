@@ -23,7 +23,7 @@ public:
                 const cv::Mat &descriptions,
                 const cv::Point2f &pos, double angle, double scale) override;
 
-  double recoverLocation(const cv::Point2f &frame_center, cv::Point2f &pos,
+  double recoverLocation(const cv::Rect2f &frame_rect, cv::Point2f &pos,
                                  double &angle, double &scale) override;
 
   size_t getFramesCount() const override;

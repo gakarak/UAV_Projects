@@ -43,13 +43,28 @@ class FeatureBasedRestorer : public ILocationRestorer
                                    double &scale) override;
 
   /**
-   * @brief recoverLocation - recover with setted query requisites
+   * @brief recoverLocation - transforms frame_center to frame_rect
+   *                          and recover with frame_rect
+   * @param frame_center - center of frame in pixels, need for pos return and
+   *                       areaConfidence
    * @param pos - out position in preffered units
    * @param angle - out counterclockwise in degrees [-180; 180], 0 is east
    * @param scale - scale from pixels to preffered units
    * @return confidence (the strength of the result) [0..1]
    */
   virtual double recoverLocation(const cv::Point2f &frame_center,
+                                 cv::Point2f &pos,
+                                 double &angle, double &scale);
+
+  /**
+   * @brief recoverLocation - recover position, angle and scale of setted query
+   * @param frame_rect - need for pos return and areaConfidence
+   * @param pos - out position in preffered units
+   * @param angle - out counterclockwise in degrees [-180; 180], 0 is east
+   * @param scale - out scale from pixels to preffered units
+   * @return confidence (the strength of the result) [0..1]
+   */
+  virtual double recoverLocation(const cv::Rect2f &frame_rect,
                                  cv::Point2f &pos,
                                  double &angle, double &scale) = 0;
 
@@ -72,10 +87,10 @@ class FeatureBasedRestorer : public ILocationRestorer
   size_t        getMaxKeyPointsPerFrame() const;
 
  protected:
-  void transformKeyPointsPosition(KeyPointsList &key_points,
-                                  const cv::Point2f &image_center,
-                                  const cv::Point2f &pos,
-                                  double angle, double scale);
+  virtual void transformKeyPointsPosition(KeyPointsList &key_points,
+                                          const cv::Point2f &image_center,
+                                          const cv::Point2f &pos,
+                                          double angle, double scale);
 
   KeyPointsList               query_key_points;
   cv::Mat                     query_descriptions;
