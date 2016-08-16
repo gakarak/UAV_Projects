@@ -1,7 +1,7 @@
 #include "trajectory_recover.h"
 
 #include "transformator.h"
-#include "saveableflannmatcher.h"
+#include "saveable_flann_matcher.h"
 
 #include <chrono>
 #include <iostream>

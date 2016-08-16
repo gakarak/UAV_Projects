@@ -1,5 +1,5 @@
-#ifndef SAVEABLEFLANNMATCHER_H
-#define SAVEABLEFLANNMATCHER_H
+#ifndef SAVEABLE_FLANN_MATCHER_H
+#define SAVEABLE_FLANN_MATCHER_H
 
 #include <string>
 
@@ -41,4 +41,4 @@ class SaveableFlannMatcher : public cv::FlannBasedMatcher
   }
 };
 
-#endif // SAVEABLEFLANNMATCHER_H
+#endif // SAVEABLE_FLANN_MATCHER_H

@@ -1,5 +1,5 @@
-#ifndef RESTORERBYFRAME_H
-#define RESTORERBYFRAME_H
+#ifndef RESTORER_BY_FRAME_H
+#define RESTORER_BY_FRAME_H
 
 #include "feature_based_restorer.h"
 
@@ -60,4 +60,4 @@ private:
 
 }
 
-#endif // RESTORERBYFRAME_H
+#endif // RESTORER_BY_FRAME_H

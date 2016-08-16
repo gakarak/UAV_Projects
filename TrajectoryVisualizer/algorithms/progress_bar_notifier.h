@@ -1,5 +1,5 @@
-#ifndef PROGRESSBARNOTIFIER_H
-#define PROGRESSBARNOTIFIER_H
+#ifndef PROGRESS_BAR_NOTIFIER_H
+#define PROGRESS_BAR_NOTIFIER_H
 
 #include <tr1/functional>
 #include <string>
@@ -40,4 +40,4 @@ class ProgressBarNotifier
 
 }
 
-#endif // PROGRESSBARNOTIFIER_H
+#endif // PROGRESS_BAR_NOTIFIER_H

@@ -16,7 +16,9 @@ SOURCES += \
     $$PWD/algorithms/restorer_by_cloud.cpp \
     $$PWD/algorithms/progress_bar_notifier.cpp \
     $$PWD/algorithms/restorer_by_frame.cpp \
-    $$PWD/utils/gradient_density.cpp
+    $$PWD/utils/gradient_density.cpp \
+    $$PWD/algorithms/restorer_by_frame_blocks.cpp \
+    $$PWD/algorithms/local_restorer_by_frame.cpp
 
 HEADERS  += \
     $$PWD/utils/csv.h \
@@ -30,13 +32,15 @@ HEADERS  += \
     $$PWD/algorithms/image_info_gradient_estimator.h \
     $$PWD/algorithms/trajectory_loader.h \
     $$PWD/utils/geom_utils.h \
-    $$PWD/algorithms/saveableflannmatcher.h \
     $$PWD/algorithms/feature_based_restorer.h \
     $$PWD/algorithms/ilocation_restorer.h \
     $$PWD/algorithms/restorer_by_cloud.h \
     $$PWD/model/entities/location.h \
     $$PWD/algorithms/progress_bar_notifier.h \
-    $$PWD/algorithms/restorer_by_frame.h
+    $$PWD/algorithms/restorer_by_frame.h \
+    $$PWD/algorithms/restorer_by_frame_blocks.h \
+    $$PWD/algorithms/saveable_flann_matcher.h \
+    $$PWD/algorithms/local_restorer_by_frame.h
 
 INCLUDEPATH += /home/ar/dev/opencv-3.1/include #/home/pisarik/Libs/opencv-3.1.0-build-debug/include
 LIBS += -L/home/ar/dev/opencv-3.1/lib \ #/home/pisarik/Libs/opencv-3.1.0-build-debug/lib \
