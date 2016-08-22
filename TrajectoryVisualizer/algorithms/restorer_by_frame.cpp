@@ -193,8 +193,7 @@ double RestorerByFrame::calculateAreaConfidence(
   double scale = 0;
   Transformator::getParams(homography, shift, angle, scale);
 
-  if (!homography.empty() &&
-      scale > 0.2 && scale < 2)
+  if (!homography.empty())
   {
     FramePolygon query_frame_polygon = calculateFramePolygon(query_frame_rect,
                                                              homography);
