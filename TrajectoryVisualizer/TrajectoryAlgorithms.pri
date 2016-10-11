@@ -19,7 +19,8 @@ SOURCES += \
     $$PWD/utils/gradient_density.cpp \
     $$PWD/algorithms/restorer_by_frame_blocks.cpp \
     $$PWD/algorithms/local_restorer_by_frame.cpp \
-    $$PWD/algorithms/feature2d_manager.cpp
+    $$PWD/algorithms/feature2d_manager.cpp \
+    $$PWD/utils/image_transforms.cpp
 
 HEADERS  += \
     $$PWD/utils/csv.h \
@@ -42,7 +43,8 @@ HEADERS  += \
     $$PWD/algorithms/restorer_by_frame_blocks.h \
     $$PWD/algorithms/saveable_flann_matcher.h \
     $$PWD/algorithms/local_restorer_by_frame.h \
-    $$PWD/algorithms/feature2d_manager.h
+    $$PWD/algorithms/feature2d_manager.h \
+    $$PWD/utils/image_transforms.h
 
 INCLUDEPATH += /home/ar/dev/opencv-3.1/include #/home/pisarik/Libs/opencv-3.1.0-build-debug/include
 LIBS += -L/home/ar/dev/opencv-3.1/lib \ #/home/pisarik/Libs/opencv-3.1.0-build-debug/lib \
