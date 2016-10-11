@@ -274,8 +274,6 @@ void viewpkg::MainView::on_calc_sec_trj_btn_clicked()
 
 void viewpkg::MainView::on_match_btn_clicked()
 {
-    int descriptor_idx = ui->descriptor_combo->currentIndex();
-
     controller->calculateMatches();
 }
 

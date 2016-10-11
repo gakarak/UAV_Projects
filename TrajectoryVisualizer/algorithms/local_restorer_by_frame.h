@@ -17,9 +17,16 @@ public:
 
   void addFrame(const cv::Mat &frame,
                 const cv::Point2f &pos, double angle, double scale) override;
+  void addFrame(const cv::Mat &frame);
+
   void addFrame(const cv::Point2f &image_center,
                 const KeyPointsList &key_points, const cv::Mat &descriptions,
                 const cv::Point2f &pos, double angle, double scale) override;
+  void addFrame(const cv::Point2f &image_center,
+                const KeyPointsList &key_points, const cv::Mat &descriptions);
+
+private:
+  double free_place_x;
 };
 
 

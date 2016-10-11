@@ -167,7 +167,7 @@
              <string/>
             </property>
             <property name="text">
-             <string/>
+             <string>/home/pisarik/datasets/maps/dji/2015.09.09_SWIMMPOOL/trajectories/x1_4times/idx.txt</string>
             </property>
             <property name="placeholderText">
              <string>Trajectory #1 path to csv</string>
@@ -233,7 +233,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string/>
+             <string>/home/pisarik/datasets/maps/dji/2015.09.09_SWIMMPOOL/trajectories/x2_4times/idx.txt</string>
             </property>
             <property name="placeholderText">
              <string>Trajectory #2 path to csv</string>
@@ -554,7 +554,7 @@ QGroupBox::title {
                      <number>5</number>
                     </property>
                     <property name="value">
-                     <number>4000</number>
+                     <number>0</number>
                     </property>
                    </widget>
                   </item>
@@ -593,7 +593,7 @@ QGroupBox::title {
                      <number>5</number>
                     </property>
                     <property name="value">
-                     <number>5000</number>
+                     <number>300</number>
                     </property>
                    </widget>
                   </item>

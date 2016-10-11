@@ -25,6 +25,8 @@
 #include "algorithms/transformator.h"
 #include "algorithms/restorer_by_cloud.h"
 #include "algorithms/restorer_by_frame.h"
+#include "algorithms/local_restorer_by_frame.h"
+#include "algorithms/restorer_by_frame_blocks.h"
 
 using namespace std;
 using namespace modelpkg;
@@ -93,8 +95,22 @@ void MainController::loadOrCalculateModel(int trj_num, int algorithm_idx,
   {
     restorer = make_shared<RestorerByFrame>(detectors[detector_idx],
                                             descriptors[descriptor_idx],
-                                    cv::DescriptorMatcher::create("FlannBased"),
+                                    cv::DescriptorMatcher::create("BruteForce"),
                                             max_key_points_per_frame);
+  }
+  else if (algorithms_names[algorithm_idx] == "LocalSingle")
+  {
+    restorer = make_shared<LocalRestorerByFrame>(detectors[detector_idx],
+                                                 descriptors[descriptor_idx],
+                                    cv::DescriptorMatcher::create("FlannBased"),
+                                                 max_key_points_per_frame);
+  }
+  else if (algorithms_names[algorithm_idx] == "FrameBlocks")
+  {
+    restorer = make_shared<RestorerByFrameBlocks>(detectors[detector_idx],
+                                                 descriptors[descriptor_idx],
+                                    cv::DescriptorMatcher::create("FlannBased"),
+                                                 max_key_points_per_frame);
   }
   else
   {
@@ -481,17 +497,26 @@ void MainController::calculateFramesQuality(int trj_num)
 
   for (size_t frame_num = 0; frame_num < trj.getFramesCount(); frame_num++)
   {
-      const auto &frame = trj.getFrame(frame_num);
+    const auto &frame = trj.getFrame(frame_num);
+    double quality = 0;
 
-      double scale = frame.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
-      cv::Size new_size(frame.image.size().width * scale, frame.image.size().height * scale);
+    double scale = frame.m_per_px / ConfigSingleton::getInstance().getGradientMetersPerPixel();
+    //if (scale == )
+    cv::Size new_size(frame.image.size().width * scale, frame.image.size().height * scale);
 
+    if (new_size.area() != 0)
+    {
       cv::Mat resized;
       cv::resize(frame.image, resized, new_size);
 
-      double quality = std::min( 1., utils::cv::gradientDensity(resized) / threshold );
+      quality =  std::min( 1., utils::cv::gradientDensity(resized) / threshold );
+    }
+    else
+    {
+      std::clog << "FrameQuality: very small scale cannot be scaled to 4" << std::endl;
+    }
 
-      trj.setFrameQuality(frame_num, quality);
+    trj.setFrameQuality(frame_num, quality);
   }
 }
 
@@ -499,12 +524,14 @@ void MainController::initAlgorithms()
 {
   algorithms_names.push_back("FullTrjCloud");
   algorithms_names.push_back("SingleFrame");
+  algorithms_names.push_back("LocalSingle");
+  algorithms_names.push_back("FrameBlocks");
 }
 
 void MainController::initDetectors()
 {
     detectors_names.push_back("SIFT");
-    detectors.push_back(cv::xfeatures2d::SIFT::create(100));
+    detectors.push_back(cv::xfeatures2d::SIFT::create());
 
     detectors_names.push_back("SURF");
     detectors.push_back(cv::xfeatures2d::SURF::create());
